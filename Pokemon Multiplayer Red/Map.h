@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "ResourceCache.h"
 #include "DataBlock.h"
+#include "MapConnection.h"
 
 class Map
 {
@@ -21,6 +22,7 @@ public:
 	unsigned char border_tile;
 
 	unsigned char* tiles;
+	MapConnection north;
 
 private:
 

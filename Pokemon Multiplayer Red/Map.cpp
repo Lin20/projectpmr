@@ -16,10 +16,9 @@ Map::~Map()
 
 bool Map::Load()
 {
-	DataBlock data = ReadFile(ResourceCache::GetResourceLocation(string("maps\\").append(to_string(index).append(".dat"))).c_str());
-	if (!ParseHeader(data))
+	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("maps\\").append(to_string(index).append(".dat"))).c_str());
+	if (!ParseHeader(*data))
 		return false;
-
 	return true;
 }
 
@@ -37,5 +36,9 @@ bool Map::ParseHeader(DataBlock& data)
 	if (data.size - 3 < (unsigned int)(width * height))
 		return true;
 	memcpy(tiles, p, width * height);
+	p += width * height + 1;
+	north.map = *p++;
+	north.y_alignment = *p++;
+	north.x_alignment = *p++;
 	return true;
 }

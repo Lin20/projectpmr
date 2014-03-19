@@ -1,7 +1,6 @@
 #include "TileMap.h"
 
-
-TileMap::TileMap(sf::Texture* tiles_texture, unsigned char* formation, unsigned int t_x, unsigned char index, bool delete_tex)
+TileMap::TileMap(sf::Texture* tiles_texture, DataBlock* formation, unsigned int t_x, unsigned char index, bool delete_tex)
 {
 	tiles_tex = tiles_texture;
 	delete_texture = false;
@@ -9,11 +8,14 @@ TileMap::TileMap(sf::Texture* tiles_texture, unsigned char* formation, unsigned 
 	this->tiles_x = t_x;
 	this->index = index;
 	this->delete_texture = delete_tex;
-	sprite8x8.setTexture(*tiles_tex, true);
+	if (tiles_tex)
+		sprite8x8.setTexture(*tiles_tex, true);
 }
 
 TileMap::~TileMap()
 {
+	if (formation)
+		delete formation;
 }
 
 void TileMap::Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y)
@@ -25,7 +27,7 @@ void TileMap::Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned in
 	{
 		for (unsigned int x = 0; x < tile_size_x; x++)
 		{
-			unsigned char t = (formation != 0 ? formation[tile * tile_size_x * tile_size_y + y * tile_size_x + x] : tile * tile_size_x * tile_size_y + y * tile_size_x + x);
+			unsigned char t = (formation ? formation->data[tile * tile_size_x * tile_size_y + y * tile_size_x + x] : tile * tile_size_x * tile_size_y + y * tile_size_x + x);
 			src_rect.left = (t % tiles_x) * 8;
 			src_rect.top = (t / tiles_x) * 8;
 			sprite8x8.setTextureRect(src_rect);

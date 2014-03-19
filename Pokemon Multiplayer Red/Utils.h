@@ -4,4 +4,4 @@
 #include <iostream>
 #include "DataBlock.h"
 
-DataBlock ReadFile(const char* filename);
+DataBlock* ReadFile(const char* filename);

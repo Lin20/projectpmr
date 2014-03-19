@@ -6,6 +6,11 @@ ResourceCache::ResourceCache()
 
 ResourceCache::~ResourceCache()
 {
+	for (int i = 0; i < 24; i++)
+	{
+		if (tilesets[i])
+			delete tilesets[i];
+	}
 }
 
 void ResourceCache::LoadAll()
@@ -16,5 +21,5 @@ void ResourceCache::LoadAll()
 void ResourceCache::LoadTilesets()
 {
 	for (int i = 0; i < 24; i++)
-		tilesets[i].loadFromFile(GetResourceLocation(string("tilesets\\").append(to_string(i).append(".png"))));
+		tilesets[i] = new Tileset(i);
 }
