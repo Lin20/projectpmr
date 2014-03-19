@@ -11,7 +11,7 @@ using namespace std;
 
 int main()
 {
-	Map map(24);
+	Map map(10);
 	map.Load();
 	Map north(map.connections[0].map);
 	north.Load();
@@ -21,7 +21,8 @@ int main()
 	east.Load();
 	Map west(map.connections[3].map);
 	west.Load();
-
+	ResourceCache cache;
+	cache.LoadAll();
 	sf::RenderWindow window(sf::VideoMode(1024, 1024), "SFML works!");
 	Tileset tileset(map.tileset);
 
