@@ -3,6 +3,6 @@
 struct MapConnection
 {
 	unsigned char map;
-	unsigned char x_alignment;
-	unsigned char y_alignment;
+	signed char x_alignment;
+	signed char y_alignment;
 };

@@ -26,7 +26,7 @@ bool Map::ParseHeader(DataBlock& data)
 {
 	if (data.size < 3)
 		return false;
-	
+
 	unsigned char* p = data.data;
 	tileset = *p++;
 	height = *p++;
@@ -36,9 +36,21 @@ bool Map::ParseHeader(DataBlock& data)
 	if (data.size - 3 < (unsigned int)(width * height))
 		return true;
 	memcpy(tiles, p, width * height);
-	p += width * height + 1;
-	north.map = *p++;
-	north.y_alignment = *p++;
-	north.x_alignment = *p++;
+	p += width * height;
+
+	connection_mask = *p++;
+	for (int b = 3; b >= 0; b--)
+	{
+		if ((connection_mask & (1 << b)) != 0)
+		{
+			connections[3 - b].map = *p++;
+			connections[3 - b].y_alignment = *p++;
+			if (connections[3 - b].y_alignment < 0)
+				connections[3 - b].y_alignment -= 2;
+			connections[3 - b].x_alignment = *p++;
+			if (connections[3 - b].x_alignment < 0)
+				connections[3 - b].x_alignment -= 2;
+		}
+	}
 	return true;
 }

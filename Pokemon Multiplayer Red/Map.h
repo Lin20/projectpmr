@@ -22,10 +22,12 @@ public:
 	unsigned char border_tile;
 
 	unsigned char* tiles;
-	MapConnection north;
+	MapConnection connections[4];
+
+	inline bool HasConnection(unsigned char e) { return (connection_mask & (1 << (3 - e))) != 0; }
 
 private:
-
+	unsigned char connection_mask;
 	bool ParseHeader(DataBlock& data);
 };
 
