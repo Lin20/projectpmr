@@ -2,16 +2,22 @@
 #include <iostream>
 
 #include <SFML/Graphics.hpp>
+#include "Common.h"
+#include "Constants.h"
 #include "TileMap.h"
 #include "Map.h"
 #include "Tileset.h"
 #include "MapConnection.h"
 
+#include "Engine.h"
+
 using namespace std;
 
 int main()
 {
-	Map map(10);
+	Engine engine;
+	
+	/*Map map(10);
 	map.Load();
 	Map north(map.connections[0].map);
 	north.Load();
@@ -23,8 +29,8 @@ int main()
 	west.Load();
 	ResourceCache cache;
 	cache.LoadAll();
-	sf::RenderWindow window(sf::VideoMode(1024, 1024), "SFML works!");
-	Tileset tileset(map.tileset);
+	Tileset tileset(map.tileset);*/
+	sf::RenderWindow window(sf::VideoMode(VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16), "SFML works!");
 
 	window.setFramerateLimit(60);
 
@@ -38,7 +44,9 @@ int main()
 		}
 
 		window.clear();
-		for (int x = 0; x < map.width; x++)
+		engine.Update();
+		engine.Render(&window);
+		/*for (int x = 0; x < map.width; x++)
 		for (int y = 0; y < map.height; y++)
 			tileset.Draw(&window, x + 4, y + 4, map.tiles[y*map.width + x], 4, 4);
 		if (map.HasConnection(0))
@@ -72,7 +80,7 @@ int main()
 			{
 				tileset.Draw(&window, x + map.width + 4, y - (map.connections[3].y_alignment + 1) / 2 + 4, west.tiles[y*west.width + x], 4, 4);
 			}
-		}
+		}*/
 		window.display();
 	}
 

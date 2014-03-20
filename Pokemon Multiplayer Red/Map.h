@@ -10,10 +10,11 @@
 class Map
 {
 public:
+	Map();
 	Map(unsigned char index);
 	~Map();
 
-	bool Load();
+	bool Load(bool only_load_tiles = false);
 
 	unsigned char index;
 	unsigned char width;
@@ -23,11 +24,12 @@ public:
 
 	unsigned char* tiles;
 	MapConnection connections[4];
+	Map* connected_maps[4];
 
 	inline bool HasConnection(unsigned char e) { return (connection_mask & (1 << (3 - e))) != 0; }
 
 private:
 	unsigned char connection_mask;
-	bool ParseHeader(DataBlock& data);
+	bool ParseHeader(DataBlock& data, bool only_load_tiles = false);
 };
 

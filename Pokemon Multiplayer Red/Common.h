@@ -1,3 +1,5 @@
+#pragma once
+
 class Map;
 class ResourceCache;
 class TileMap;
@@ -9,3 +11,5 @@ class MapScene;
 
 struct DataBlock;
 struct MapConnection;
+
+enum States;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common.h"
-#include "GameStates.h"
+#include "Constants.h"
 #include "Scene.h"
 #include "MapScene.h"
 
@@ -24,4 +24,3 @@ private:
 
 	States game_state;
 };
-

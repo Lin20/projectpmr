@@ -31,7 +31,7 @@ void TileMap::Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned in
 			src_rect.left = (t % tiles_x) * 8;
 			src_rect.top = (t / tiles_x) * 8;
 			sprite8x8.setTextureRect(src_rect);
-			sprite8x8.setPosition((float)(dest_x * 8 * tile_size_x + x * 8), (float)(dest_y * 8 * tile_size_y + y * 8));
+			sprite8x8.setPosition((float)(int)(dest_x * 8 * (int)tile_size_x + x * 8), (float)(int)(dest_y * 8 * (int)tile_size_y + y * 8));
 			window->draw(sprite8x8);
 		}
 	}

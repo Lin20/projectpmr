@@ -33,5 +33,6 @@ public:
 
 private:
 	Tileset* tilesets[24];
+	sf::Texture water_tile;
 };
 

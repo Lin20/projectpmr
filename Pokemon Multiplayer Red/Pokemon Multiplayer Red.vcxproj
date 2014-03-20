@@ -90,7 +90,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="DataBlock.h" />
     <ClInclude Include="Engine.h" />
-    <ClInclude Include="GameStates.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapConnection.h" />
     <ClInclude Include="MapScene.h" />
