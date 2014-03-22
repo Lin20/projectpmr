@@ -2,10 +2,21 @@
 
 Tileset::Tileset(unsigned char index) : TileMap()
 {
+	Load(index);
+}
+
+Tileset::~Tileset()
+{
+	if (misc_data)
+		delete misc_data;
+}
+
+void Tileset::Load(unsigned char index)
+{
 	tiles_tex = new sf::Texture();
 	tiles_tex->loadFromFile(ResourceCache::GetResourceLocation(string("tilesets\\").append(to_string(index)).append(".png")));
 	water_tile.loadFromFile(ResourceCache::GetResourceLocation(string("tilesets\\water\\").append(to_string(index)).append(".png")));
- 	formation = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\formation\\").append(to_string(index)).append(".dat")).c_str());
+	formation = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\formation\\").append(to_string(index)).append(".dat")).c_str());
 	misc_data = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\misc\\").append(to_string(index)).append(".dat")).c_str());
 
 	tiles_x = 16;
@@ -14,12 +25,7 @@ Tileset::Tileset(unsigned char index) : TileMap()
 
 	sprite8x8.setTexture(*tiles_tex);
 	water8x8.setTexture(water_tile);
-}
-
-Tileset::~Tileset()
-{
-	if (misc_data)
-		delete misc_data;
+	flower8x8.setTexture(*ResourceCache::GetFlowerTexture());
 }
 
 void Tileset::Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y)
@@ -34,12 +40,20 @@ void Tileset::Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned in
 		for (unsigned int x = 0; x < tile_size_x; x++)
 		{
 			unsigned char t = (formation ? formation->data[tile * tile_size_x * tile_size_y + y * tile_size_x + x] : tile * tile_size_x * tile_size_y + y * tile_size_x + x);
-			if (this->misc_data->data[4] && t == WATER_TILE)
+			if (t == WATER_TILE && this->misc_data->data[4])
 			{
 				sprite = &water8x8;
-				src_rect.left = (water_animation_stage / 21) * 8;
-				if (water_animation_stage / 21 > 3)
-					src_rect.left = (8 - (water_animation_stage / 21)) * 8;
+				src_rect.left = (water_animation_stage / ANIMATION_TIMER) * 8;
+				if (water_animation_stage / ANIMATION_TIMER > 3)
+					src_rect.left = (8 - (water_animation_stage / ANIMATION_TIMER)) * 8;
+				src_rect.top = 0;
+			}
+			else if (t == FLOWER_TILE && this->misc_data->data[4] & 2)
+			{
+				sprite = &flower8x8;
+				src_rect.left = ((water_animation_stage / ANIMATION_TIMER) % 4 - 1) * 8;
+				if (src_rect.left < 0)
+					src_rect.left = 0;
 				src_rect.top = 0;
 			}
 			else
@@ -58,6 +72,6 @@ void Tileset::Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned in
 void Tileset::AnimateWater()
 {
 	water_animation_stage++;
-	if (water_animation_stage >= 168)
+	if (water_animation_stage >= ANIMATION_TIMER * 8)
 		water_animation_stage = 0;
 }

@@ -6,7 +6,7 @@ enum States
 	OVERWORLD_MENU
 };
 
-#define STARTING_MAP	94
+#define STARTING_MAP	0
 #define STARTING_X		5
 #define STARTING_Y		5
 
@@ -19,6 +19,8 @@ enum States
 #define CONNECTION_EAST		3
 
 #define WATER_TILE 20
+#define FLOWER_TILE 3
+#define ANIMATION_TIMER 22
 
 #define ENTITY_LIMIT		60
 #define ENTITY_WALKSTART	12

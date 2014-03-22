@@ -5,7 +5,7 @@ Engine::Engine()
 	resources.LoadAll();
 
 	//Initialize the scenes
-	map_scene = new MapScene(&resources);
+	map_scene = new MapScene();
 	
 	SwitchState(States::OVERWORLD);
 }

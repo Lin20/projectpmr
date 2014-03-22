@@ -3,10 +3,10 @@
 #include "TileMap.h"
 #include "ResourceCache.h"
 
-class OverworldEntity : TileMap
+class OverworldEntity : public TileMap
 {
 public:
-	OverworldEntity(ResourceCache& resources, unsigned char index, unsigned char x, unsigned char y, unsigned int direction);
+	OverworldEntity(unsigned char index, unsigned char x, unsigned char y, unsigned int direction);
 	~OverworldEntity();
 
 	void Update();

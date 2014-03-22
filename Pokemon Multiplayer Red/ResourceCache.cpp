@@ -1,5 +1,9 @@
 #include "ResourceCache.h"
 
+Tileset* ResourceCache::tilesets[24];
+sf::Texture* ResourceCache::entity_textures[73];
+sf::Texture* ResourceCache::flower_texture;
+
 ResourceCache::ResourceCache()
 {
 }
@@ -17,6 +21,8 @@ ResourceCache::~ResourceCache()
 		if (entity_textures[i])
 			delete entity_textures[i];
 	}
+	if (flower_texture)
+		delete flower_texture;
 }
 
 void ResourceCache::LoadAll()
@@ -38,6 +44,8 @@ void ResourceCache::LoadTilesets()
 #ifdef _DEBUG
 	cout << "--Loading tilesets...";
 #endif
+	flower_texture = new sf::Texture();
+	flower_texture->loadFromFile(ResourceCache::GetResourceLocation(string("tilesets\\flower.png")));
 	for (int i = 0; i < 24; i++)
 	{
 		tilesets[i] = new Tileset(i);

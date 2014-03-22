@@ -1,7 +1,7 @@
 #include "MapScene.h"
 
 
-MapScene::MapScene(ResourceCache* r) : Scene(r)
+MapScene::MapScene() : Scene()
 {
 	active_map = 0;
 
@@ -61,7 +61,7 @@ void MapScene::Update()
 
 
 
-	Tileset* tex = resources->GetTileset(active_map->tileset);
+	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
 	tex->AnimateWater();
 }
 
@@ -82,6 +82,9 @@ void MapScene::Render(sf::RenderWindow* window)
 			}
 		}
 	}
+
+	OverworldEntity o(1, 5, 5, 0);
+	o.Draw(window, 5, 6, 0, 2, 2);
 }
 
 void MapScene::SwitchMap(unsigned char index)
@@ -153,7 +156,7 @@ void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index,
 		break;
 	}
 
-	Tileset* tileset = resources->GetTileset(map.tileset); //isn't it great having the textures be small and cached so we don't have to worry about loading once and passing them around? :D
+	Tileset* tileset = ResourceCache::GetTileset(map.tileset); //isn't it great having the textures be small and cached so we don't have to worry about loading once and passing them around? :D
 
 	for (int x = startX - 1; x <= endX; x++)
 	{

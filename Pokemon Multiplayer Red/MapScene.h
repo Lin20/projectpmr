@@ -3,11 +3,12 @@
 #include "Constants.h"
 #include "Scene.h"
 #include "Map.h"
+#include "OverworldEntity.h"
 
 class MapScene : public Scene
 {
 public:
-	MapScene(ResourceCache* r);
+	MapScene();
 	~MapScene();
 
 	void Update() override;

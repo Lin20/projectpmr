@@ -20,27 +20,30 @@ public:
 	ResourceCache();
 	~ResourceCache();
 
-	void LoadAll();
-	void LoadTilesets();
-	void LoadEntities();
+	static void LoadAll();
+	static void LoadTilesets();
+	static void LoadEntities();
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 
-	inline Tileset* GetTileset(unsigned char index) 
+	inline static Tileset* GetTileset(unsigned char index) 
 	{
 		if (index >= 24)
 			return 0;
 		return tilesets[index];
 	}
 
-	inline sf::Texture* GetEntityTexture(unsigned char index)
+	inline static sf::Texture* GetEntityTexture(unsigned char index)
 	{
 		if (index >= 73)
 			return 0;
 		return entity_textures[index];
 	}
 
+	inline static sf::Texture* GetFlowerTexture() { return flower_texture; }
+
 private:
-	Tileset* tilesets[24];
-	sf::Texture* entity_textures[73];
+	static Tileset* tilesets[24];
+	static sf::Texture* entity_textures[73];
+	static sf::Texture* flower_texture;
 };
 

@@ -1,9 +1,8 @@
 #include "Scene.h"
 
 
-Scene::Scene(ResourceCache* r)
+Scene::Scene()
 {
-	resources = r;
 }
 
 Scene::~Scene()
