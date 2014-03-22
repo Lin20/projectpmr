@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "Common.h"
 #include "Constants.h"
 #include "TileMap.h"
@@ -17,20 +18,8 @@ int main()
 {
 	Engine engine;
 	
-	/*Map map(10);
-	map.Load();
-	Map north(map.connections[0].map);
-	north.Load();
-	Map south(map.connections[1].map);
-	south.Load();
-	Map east(map.connections[2].map);
-	east.Load();
-	Map west(map.connections[3].map);
-	west.Load();
-	ResourceCache cache;
-	cache.LoadAll();
-	Tileset tileset(map.tileset);*/
 	sf::RenderWindow window(sf::VideoMode(VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16), "SFML works!");
+
 
 	window.setFramerateLimit(60);
 

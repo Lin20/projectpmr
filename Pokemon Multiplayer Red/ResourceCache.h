@@ -22,6 +22,7 @@ public:
 
 	void LoadAll();
 	void LoadTilesets();
+	void LoadEntities();
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 
 	inline Tileset* GetTileset(unsigned char index) 
@@ -31,8 +32,15 @@ public:
 		return tilesets[index];
 	}
 
+	inline sf::Texture* GetEntityTexture(unsigned char index)
+	{
+		if (index >= 73)
+			return 0;
+		return entity_textures[index];
+	}
+
 private:
 	Tileset* tilesets[24];
-	sf::Texture water_tile;
+	sf::Texture* entity_textures[73];
 };
 

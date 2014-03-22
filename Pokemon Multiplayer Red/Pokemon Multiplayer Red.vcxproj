@@ -55,7 +55,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -78,6 +78,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapScene.cpp" />
+    <ClCompile Include="OverworldEntity.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Startup.cpp" />
@@ -91,9 +92,11 @@
     <ClInclude Include="DataBlock.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="LoopableMusic.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapConnection.h" />
     <ClInclude Include="MapScene.h" />
+    <ClInclude Include="OverworldEntity.h" />
     <ClInclude Include="Rendering.h" />
     <ClInclude Include="ResourceCache.h" />
     <ClInclude Include="Scene.h" />

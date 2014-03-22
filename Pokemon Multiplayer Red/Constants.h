@@ -6,9 +6,9 @@ enum States
 	OVERWORLD_MENU
 };
 
-#define STARTING_MAP	10
-#define STARTING_X		0
-#define STARTING_Y		0
+#define STARTING_MAP	94
+#define STARTING_X		5
+#define STARTING_Y		5
 
 #define VIEWPORT_WIDTH	20
 #define VIEWPORT_HEIGHT	18
@@ -19,3 +19,10 @@ enum States
 #define CONNECTION_EAST		3
 
 #define WATER_TILE 20
+
+#define ENTITY_LIMIT		60
+#define ENTITY_WALKSTART	12
+#define ENTITY_DOWN			0
+#define ENTITY_UP			1
+#define ENTITY_LEFT			2
+#define ENTITY_RIGHT		3

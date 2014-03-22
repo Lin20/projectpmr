@@ -5,7 +5,7 @@ MapScene::MapScene(ResourceCache* r) : Scene(r)
 {
 	active_map = 0;
 
-	Focus(5, 0); //Focus(STARTING_X, STARTING_Y);
+	Focus(STARTING_X, STARTING_Y);
 	SwitchMap(STARTING_MAP);
 }
 
@@ -61,7 +61,7 @@ void MapScene::Update()
 
 
 
-	Tileset* tex = resources->GetTileset(0);
+	Tileset* tex = resources->GetTileset(active_map->tileset);
 	tex->AnimateWater();
 }
 
@@ -117,7 +117,7 @@ void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index,
 
 	switch (connection_index)
 	{
-	case CONNECTION_NORTH: //north
+	case CONNECTION_NORTH:
 		startX += (connection->x_alignment + 1) / 2;
 		endX += (connection->x_alignment + 1) / 2;
 		startY += ((unsigned char)connection->y_alignment + 1) / 2;
@@ -125,7 +125,7 @@ void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index,
 
 		endY = min(endY, map.height - 1);
 		break;
-	case CONNECTION_SOUTH: //south
+	case CONNECTION_SOUTH:
 		startX += (connection->x_alignment + 1) / 2;
 		endX += (connection->x_alignment + 1) / 2;
 		startY += ((unsigned char)connection->y_alignment + 1) / 2;
@@ -134,7 +134,7 @@ void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index,
 		startY -= active_map->height;
 		endY -= active_map->height;
 		break;
-	case CONNECTION_WEST: //west
+	case CONNECTION_WEST:
 		startX += ((unsigned char)connection->x_alignment + 1) / 2;
 		endX += ((unsigned char)connection->x_alignment + 1) / 2;
 		startY += (connection->y_alignment + 1) / 2;
@@ -142,7 +142,7 @@ void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index,
 
 		endX = min(endX, map.width - 1);
 		break;
-	case CONNECTION_EAST: //west
+	case CONNECTION_EAST:
 		startX += ((unsigned char)connection->x_alignment + 1) / 2;
 		endX += ((unsigned char)connection->x_alignment + 1) / 2;
 		startY += (connection->y_alignment + 1) / 2;
