@@ -9,8 +9,13 @@ public:
 	PaletteTexture(const char* filename = 0);
 	~PaletteTexture();
 
-	sf::Texture& GetTexture() { return underlying_texture; }
+	bool loadFromFile(const std::string& filename);
 	void SetPalette(const sf::Color new_palette[]);
+
+	//Allow implicit casting to sf::Texture so we don't need to use GetTexture() all the time
+	operator sf::Texture&() { return underlying_texture; }
+
+	sf::Texture& GetTexture() { return underlying_texture; }
 
 private:
 	sf::Texture underlying_texture;

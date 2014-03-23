@@ -5,6 +5,7 @@
 
 #include "Common.h"
 #include "Tileset.h"
+#include "PaletteTexture.h"
 
 #ifdef _DEBUG
 #include <iostream>
@@ -32,18 +33,18 @@ public:
 		return tilesets[index];
 	}
 
-	inline static sf::Texture* GetEntityTexture(unsigned char index)
+	inline static PaletteTexture* GetEntityTexture(unsigned char index)
 	{
 		if (index >= 73)
 			return 0;
 		return entity_textures[index];
 	}
 
-	inline static sf::Texture* GetFlowerTexture() { return flower_texture; }
+	inline static PaletteTexture* GetFlowerTexture() { return flower_texture; }
 
 private:
 	static Tileset* tilesets[24];
-	static sf::Texture* entity_textures[73];
-	static sf::Texture* flower_texture;
+	static PaletteTexture* entity_textures[73];
+	static PaletteTexture* flower_texture;
 };
 

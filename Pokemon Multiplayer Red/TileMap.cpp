@@ -1,6 +1,6 @@
 #include "TileMap.h"
 
-TileMap::TileMap(sf::Texture* tiles_texture, DataBlock* formation, unsigned int t_x, unsigned char index, bool delete_tex)
+TileMap::TileMap(PaletteTexture* tiles_texture, DataBlock* formation, unsigned int t_x, unsigned char index, bool delete_tex)
 {
 	tiles_tex = tiles_texture;
 	delete_texture = false;

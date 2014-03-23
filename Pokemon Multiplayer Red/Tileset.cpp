@@ -13,7 +13,7 @@ Tileset::~Tileset()
 
 void Tileset::Load(unsigned char index)
 {
-	tiles_tex = new sf::Texture();
+	tiles_tex = new PaletteTexture();
 	tiles_tex->loadFromFile(ResourceCache::GetResourceLocation(string("tilesets\\").append(to_string(index)).append(".png")));
 	water_tile.loadFromFile(ResourceCache::GetResourceLocation(string("tilesets\\water\\").append(to_string(index)).append(".png")));
 	formation = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\formation\\").append(to_string(index)).append(".dat")).c_str());
@@ -23,8 +23,8 @@ void Tileset::Load(unsigned char index)
 	this->index = index;
 	delete_texture = true;
 
-	sprite8x8.setTexture(*tiles_tex);
-	water8x8.setTexture(water_tile);
+	sprite8x8.setTexture(tiles_tex->GetTexture());
+	water8x8.setTexture(water_tile.GetTexture());
 	flower8x8.setTexture(*ResourceCache::GetFlowerTexture());
 }
 
@@ -74,4 +74,11 @@ void Tileset::AnimateWater()
 	water_animation_stage++;
 	if (water_animation_stage >= ANIMATION_TIMER * 8)
 		water_animation_stage = 0;
+}
+
+void Tileset::SetPalette(sf::Color palette[])
+{
+	water_tile.SetPalette(palette);
+	tiles_tex->SetPalette(palette);
+	ResourceCache::GetFlowerTexture()->SetPalette(palette);
 }

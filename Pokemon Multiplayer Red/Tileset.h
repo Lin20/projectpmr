@@ -4,6 +4,7 @@
 #include "ResourceCache.h"
 #include "Utils.h"
 #include "Constants.h"
+#include "PaletteTexture.h"
 
 class Tileset : public TileMap
 {
@@ -16,9 +17,10 @@ public:
 	void Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y);
 
 	void AnimateWater();
+	void SetPalette(sf::Color palette[]);
 
 protected:
-	sf::Texture water_tile;
+	PaletteTexture water_tile;
 	sf::Sprite water8x8;
 	sf::Sprite flower8x8;
 	DataBlock* misc_data;

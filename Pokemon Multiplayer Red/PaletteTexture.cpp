@@ -10,12 +10,7 @@ PaletteTexture::PaletteTexture(const char* filename)
 	palette[3] = DEFAULT_PALETTE_3;
 	if (filename)
 	{
-		sf::Image temp;
-		temp.loadFromFile(filename);
-		underlying_texture.loadFromImage(temp);
-		size = temp.getSize();
-		pixels = new sf::Uint8[size.x * size.y * 4];
-		memcpy(pixels, temp.getPixelsPtr(), size.x * size.y * 4);
+		loadFromFile(filename);
 	}
 }
 
@@ -23,6 +18,18 @@ PaletteTexture::~PaletteTexture()
 {
 	if (pixels)
 		delete[] pixels;
+}
+
+bool PaletteTexture::loadFromFile(const std::string& filename)
+{
+	sf::Image temp;
+	if (!temp.loadFromFile(filename))
+		return false;
+	underlying_texture.loadFromImage(temp);
+	size = temp.getSize();
+	pixels = new sf::Uint8[size.x * size.y * 4];
+	memcpy(pixels, temp.getPixelsPtr(), size.x * size.y * 4);
+	return true;
 }
 
 void PaletteTexture::SetPalette(const sf::Color new_palette[])
@@ -73,5 +80,6 @@ void PaletteTexture::SetPalette(const sf::Color new_palette[])
 		}
 	}
 
+	memcpy(palette, new_palette, sizeof(sf::Color) * 4);
 	underlying_texture.update(pixels);
 }
