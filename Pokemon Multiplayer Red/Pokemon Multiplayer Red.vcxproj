@@ -79,6 +79,7 @@
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapScene.cpp" />
     <ClCompile Include="OverworldEntity.cpp" />
+    <ClCompile Include="PaletteTexture.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Startup.cpp" />
@@ -97,6 +98,7 @@
     <ClInclude Include="MapConnection.h" />
     <ClInclude Include="MapScene.h" />
     <ClInclude Include="OverworldEntity.h" />
+    <ClInclude Include="PaletteTexture.h" />
     <ClInclude Include="Rendering.h" />
     <ClInclude Include="ResourceCache.h" />
     <ClInclude Include="Scene.h" />

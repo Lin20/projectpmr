@@ -7,12 +7,18 @@ MapScene::MapScene() : Scene()
 
 	Focus(STARTING_X, STARTING_Y);
 	SwitchMap(STARTING_MAP);
+	test = new PaletteTexture("C:\\red dumps\\tilesets\\0.png");
+	sf::Color palette[4] { sf::Color::Red, sf::Color::Green, sf::Color::Blue, sf::Color::Yellow };
+	test->SetPalette(palette);
+	testsprite.setTexture(test->GetTexture());
+	testsprite.setPosition(0, 0);
 }
 
 MapScene::~MapScene()
 {
 	if (active_map)
 		delete active_map;
+	delete test;
 }
 
 /// <summary>
@@ -83,8 +89,9 @@ void MapScene::Render(sf::RenderWindow* window)
 		}
 	}
 
-	OverworldEntity o(1, 5, 5, 0);
-	o.Draw(window, 5, 6, 0, 2, 2);
+	//OverworldEntity o(1, 5, 5, 0);
+	//o.Draw(window, 5, 6, 0, 2, 2);
+	window->draw(testsprite);
 }
 
 void MapScene::SwitchMap(unsigned char index)

@@ -28,3 +28,9 @@ enum States
 #define ENTITY_UP			1
 #define ENTITY_LEFT			2
 #define ENTITY_RIGHT		3
+
+//#define DEFAULT_PALETTE { sf::Color(255, 255, 255, 255), sf::Color(168, 168, 168, 255), sf::Color(96, 96, 96, 255), sf::Color(0, 0, 0, 255)}
+#define DEFAULT_PALETTE_0 sf::Color(255, 255, 255, 255)
+#define DEFAULT_PALETTE_1 sf::Color(168, 168, 168, 255)
+#define DEFAULT_PALETTE_2 sf::Color(96, 96, 96, 255)
+#define DEFAULT_PALETTE_3 sf::Color(0, 0, 0, 255)

@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "Map.h"
 #include "OverworldEntity.h"
+#include "PaletteTexture.h"
 
 class MapScene : public Scene
 {
@@ -24,5 +25,8 @@ public:
 private:
 	Map* active_map;
 	sf::View viewport; //this is declared here because the maps are only places where the camera scrolls
+
+	PaletteTexture* test;
+	sf::Sprite testsprite;
 };
 
