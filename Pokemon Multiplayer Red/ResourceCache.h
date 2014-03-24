@@ -24,6 +24,7 @@ public:
 	static void LoadAll();
 	static void LoadTilesets();
 	static void LoadEntities();
+	static void LoadPalettes();
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 
 	inline static Tileset* GetTileset(unsigned char index) 
@@ -42,9 +43,23 @@ public:
 
 	inline static PaletteTexture* GetFlowerTexture() { return flower_texture; }
 
+	static sf::Color* GetPalette(unsigned char index)
+	{
+		return &overworld_palettes[(index % 64) * 4];
+	}
+
+	inline static unsigned char GetMapPaletteIndex(unsigned char index)
+	{
+		if (map_palette_indexes)
+			return map_palette_indexes->data[index];
+		return 0xFF;
+	}
+
 private:
 	static Tileset* tilesets[24];
 	static PaletteTexture* entity_textures[73];
 	static PaletteTexture* flower_texture;
+	static sf::Color overworld_palettes[64];
+	static DataBlock* map_palette_indexes;
 };
 

@@ -30,6 +30,6 @@ public:
 
 private:
 	unsigned char connection_mask;
-	bool ParseHeader(DataBlock& data, bool only_load_tiles = false);
+	bool ParseHeader(DataBlock* data, bool only_load_tiles = false);
 };
 

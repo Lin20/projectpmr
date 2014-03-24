@@ -3,6 +3,8 @@
 Tileset* ResourceCache::tilesets[24];
 PaletteTexture* ResourceCache::entity_textures[73];
 PaletteTexture* ResourceCache::flower_texture;
+sf::Color ResourceCache::overworld_palettes[64];
+DataBlock* ResourceCache::map_palette_indexes;
 
 ResourceCache::ResourceCache()
 {
@@ -33,6 +35,7 @@ void ResourceCache::LoadAll()
 
 	LoadTilesets();
 	LoadEntities();
+	LoadPalettes();
 
 #ifdef _DEBUG
 	cout << "Done\n";
@@ -64,6 +67,25 @@ void ResourceCache::LoadEntities()
 	{
 		entity_textures[i] = new PaletteTexture();
 		entity_textures[i]->loadFromFile(ResourceCache::GetResourceLocation(string("npcs\\").append(to_string(i)).append(".png")));
+	}
+#ifdef _DEBUG
+	cout << "Done\n";
+#endif
+}
+
+void ResourceCache::LoadPalettes()
+{
+#ifdef _DEBUG
+	cout << "--Loading palettes...";
+#endif
+	map_palette_indexes = ReadFile(ResourceCache::GetResourceLocation(string("pal\\map_index.dat")).c_str());
+	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("pal\\main.dat")).c_str());
+	for (int i = 0; i < 64; i++)
+	{
+		unsigned char r = *data->data++;
+		unsigned char g = *data->data++;
+		unsigned char b = *data->data++;
+		overworld_palettes[i] = sf::Color(r * 8, g * 8, b * 8, 255);
 	}
 #ifdef _DEBUG
 	cout << "Done\n";

@@ -28,5 +28,7 @@ private:
 
 	PaletteTexture* test;
 	sf::Sprite testsprite;
+
+	bool key_down;
 };
 

@@ -24,23 +24,23 @@ Map::~Map()
 bool Map::Load(bool only_load_tiles)
 {
 	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("maps\\").append(to_string(index).append(".dat"))).c_str());
-	if (!ParseHeader(*data, only_load_tiles))
+	if (!ParseHeader(data, only_load_tiles))
 		return false;
 	return true;
 }
 
-bool Map::ParseHeader(DataBlock& data, bool only_load_tiles)
+bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 {
-	if (data.size < 3)
+	if (!data || data->size < 3)
 		return false;
 
-	unsigned char* p = data.data;
+	unsigned char* p = data->data;
 	tileset = *p++;
 	height = *p++;
 	width = *p++;
 
 	tiles = new unsigned char[width * height];
-	if (data.size - 3 < (unsigned int)(width * height))
+	if (data->size - 3 < (unsigned int)(width * height))
 		return true;
 	memcpy(tiles, p, width * height);
 	if (only_load_tiles)

@@ -21,14 +21,29 @@ MapScene::~MapScene()
 /// </summary>
 void MapScene::Update()
 {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !key_down)
+	{
+		key_down = true;
+		SwitchMap((active_map->index + 1) % 256);
+		return;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && !key_down)
+	{
+		key_down = true;
+		SwitchMap((active_map->index + 255) % 256);
+		return;
+	}
+	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
+		key_down = false;
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-		viewport.move(-4, 0);
+		viewport.move(-8, 0);
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		viewport.move(4, 0);
+		viewport.move(8, 0);
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-		viewport.move(0, -4);
+		viewport.move(0, -8);
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		viewport.move(0, 4);
+		viewport.move(0, 8);
 
 	int x = viewport.getCenter().x;
 	int y = viewport.getCenter().y;
@@ -59,11 +74,9 @@ void MapScene::Update()
 		FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, -16);
 	}
 
-
-
-
 	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
-	tex->AnimateWater();
+	if (tex)
+		tex->AnimateWater();
 }
 
 void MapScene::Render(sf::RenderWindow* window)
@@ -90,20 +103,40 @@ void MapScene::Render(sf::RenderWindow* window)
 
 void MapScene::SwitchMap(unsigned char index)
 {
+	unsigned char previous_palette = 0;
 	if (!active_map)
 		active_map = new Map(index);
 	else
+	{
+		previous_palette = ResourceCache::GetMapPaletteIndex(active_map->index);
 		active_map->index = index;
+	}
 	if (!active_map->Load())
 	{
 #ifdef _DEBUG
 		cout << "FATAL: Failed to load map " << index << "!";
+		return;
 #endif
 	}
 
-	sf::Color pal[4] = { sf::Color(31 * 8, 29 * 8, 31 * 8, 255), sf::Color(25 * 8, 28 * 8, 27 * 8, 255), sf::Color(20 * 8, 26 * 8, 31 * 8, 255), sf::Color(3 * 8, 2 * 8, 2 * 8, 255) };
-	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
-	tex->SetPalette(pal);
+	unsigned char pal_index = ResourceCache::GetMapPaletteIndex(index);
+	if (pal_index == 0xFF) //0xFF means keep the previous palette
+		pal_index = ResourceCache::GetMapPaletteIndex(previous_palette);
+	if (pal_index != 0xFF)
+	{
+		sf::Color* pal = ResourceCache::GetPalette(pal_index);
+		Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
+
+		if (tex)
+		{
+			tex->SetPalette(pal);
+			for (int i = 0; i < 4; i++)
+			{
+				if (active_map->connected_maps[i])
+					ResourceCache::GetTileset(active_map->connected_maps[i]->tileset)->SetPalette(pal);
+			}
+		}
+	}
 }
 
 void MapScene::Focus(signed char x, signed char y)
@@ -162,7 +195,8 @@ void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index,
 	}
 
 	Tileset* tileset = ResourceCache::GetTileset(map.tileset); //isn't it great having the textures be small and cached so we don't have to worry about loading once and passing them around? :D
-
+	if (!tileset)
+		return;
 	for (int x = startX - 1; x <= endX; x++)
 	{
 		for (int y = startY - 1; y <= endY; y++)
