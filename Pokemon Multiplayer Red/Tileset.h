@@ -14,9 +14,9 @@ public:
 
 	void Load(unsigned char index);
 
-	void Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y);
+	void Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y);
 
-	void AnimateWater();
+	void AnimateTiles();
 	void SetPalette(sf::Color palette[]);
 
 protected:

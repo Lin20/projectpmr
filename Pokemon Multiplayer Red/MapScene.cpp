@@ -13,7 +13,7 @@ MapScene::~MapScene()
 {
 	if (active_map)
 		delete active_map;
-	delete test;
+	delete test_entity;
 }
 
 /// <summary>
@@ -21,6 +21,21 @@ MapScene::~MapScene()
 /// </summary>
 void MapScene::Update()
 {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+		test_entity->Move(ENTITY_DOWN, 1);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+		test_entity->Move(ENTITY_UP, 1);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+		test_entity->Move(ENTITY_LEFT, 1);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+		test_entity->Move(ENTITY_RIGHT, 1);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F1))
+	{
+		test_entity->x = STARTING_X * 16;
+		test_entity->y = STARTING_Y * 16;
+		SwitchMap(STARTING_MAP);
+	}
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !key_down)
 	{
 		key_down = true;
@@ -45,8 +60,8 @@ void MapScene::Update()
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		viewport.move(0, 8);
 
-	int x = viewport.getCenter().x;
-	int y = viewport.getCenter().y;
+	int x = (int)viewport.getCenter().x;
+	int y = (int)viewport.getCenter().y;
 
 	if (x < 0 && active_map->HasConnection(CONNECTION_WEST))
 	{
@@ -76,11 +91,13 @@ void MapScene::Update()
 
 	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
 	if (tex)
-		tex->AnimateWater();
+		tex->AnimateTiles();
+	test_entity->Update();
 }
 
 void MapScene::Render(sf::RenderWindow* window)
 {
+	FocusFree(test_entity->x, test_entity->y);
 	window->setView(viewport);
 
 	if (active_map)
@@ -97,15 +114,16 @@ void MapScene::Render(sf::RenderWindow* window)
 		}
 	}
 
-	//OverworldEntity o(1, 5, 5, 0);
-	//o.Draw(window, 5, 6, 0, 2, 2);
+	test_entity->Render(window);
 }
 
 void MapScene::SwitchMap(unsigned char index)
 {
 	unsigned char previous_palette = 0;
 	if (!active_map)
+	{
 		active_map = new Map(index);
+	}
 	else
 	{
 		previous_palette = ResourceCache::GetMapPaletteIndex(active_map->index);
@@ -118,35 +136,30 @@ void MapScene::SwitchMap(unsigned char index)
 		return;
 #endif
 	}
+	if (!test_entity)
+		test_entity = new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN);
 
-	unsigned char pal_index = ResourceCache::GetMapPaletteIndex(index);
-	if (pal_index == 0xFF) //0xFF means keep the previous palette
-		pal_index = ResourceCache::GetMapPaletteIndex(previous_palette);
-	if (pal_index != 0xFF)
+	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
+
+	if (tex)
 	{
-		sf::Color* pal = ResourceCache::GetPalette(pal_index);
-		Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
-
-		if (tex)
+		tex->SetPalette(active_map->GetPalette());
+		for (int i = 0; i < 4; i++)
 		{
-			tex->SetPalette(pal);
-			for (int i = 0; i < 4; i++)
-			{
-				if (active_map->connected_maps[i])
-					ResourceCache::GetTileset(active_map->connected_maps[i]->tileset)->SetPalette(pal);
-			}
+			if (active_map->connected_maps[i])
+				ResourceCache::GetTileset(active_map->connected_maps[i]->tileset)->SetPalette(active_map->GetPalette());
 		}
 	}
 }
 
 void MapScene::Focus(signed char x, signed char y)
 {
-	viewport.reset(sf::FloatRect((int)(x - VIEWPORT_WIDTH / 2 + 1) * 16, (int)(y - VIEWPORT_HEIGHT / 2) * 16, VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16));
+	viewport.reset(sf::FloatRect((float)(int)(x - VIEWPORT_WIDTH / 2 + 1) * 16, (float)(int)(y - VIEWPORT_HEIGHT / 2) * 16, VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16));
 }
 
 void MapScene::FocusFree(int x, int y)
 {
-	viewport.reset(sf::FloatRect(x - (int)(VIEWPORT_WIDTH / 2 + 1) * 16, y - ((int)(VIEWPORT_HEIGHT / 2) - 1) * 16, VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16));
+	viewport.reset(sf::FloatRect(x - (int)(VIEWPORT_WIDTH / 2 - 1) * 16, y - ((int)(VIEWPORT_HEIGHT / 2)) * 16, VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16));
 }
 
 void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index, MapConnection* connection)
@@ -240,7 +253,7 @@ void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index,
 				}
 			}
 
-			tileset->Draw(window, drawX, drawY, tile, 4, 4);
+			tileset->Render(window, drawX, drawY, tile, 4, 4);
 		}
 	}
 }

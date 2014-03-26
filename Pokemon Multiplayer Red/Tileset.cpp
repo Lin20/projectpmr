@@ -23,12 +23,12 @@ void Tileset::Load(unsigned char index)
 	this->index = index;
 	delete_texture = true;
 
-	sprite8x8.setTexture(tiles_tex->GetTexture());
-	water8x8.setTexture(water_tile.GetTexture());
+	sprite8x8.setTexture(*tiles_tex);
+	water8x8.setTexture(water_tile);
 	flower8x8.setTexture(*ResourceCache::GetFlowerTexture());
 }
 
-void Tileset::Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y)
+void Tileset::Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y)
 {
 	if (!tiles_tex)
 		return;
@@ -69,7 +69,7 @@ void Tileset::Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned in
 	}
 }
 
-void Tileset::AnimateWater()
+void Tileset::AnimateTiles()
 {
 	water_animation_stage++;
 	if (water_animation_stage >= ANIMATION_TIMER * 8)

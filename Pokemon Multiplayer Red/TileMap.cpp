@@ -18,7 +18,7 @@ TileMap::~TileMap()
 		delete formation;
 }
 
-void TileMap::Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y)
+void TileMap::Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y)
 {
 	if (!tiles_tex)
 		return;

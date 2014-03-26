@@ -34,7 +34,7 @@ bool PaletteTexture::loadFromFile(const std::string& filename)
 
 void PaletteTexture::SetPalette(const sf::Color new_palette[])
 {
-	if (!pixels)
+	if ((size.x | size.y) == 0 || !pixels)
 		return;
 	sf::Uint32 pal0 = ((palette[0].r / 8 * 8) << 24) + ((palette[0].g / 8 * 8) << 16) + ((palette[0].b / 8 * 8) << 8) + palette[0].a;
 	sf::Uint32 pal1 = ((palette[1].r / 8 * 8) << 24) + ((palette[1].g / 8 * 8) << 16) + ((palette[1].b / 8 * 8) << 8) + palette[1].a;
@@ -44,9 +44,9 @@ void PaletteTexture::SetPalette(const sf::Color new_palette[])
 	sf::Uint32 new1 = ((new_palette[1].r / 8 * 8) << 24) + ((new_palette[1].g / 8 * 8) << 16) + ((new_palette[1].b / 8 * 8) << 8) + new_palette[1].a;
 	sf::Uint32 new2 = ((new_palette[2].r / 8 * 8) << 24) + ((new_palette[2].g / 8 * 8) << 16) + ((new_palette[2].b / 8 * 8) << 8) + new_palette[2].a;
 	sf::Uint32 new3 = ((new_palette[3].r / 8 * 8) << 24) + ((new_palette[3].g / 8 * 8) << 16) + ((new_palette[3].b / 8 * 8) << 8) + new_palette[3].a;
-	for (int x = 0; x < size.x; x++)
+	for (unsigned int x = 0; x < size.x; x++)
 	{
-		for (int y = 0; y < size.y; y++)
+		for (unsigned int y = 0; y < size.y; y++)
 		{
 			sf::Uint32 p = ((pixels[(x + y * size.x) * 4] / 8 * 8) << 24) + ((pixels[(x + y * size.x) * 4 + 1] / 8 * 8) << 16) + ((pixels[(x + y * size.x) * 4 + 2] / 8 * 8) << 8) + (pixels[(x + y * size.x) * 4 + 3] / 8 * 8);
 			if ((p & 0xFFFFFF00) == (pal3 & 0xFFFFFF00))

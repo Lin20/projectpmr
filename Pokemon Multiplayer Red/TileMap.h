@@ -11,7 +11,7 @@ public:
 	TileMap(PaletteTexture* tiles_texture = 0, DataBlock* formation = 0, unsigned int t_x = 0, unsigned char index = 0, bool delete_tex = false);
 	virtual ~TileMap();
 
-	void Draw(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y);
+	void Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y);
 
 protected:
 	unsigned char index;

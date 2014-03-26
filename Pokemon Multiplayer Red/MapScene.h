@@ -26,8 +26,7 @@ private:
 	Map* active_map;
 	sf::View viewport; //this is declared here because the maps are only places where the camera scrolls
 
-	PaletteTexture* test;
-	sf::Sprite testsprite;
+	OverworldEntity* test_entity;
 
 	bool key_down;
 };

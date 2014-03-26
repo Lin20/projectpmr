@@ -3,7 +3,7 @@
 Tileset* ResourceCache::tilesets[24];
 PaletteTexture* ResourceCache::entity_textures[73];
 PaletteTexture* ResourceCache::flower_texture;
-sf::Color ResourceCache::overworld_palettes[64];
+sf::Color ResourceCache::overworld_palettes[768];
 DataBlock* ResourceCache::map_palette_indexes;
 
 ResourceCache::ResourceCache()
@@ -80,7 +80,7 @@ void ResourceCache::LoadPalettes()
 #endif
 	map_palette_indexes = ReadFile(ResourceCache::GetResourceLocation(string("pal\\map_index.dat")).c_str());
 	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("pal\\main.dat")).c_str());
-	for (int i = 0; i < 64; i++)
+	for (int i = 0; i < 768; i++)
 	{
 		unsigned char r = *data->data++;
 		unsigned char g = *data->data++;

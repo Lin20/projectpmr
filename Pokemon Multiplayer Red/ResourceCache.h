@@ -45,7 +45,7 @@ public:
 
 	static sf::Color* GetPalette(unsigned char index)
 	{
-		return &overworld_palettes[(index % 64) * 4];
+		return &overworld_palettes[index * 4];
 	}
 
 	inline static unsigned char GetMapPaletteIndex(unsigned char index)
@@ -59,7 +59,7 @@ private:
 	static Tileset* tilesets[24];
 	static PaletteTexture* entity_textures[73];
 	static PaletteTexture* flower_texture;
-	static sf::Color overworld_palettes[64];
+	static sf::Color overworld_palettes[768];
 	static DataBlock* map_palette_indexes;
 };
 

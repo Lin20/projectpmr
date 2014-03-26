@@ -8,6 +8,7 @@ Map::Map(unsigned char index)
 {
 	this->index = index;
 	tiles = 0;
+	palette = ResourceCache::GetPalette(0);
 }
 
 Map::~Map()
@@ -26,7 +27,15 @@ bool Map::Load(bool only_load_tiles)
 	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("maps\\").append(to_string(index).append(".dat"))).c_str());
 	if (!ParseHeader(data, only_load_tiles))
 		return false;
+	LoadPalette();
 	return true;
+}
+
+void Map::LoadPalette()
+{
+	unsigned char pal_index = ResourceCache::GetMapPaletteIndex(index);
+	if (pal_index != 0xFF)
+		palette = ResourceCache::GetPalette(pal_index);
 }
 
 bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
@@ -66,6 +75,11 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 			else
 				connected_maps[i]->index = connections[i].map;
 			connected_maps[i]->Load(true);
+			if (connected_maps[i]->width * connected_maps[i]->height >= 128 * 128) //bad map
+			{
+				connected_maps[i] = 0;
+				connection_mask ^= 1 << (3 - i);
+			}
 		}
 	}
 
