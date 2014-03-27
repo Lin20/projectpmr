@@ -29,6 +29,8 @@ public:
 
 	inline bool HasConnection(unsigned char e) { return (connection_mask & (1 << (3 - e))) != 0; }
 	inline sf::Color* GetPalette() { return palette; }
+	bool IsPassable(int x, int y);
+	bool CanJump(int x, int y, unsigned char direction); //can jump from the current position facing the specified direction
 
 private:
 	unsigned char connection_mask;

@@ -22,13 +22,15 @@ MapScene::~MapScene()
 void MapScene::Update()
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-		test_entity->Move(ENTITY_DOWN, 1);
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-		test_entity->Move(ENTITY_UP, 1);
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-		test_entity->Move(ENTITY_LEFT, 1);
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-		test_entity->Move(ENTITY_RIGHT, 1);
+		test_entity->StartMoving(ENTITY_DOWN);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+		test_entity->StartMoving(ENTITY_UP);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+		test_entity->StartMoving(ENTITY_LEFT);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+		test_entity->StartMoving(ENTITY_RIGHT);
+	else
+		test_entity->StopMoving();
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F1))
 	{
 		test_entity->x = STARTING_X * 16;
@@ -137,7 +139,7 @@ void MapScene::SwitchMap(unsigned char index)
 #endif
 	}
 	if (!test_entity)
-		test_entity = new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN);
+		test_entity = new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false);
 
 	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
 

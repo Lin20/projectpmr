@@ -86,3 +86,71 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 	border_tile = *p++;
 	return true;
 }
+
+bool Map::IsPassable(int x, int y)
+{
+	if (x < 0 || y < 0 || x >= width * 2 || y >= height * 2)
+		return false;
+	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
+	if (!tileset)
+		return true;
+	DataBlock* collision = tileset->GetCollisionData();
+	if (!collision)
+		return true;
+
+	//the original game uses the lower-left tile of a 16x16 block to determine whether or not that block is passable
+	unsigned char tile = tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12));
+	for (int i = 0; i < collision->size; i++)
+	{
+		if (collision->data[i] == tile)
+			return true;
+	}
+
+	return false;
+}
+
+bool Map::CanJump(int x, int y, unsigned char direction)
+{
+	if (x < 0 || y < 0 || x >= width * 2 || y >= height * 2)
+		return false;
+	if (this->tileset > 0)
+		return false;
+	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
+	if (!tileset)
+		return true;
+	DataBlock* collision = tileset->GetCollisionData();
+	if (!collision)
+		return true;
+
+	//the original game uses the lower-left tile of a 16x16 block to determine whether or not that block is jumpable
+	unsigned char standing_on = tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12));
+	x += DELTAX(direction);
+	y += DELTAY(direction);
+	unsigned char next = tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12));
+
+	unsigned char* p = ResourceCache::GetLedges()->data;
+	while (p < ResourceCache::GetLedges()->data + ResourceCache::GetLedges()->size)
+	{
+		if (*p == 0xFF)
+			return false;
+		if (*p++ / 4 != direction)
+		{
+			p += 3;
+			continue;
+		}
+		if (*p++ != standing_on)
+		{
+			p += 2;
+			continue;
+		}
+		if (*p++ != next)
+		{
+			p++;
+			continue;
+		}
+		p++; //button input
+		return true;
+	}
+
+	return false;
+}

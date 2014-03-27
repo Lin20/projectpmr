@@ -5,6 +5,7 @@ PaletteTexture* ResourceCache::entity_textures[73];
 PaletteTexture* ResourceCache::flower_texture;
 sf::Color ResourceCache::overworld_palettes[768];
 DataBlock* ResourceCache::map_palette_indexes;
+DataBlock* ResourceCache::ledges;
 
 ResourceCache::ResourceCache()
 {
@@ -25,6 +26,10 @@ ResourceCache::~ResourceCache()
 	}
 	if (flower_texture)
 		delete flower_texture;
+	if (map_palette_indexes)
+		delete map_palette_indexes;
+	if (ledges)
+		delete ledges;
 }
 
 void ResourceCache::LoadAll()
@@ -36,6 +41,7 @@ void ResourceCache::LoadAll()
 	LoadTilesets();
 	LoadEntities();
 	LoadPalettes();
+	LoadMisc();
 
 #ifdef _DEBUG
 	cout << "Done\n";
@@ -87,6 +93,17 @@ void ResourceCache::LoadPalettes()
 		unsigned char b = *data->data++;
 		overworld_palettes[i] = sf::Color(r * 8, g * 8, b * 8, 255);
 	}
+#ifdef _DEBUG
+	cout << "Done\n";
+#endif
+}
+
+void ResourceCache::LoadMisc()
+{
+#ifdef _DEBUG
+	cout << "--Loading misc...";
+#endif
+	ledges = ReadFile(ResourceCache::GetResourceLocation(string("misc\\ledges.dat")).c_str());
 #ifdef _DEBUG
 	cout << "Done\n";
 #endif

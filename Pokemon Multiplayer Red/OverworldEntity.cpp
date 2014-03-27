@@ -1,15 +1,21 @@
 #include "OverworldEntity.h"
 
-OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, unsigned char y, unsigned char direction) : TileMap()
+OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc) : TileMap()
 {
 	this->on_map = m;
 	this->index = index;
 	this->x = x * 16;
 	this->y = y * 16;
+	this->is_npc = npc;
 
 	this->tiles_tex = ResourceCache::GetEntityTexture(index);
 	this->formation = new DataBlock(4);
 	this->tiles_x = 16;
+
+	step_frame = 0;
+	animation_timer = 0;
+	movement_direction = 0xFF;
+	turn_delay_timer = 0;
 
 	//is this entity a moving npc or a static image (eg. pokeball)
 	direction = (direction > 3 ? 0 : index <= ENTITY_LIMIT ? direction : 0);
@@ -31,35 +37,43 @@ void OverworldEntity::Update()
 {
 	if (step_timer > 0)
 		step_timer--;
-	if (steps_remaining > 0)
+	if (turn_delay_timer > 0)
+		turn_delay_timer--;
+	if (animation_timer > 0)
+		animation_timer--;
+
+	switch (movement_type)
 	{
-		if (step_timer < 1)
+	case MOVEMENT_NORMAL:
+		if (movement_direction != 0xFF || !Snapped() || forced_steps)
 		{
-			if (Snapped())
+			if (step_timer < 1)
 			{
-				steps_remaining--;
-				if (steps_remaining > 0)
+				if (!Snapped() || on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction)))
 				{
-					step_timer += STEP_TIMER;
 					x += DELTAX(direction);
 					y += DELTAY(direction);
-					if ((DELTAX(direction) != 0 && x % 8 == 0) || (DELTAY(direction) != 0 && y % 8 == 0))
-						step_frame = (step_frame + 1) % (direction == ENTITY_LEFT || direction == ENTITY_RIGHT ? 2 : 4);
 				}
-				else
+				if (Snapped())
 				{
+					if (steps_remaining > 0)
+						steps_remaining--;
 					step_timer = STEP_TIMER * 2;
+					forced_steps = false;
 				}
 			}
-			else
+			if ((int)animation_timer == 0)
 			{
-				step_timer += STEP_TIMER;
-				x += DELTAX(direction);
-				y += DELTAY(direction);
-				if ((DELTAX(direction) != 0 && x % 8 == 0) || (DELTAY(direction) != 0 && y % 8 == 0))
-					step_frame = (step_frame + 1) % (direction == ENTITY_LEFT || direction == ENTITY_RIGHT ? 2 : 4);
+				step_frame = (step_frame + 1) % (direction == ENTITY_LEFT || direction == ENTITY_RIGHT ? 2 : 4);
+				animation_timer = STEP_TIMER * 8.0f;
 			}
 		}
+		else
+		{
+			if ((int)animation_timer == 0)
+				step_frame = 0;
+		}
+		break;
 	}
 }
 
@@ -76,7 +90,7 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 		for (unsigned int x = 0; x < 2; x++)
 		{
 			unsigned char t = (formation ? formation->data[y * 2 + x] : y * 2 + x);
-			if (steps_remaining > 0 && (step_frame & 1) != 0)
+			if ((step_frame & 1) != 0)
 			{
 				t += 12;
 				if (direction == ENTITY_DOWN || direction == ENTITY_UP)
@@ -107,16 +121,65 @@ void OverworldEntity::Face(unsigned char direction)
 	this->direction = direction;
 }
 
+void OverworldEntity::StartMoving(unsigned char direction)
+{
+	if (!Snapped() || !ISNPC(index) || movement_type != MOVEMENT_NORMAL || steps_remaining > 0 || turn_delay_timer > 0 || forced_steps)
+		return;
+
+	bool same_dir = this->direction == direction;
+	Face(direction);
+	if (!same_dir && movement_direction == MOVEMENT_NONE)
+	{
+		turn_delay_timer = 3.0f;
+		return;
+	}
+
+	if (animation_timer < 1)
+	{
+		if (movement_direction == MOVEMENT_NONE)
+			animation_timer = STEP_TIMER * 10.0f; //wait 2 extra ticks before actually moving
+		else
+			animation_timer = STEP_TIMER * 8.0f;
+	}
+
+	if (on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction)))
+	{
+		if (!same_dir)
+			step_timer = STEP_TIMER * 2.0f;
+		else
+		{
+			if (step_timer < 1)
+				step_timer = STEP_TIMER * 4.0f;
+		}
+	}
+
+	movement_direction = direction;
+}
+
+void OverworldEntity::StopMoving()
+{
+	if (movement_direction != MOVEMENT_NONE && step_timer > 0 && Snapped())
+		forced_steps = true;
+	movement_direction = MOVEMENT_NONE;
+}
+
 void OverworldEntity::Move(unsigned char direction, unsigned char steps)
 {
-	if (!Snapped() || !ISNPC(index) || steps_remaining > 0)
+	if (!Snapped() || !ISNPC(index) || (steps_remaining > 0 && movement_type == MOVEMENT_NORMAL))
 		return;
 
 	bool same_dir = this->direction == direction;
 	bool reset = step_timer < 1 && !same_dir;
 	Face(direction);
+	if (is_npc && !on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction)))
+	{
+		steps_remaining = 0;
+		return;
+	}
 	steps_remaining = steps;
-	if (reset)
+	if (animation_timer < 1)
+		animation_timer = STEP_TIMER * 16.0f;
+	if (reset && movement_type == MOVEMENT_NORMAL)
 	{
 		step_timer = 3.0f;
 		step_frame = 0;
@@ -126,13 +189,18 @@ void OverworldEntity::Move(unsigned char direction, unsigned char steps)
 		if (!same_dir || step_timer > 0)
 		{
 			step_timer += STEP_TIMER;
-			x += DELTAX(direction);
-			y += DELTAY(direction);
+			if (on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction)))
+			{
+				x += DELTAX(direction);
+				y += DELTAY(direction);
+			}
+			movement_type = MOVEMENT_NORMAL;
 		}
 		else
 		{
-			step_timer = STEP_TIMER * 2.0f;
 			steps_remaining++;
+			step_timer = STEP_TIMER * 2.0f;
+			movement_type = MOVEMENT_NORMAL;
 		}
 	}
 }

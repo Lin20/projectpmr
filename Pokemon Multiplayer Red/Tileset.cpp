@@ -18,6 +18,7 @@ void Tileset::Load(unsigned char index)
 	water_tile.loadFromFile(ResourceCache::GetResourceLocation(string("tilesets\\water\\").append(to_string(index)).append(".png")));
 	formation = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\formation\\").append(to_string(index)).append(".dat")).c_str());
 	misc_data = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\misc\\").append(to_string(index)).append(".dat")).c_str());
+	collision_data = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\collision\\").append(to_string(index)).append(".dat")).c_str());
 
 	tiles_x = 16;
 	this->index = index;
@@ -81,4 +82,12 @@ void Tileset::SetPalette(sf::Color palette[])
 	water_tile.SetPalette(palette);
 	tiles_tex->SetPalette(palette);
 	ResourceCache::GetFlowerTexture()->SetPalette(palette);
+}
+
+unsigned char Tileset::GetTile8x8(unsigned char tile, unsigned char corner4x4)
+{
+	int a = tile * 16 + corner4x4 % 16;
+	if (a >= formation->size)
+		return 0;
+	return formation->data[a];
 }

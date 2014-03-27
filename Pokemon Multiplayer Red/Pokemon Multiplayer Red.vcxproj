@@ -80,6 +80,7 @@
     <ClCompile Include="MapScene.cpp" />
     <ClCompile Include="OverworldEntity.cpp" />
     <ClCompile Include="PaletteTexture.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Startup.cpp" />
@@ -99,6 +100,7 @@
     <ClInclude Include="MapScene.h" />
     <ClInclude Include="OverworldEntity.h" />
     <ClInclude Include="PaletteTexture.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Rendering.h" />
     <ClInclude Include="ResourceCache.h" />
     <ClInclude Include="Scene.h" />
