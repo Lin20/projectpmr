@@ -25,8 +25,11 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	sf::Color palette[4] = { sf::Color(0, 0, 0, 0), *on_map->GetPalette(), on_map->GetPalette()[1], on_map->GetPalette()[3] };
 	tiles_tex->SetPalette(palette);
 	sprite8x8.setTexture(*tiles_tex);
+	shadow8x8.setTexture(*ResourceCache::GetShadowTexture());
+	if (!npc)
+		ResourceCache::GetShadowTexture()->SetPalette(palette);
 
-	Face(direction);
+		Face(direction);
 }
 
 OverworldEntity::~OverworldEntity()
@@ -45,7 +48,7 @@ void OverworldEntity::Update()
 	switch (movement_type)
 	{
 	case MOVEMENT_NORMAL:
-		if (movement_direction != 0xFF || !Snapped() || forced_steps)
+		if (movement_direction != 0xFF || !Snapped() || forced_steps || steps_remaining > 0)
 		{
 			if (step_timer < 1)
 			{
@@ -57,7 +60,13 @@ void OverworldEntity::Update()
 				if (Snapped())
 				{
 					if (steps_remaining > 0)
+					{
 						steps_remaining--;
+						if (steps_remaining > 0)
+						{
+							StartMoving(direction);
+						}
+					}
 					step_timer = STEP_TIMER * 2;
 					forced_steps = false;
 				}
@@ -68,20 +77,70 @@ void OverworldEntity::Update()
 				animation_timer = STEP_TIMER * 8.0f;
 			}
 		}
-		else
+		break;
+
+	case MOVEMENT_JUMP:
+		//from here to the next step_timer check is all for the slight delay before and after a jump. annoying huh?
+		if (jump_index > 250)
 		{
+			step_timer = 2.0f;
+			jump_index++;
+			break;
+		}
+
+		x += DELTAX(direction);
+		y += DELTAY(direction);
+
+		if (step_timer < 1)
+		{
+			jump_index++;
+			if (jump_index == JUMP_STEPS)
+			{
+				movement_type = MOVEMENT_NORMAL;
+				if (steps_remaining > 0)
+					steps_remaining--;
+			}
+			else
+			{
+				step_timer = 2.0f;
+			}
 			if ((int)animation_timer == 0)
-				step_frame = 0;
+			{
+				step_frame = (step_frame + 1) % (direction == ENTITY_LEFT || direction == ENTITY_RIGHT ? 2 : 4);
+				animation_timer = STEP_TIMER * 8.0f;
+			}
 		}
 		break;
 	}
+
+	if ((int)animation_timer == 0)
+		step_frame = 0;
 }
 
 void OverworldEntity::Render(sf::RenderWindow* window)
 {
 	if (!tiles_tex)
 		return;
+
 	sf::IntRect src_rect = sf::IntRect(0, 0, 8, 8);
+	if (movement_type == MOVEMENT_JUMP)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			int x = this->x + (i % 2) * 8;
+			int y = this->y + (i / 2) * 8 + 4;
+			src_rect.left = (i % 2) * 8;
+			src_rect.top = (i / 2) * 8;
+			src_rect.width = 8 + (i % 2) * -16;
+			src_rect.height = 8 + (i / 2) * -16;
+			shadow8x8.setTextureRect(src_rect);
+			shadow8x8.setPosition(x, y);
+			window->draw(shadow8x8);
+		}
+	}
+
+	src_rect.height = 8;
+
 	int dest_x = x;
 	int dest_y = y;
 	bool h_flip = direction == ENTITY_RIGHT;
@@ -103,6 +162,12 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 
 			dest_x = (int)(this->x + (h_flip ? 1 - x : x) * 8);
 			dest_y = (int)(this->y + y * 8) - 4;
+			if (movement_type == MOVEMENT_JUMP)
+			{
+				dest_x = (int)(this->x + (h_flip ? 1 - x : x) * 8);
+				int offset = (ResourceCache::GetJumpCoordinates()->data[min(JUMP_STEPS - 3, max(0, (int)(signed char)jump_index))] - 0x3C) - (jump_y - this->y);
+				dest_y = (int)(this->jump_y + y * 8) + offset;
+			}
 			sprite8x8.setPosition((float)dest_x, (float)dest_y);
 			window->draw(sprite8x8);
 		}
@@ -128,12 +193,14 @@ void OverworldEntity::StartMoving(unsigned char direction)
 
 	bool same_dir = this->direction == direction;
 	Face(direction);
+	//set a delay before the player can move so they can tap the direction to just turn
 	if (!same_dir && movement_direction == MOVEMENT_NONE)
 	{
 		turn_delay_timer = 3.0f;
 		return;
 	}
 
+	//continue or start the animation cycle
 	if (animation_timer < 1)
 	{
 		if (movement_direction == MOVEMENT_NONE)
@@ -142,6 +209,7 @@ void OverworldEntity::StartMoving(unsigned char direction)
 			animation_timer = STEP_TIMER * 8.0f;
 	}
 
+	//set to walk on update
 	if (on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction)))
 	{
 		if (!same_dir)
@@ -151,6 +219,15 @@ void OverworldEntity::StartMoving(unsigned char direction)
 			if (step_timer < 1)
 				step_timer = STEP_TIMER * 4.0f;
 		}
+	}
+	else if (on_map->CanJump(x / 16, y / 16, direction)) //set to jump over a ledge if possible
+	{
+		movement_type = MOVEMENT_JUMP;
+		jump_index = -2;
+		jump_x = x;
+		jump_y = y;
+		step_timer = STEP_TIMER * 2.0f;
+		animation_timer = STEP_TIMER * 10.0f; //wait 2 extra ticks before actually moving
 	}
 
 	movement_direction = direction;
@@ -165,42 +242,6 @@ void OverworldEntity::StopMoving()
 
 void OverworldEntity::Move(unsigned char direction, unsigned char steps)
 {
-	if (!Snapped() || !ISNPC(index) || (steps_remaining > 0 && movement_type == MOVEMENT_NORMAL))
-		return;
-
-	bool same_dir = this->direction == direction;
-	bool reset = step_timer < 1 && !same_dir;
-	Face(direction);
-	if (is_npc && !on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction)))
-	{
-		steps_remaining = 0;
-		return;
-	}
+	StartMoving(direction);
 	steps_remaining = steps;
-	if (animation_timer < 1)
-		animation_timer = STEP_TIMER * 16.0f;
-	if (reset && movement_type == MOVEMENT_NORMAL)
-	{
-		step_timer = 3.0f;
-		step_frame = 0;
-	}
-	else
-	{
-		if (!same_dir || step_timer > 0)
-		{
-			step_timer += STEP_TIMER;
-			if (on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction)))
-			{
-				x += DELTAX(direction);
-				y += DELTAY(direction);
-			}
-			movement_type = MOVEMENT_NORMAL;
-		}
-		else
-		{
-			steps_remaining++;
-			step_timer = STEP_TIMER * 2.0f;
-			movement_type = MOVEMENT_NORMAL;
-		}
-	}
 }

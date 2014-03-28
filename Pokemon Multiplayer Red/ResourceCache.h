@@ -58,12 +58,23 @@ public:
 
 	inline static DataBlock* GetLedges() { return ledges; }
 
+	inline static DataBlock* GetJumpCoordinates() { return jump_coordinates; }
+
+	inline static PaletteTexture* GetShadowTexture() { return shadow_texture; }
+
 private:
+	//tilesets
 	static Tileset* tilesets[24];
 	static PaletteTexture* entity_textures[73];
 	static PaletteTexture* flower_texture;
+
+	//map palettes
 	static sf::Color overworld_palettes[768];
 	static DataBlock* map_palette_indexes;
+
+	//ledge stuff
 	static DataBlock* ledges;
+	static DataBlock* jump_coordinates;
+	static PaletteTexture* shadow_texture;
 };
 

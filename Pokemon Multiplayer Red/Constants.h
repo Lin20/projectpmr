@@ -8,7 +8,7 @@ enum States
 
 #define STARTING_MAP	0
 #define STARTING_X		8
-#define STARTING_Y		2
+#define STARTING_Y		8
 
 #define VIEWPORT_WIDTH	10
 #define VIEWPORT_HEIGHT	9
@@ -36,6 +36,7 @@ enum States
 #define MOVEMENT_WALL		1
 #define MOVEMENT_JUMP		2
 #define MOVEMENT_NONE		255
+#define JUMP_STEPS			16
 
 //#define DEFAULT_PALETTE { sf::Color(255, 255, 255, 255), sf::Color(168, 168, 168, 255), sf::Color(96, 96, 96, 255), sf::Color(0, 0, 0, 255)}
 #define DEFAULT_PALETTE_0 sf::Color(255, 255, 255, 255)

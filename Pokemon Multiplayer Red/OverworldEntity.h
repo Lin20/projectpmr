@@ -34,8 +34,14 @@ private:
 	float step_timer;
 	float animation_timer;
 	float turn_delay_timer;
-	bool forced_steps = 0;
+	bool forced_steps;
 	unsigned char step_frame;
 	unsigned char movement_direction; //what direction are we making the entity move in?
-	unsigned char movement_type; //used for normal walking, movement against walls, and hopping
+	unsigned char movement_type; //used for normal walking or hopping down a ledge
+
+	unsigned char jump_index; //the index of the jump sequence stored in ResourceCache::jump_coordinates
+	int jump_x;
+	int jump_y;
+
+	sf::Sprite shadow8x8;
 };

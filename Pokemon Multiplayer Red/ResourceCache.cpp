@@ -3,9 +3,13 @@
 Tileset* ResourceCache::tilesets[24];
 PaletteTexture* ResourceCache::entity_textures[73];
 PaletteTexture* ResourceCache::flower_texture;
+
 sf::Color ResourceCache::overworld_palettes[768];
 DataBlock* ResourceCache::map_palette_indexes;
+
 DataBlock* ResourceCache::ledges;
+DataBlock* ResourceCache::jump_coordinates;
+PaletteTexture* ResourceCache::shadow_texture;
 
 ResourceCache::ResourceCache()
 {
@@ -30,6 +34,10 @@ ResourceCache::~ResourceCache()
 		delete map_palette_indexes;
 	if (ledges)
 		delete ledges;
+	if (jump_coordinates)
+		delete jump_coordinates;
+	if (shadow_texture)
+		delete shadow_texture;
 }
 
 void ResourceCache::LoadAll()
@@ -104,6 +112,10 @@ void ResourceCache::LoadMisc()
 	cout << "--Loading misc...";
 #endif
 	ledges = ReadFile(ResourceCache::GetResourceLocation(string("misc\\ledges.dat")).c_str());
+	jump_coordinates = ReadFile(ResourceCache::GetResourceLocation(string("misc\\jumps.dat")).c_str());
+
+	shadow_texture = new PaletteTexture();
+	shadow_texture->loadFromFile(ResourceCache::GetResourceLocation(string("npcs\\shadow.png")));
 #ifdef _DEBUG
 	cout << "Done\n";
 #endif
