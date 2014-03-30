@@ -6,9 +6,9 @@ enum States
 	OVERWORLD_MENU
 };
 
-#define STARTING_MAP	0
-#define STARTING_X		8
-#define STARTING_Y		8
+#define STARTING_MAP	18
+#define STARTING_X		5
+#define STARTING_Y		5
 
 #define VIEWPORT_WIDTH	10
 #define VIEWPORT_HEIGHT	9

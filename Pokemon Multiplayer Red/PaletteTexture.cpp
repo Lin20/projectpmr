@@ -32,6 +32,38 @@ bool PaletteTexture::loadFromFile(const std::string& filename)
 	return true;
 }
 
+void PaletteTexture::Copy(PaletteTexture* src)
+{
+	size = src->GetTexture()->getSize();
+	underlying_texture.create(size.x, size.y);
+	pixels = new unsigned char[size.x * size.y * 4];
+	memcpy(pixels, src->GetPixels(), size.x * size.y * 4);
+	memcpy(palette, src->GetPalette(), sizeof(sf::Color) * 4);
+	underlying_texture.update(pixels);
+}
+
+void PaletteTexture::As8x8Tile(PaletteTexture* from, int tile)
+{
+	if (tile >= 0x60)
+		return;
+	if (from)
+	{
+		underlying_texture.create(8, 8);
+		pixels = new unsigned char[8 * 8 * 4];
+		size = sf::Vector2u(8, 8);
+		for (int x = 0; x < 8; x++)
+		for (int y = 0; y < 8; y++)
+		{
+			unsigned int x_coord = ((tile % 16) * 8) + x;
+			unsigned int y_coord = (tile / 16) * 16 * 8 * 8 + y * 16 * 8;
+			memcpy(pixels + (x + y * 8) * 4, from->GetPixels() + (x_coord + y_coord) * 4, 4);
+		}
+		underlying_texture.update(pixels);
+		//underlying_texture.loadFromMemory(from->GetPixels(), 8 * 8 * 4, sf::IntRect((tile % 16) * 8, tile / 16 * 8, 8, 8));
+		memcpy(palette, from->GetPalette(), sizeof(sf::Color) * 4);
+	}
+}
+
 void PaletteTexture::SetPalette(const sf::Color new_palette[])
 {
 	if ((size.x | size.y) == 0 || !pixels)

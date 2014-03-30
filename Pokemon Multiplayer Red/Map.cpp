@@ -87,6 +87,16 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 	return true;
 }
 
+unsigned char Map::Get8x8Tile(int x, int y)
+{
+	if (x < 0 || y < 0 || x >= width * 4 || y >= height * 4)
+		return false;
+	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
+	if (!tileset)
+		return 0;
+	return tileset->GetTile8x8(tiles[x / 4 + y / 4 * width], x % 4 + (y % 4) * 4);
+}
+
 bool Map::IsPassable(int x, int y)
 {
 	if (x < 0 || y < 0 || x >= width * 2 || y >= height * 2)
@@ -100,7 +110,7 @@ bool Map::IsPassable(int x, int y)
 
 	//the original game uses the lower-left tile of a 16x16 block to determine whether or not that block is passable
 	unsigned char tile = tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12));
-	for (int i = 0; i < collision->size; i++)
+	for (unsigned int i = 0; i < collision->size; i++)
 	{
 		if (collision->data[i] == tile)
 			return true;
@@ -153,4 +163,45 @@ bool Map::CanJump(int x, int y, unsigned char direction)
 	}
 
 	return false;
+}
+
+bool Map::InGrass(int x, int y)
+{
+	if (x < 0 || y < 0 || x >= width * 2 || y >= height * 2)
+		return false;
+	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
+	if (!tileset)
+		return true;
+	DataBlock* collision = tileset->GetCollisionData();
+	if (!collision)
+		return true;
+
+	//the original game uses the lower-left tile of a 16x16 block to determine whether or not that block is passable
+	unsigned char tile = tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12));
+	return tile == tileset->GetMiscData()->data[3]; //second to last byte in the tileset header is the grass tile
+}
+
+void Map::RenderRectangle(int x, int y, int width, int height, sf::Sprite& sprite, sf::RenderWindow* window)
+{
+	sf::IntRect src_rect;
+	int _px = x;
+	int _py = y;
+	for (; x <= _px + width; x += 8)
+	{
+		int lX = x / 8 * 8;
+		for (y = _py; y <= _py + height; y += 8)
+		{
+			int lY = y / 8 * 8;
+			unsigned char tile = Get8x8Tile(x / 8, y / 8);
+			int w = 8 - (lX < _px ? x % 8 : lX + 8 > _px + width ? 8 - x % 8 : 0);
+			int h = 8 - (lY < _py ? y % 8 : lY + 8 > _py + height ? 8 - y % 8 : 0);
+			src_rect.left = (tile % 16) * 8 + (8 - w);
+			src_rect.top = (tile / 16) * 8 + (8 - h);
+			src_rect.width = w;
+			src_rect.height = h;
+			sprite.setTextureRect(src_rect);
+			sprite.setPosition(lX + 8 - w, lY + 8 - h);
+			window->draw(sprite);
+		}
+	}
 }

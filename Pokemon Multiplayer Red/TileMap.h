@@ -12,6 +12,7 @@ public:
 	virtual ~TileMap();
 
 	void Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y);
+	inline PaletteTexture* GetTexture() { return tiles_tex; }
 
 protected:
 	unsigned char index;

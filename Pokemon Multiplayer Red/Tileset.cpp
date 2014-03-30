@@ -27,6 +27,10 @@ void Tileset::Load(unsigned char index)
 	sprite8x8.setTexture(*tiles_tex);
 	water8x8.setTexture(water_tile);
 	flower8x8.setTexture(*ResourceCache::GetFlowerTexture());
+	if (tiles_tex)
+	{
+		transparent_tiles.Copy(tiles_tex); //this is used for drawing grass on top of entities
+	}
 }
 
 void Tileset::Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y)
@@ -82,11 +86,13 @@ void Tileset::SetPalette(sf::Color palette[])
 	water_tile.SetPalette(palette);
 	tiles_tex->SetPalette(palette);
 	ResourceCache::GetFlowerTexture()->SetPalette(palette);
+	sf::Color g_p[4] = { sf::Color::Transparent, palette[1], palette[2], palette[3] };
+	transparent_tiles.SetPalette(g_p);
 }
 
 unsigned char Tileset::GetTile8x8(unsigned char tile, unsigned char corner4x4)
 {
-	int a = tile * 16 + corner4x4 % 16;
+	unsigned int a = tile * 16 + corner4x4 % 16;
 	if (a >= formation->size)
 		return 0;
 	return formation->data[a];

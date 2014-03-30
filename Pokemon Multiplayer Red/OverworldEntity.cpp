@@ -29,7 +29,7 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	if (!npc)
 		ResourceCache::GetShadowTexture()->SetPalette(palette);
 
-		Face(direction);
+	Face(direction);
 }
 
 OverworldEntity::~OverworldEntity()
@@ -122,6 +122,7 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 	if (!tiles_tex)
 		return;
 
+	//draw the shadow if jumping
 	sf::IntRect src_rect = sf::IntRect(0, 0, 8, 8);
 	if (movement_type == MOVEMENT_JUMP)
 	{
@@ -139,8 +140,8 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 		}
 	}
 
+	//draw the player
 	src_rect.height = 8;
-
 	int dest_x = x;
 	int dest_y = y;
 	bool h_flip = direction == ENTITY_RIGHT;
@@ -171,6 +172,23 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 			sprite8x8.setPosition((float)dest_x, (float)dest_y);
 			window->draw(sprite8x8);
 		}
+	}
+
+	//draw the grass on top of the player... gah!
+	//i'll be incredibly relieved when this is over.
+	if (on_map->InGrass(this->x / 16, this->y / 16))
+	{
+		//store the previous texture and set it to the transparent tiles
+		const sf::Texture* tex = sprite8x8.getTexture();
+		sprite8x8.setTexture(*ResourceCache::GetTileset(on_map->tileset)->GetTransparentTiles());
+
+		//after several tries with using single grass tiles and drawing things manually i decided to create
+		//a function that renders all the tiles in a certain spot
+		//much easier...
+		on_map->RenderRectangle(this->x, this->y + 4, 24, 12, sprite8x8, window);
+
+		//set the texture back to what it was
+		sprite8x8.setTexture(*tex);
 	}
 }
 
@@ -235,7 +253,7 @@ void OverworldEntity::StartMoving(unsigned char direction)
 
 void OverworldEntity::StopMoving()
 {
-	if (movement_direction != MOVEMENT_NONE && step_timer > 0 && Snapped())
+	if (movement_direction == MOVEMENT_NORMAL && step_timer > 0 && Snapped())
 		forced_steps = true;
 	movement_direction = MOVEMENT_NONE;
 }
