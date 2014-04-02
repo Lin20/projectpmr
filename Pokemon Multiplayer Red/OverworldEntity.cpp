@@ -166,7 +166,7 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 			if (movement_type == MOVEMENT_JUMP)
 			{
 				dest_x = (int)(this->x + (h_flip ? 1 - x : x) * 8);
-				int offset = (ResourceCache::GetJumpCoordinates()->data[min(JUMP_STEPS - 3, max(0, (int)(signed char)jump_index))] - 0x3C) - (jump_y - this->y);
+				int offset = (ResourceCache::GetJumpCoordinates()->data[min(JUMP_STEPS - 3, max(0, (int)(signed char)jump_index))] - 0x3C) - (jump_y - this->y)-2;
 				dest_y = (int)(this->jump_y + y * 8) + offset;
 			}
 			sprite8x8.setPosition((float)dest_x, (float)dest_y);

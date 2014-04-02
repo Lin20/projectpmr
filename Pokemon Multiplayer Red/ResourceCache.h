@@ -62,6 +62,10 @@ public:
 
 	inline static PaletteTexture* GetShadowTexture() { return shadow_texture; }
 
+	inline static PaletteTexture* GetMenuTexture() { return menu_texture; }
+	inline static PaletteTexture* GetFontTexture() { return font_texture; }
+	inline static DataBlock* GetAsciiTable() { return ascii_table; }
+
 private:
 	//tilesets
 	static Tileset* tilesets[24];
@@ -76,5 +80,10 @@ private:
 	static DataBlock* ledges;
 	static DataBlock* jump_coordinates;
 	static PaletteTexture* shadow_texture;
+
+	//textbox
+	static PaletteTexture* menu_texture;
+	static PaletteTexture* font_texture;
+	static DataBlock* ascii_table;
 };
 

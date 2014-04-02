@@ -12,6 +12,9 @@ class MapScene;
 
 class OverworldEntity;
 
+class Textbox;
+class TextItem;
+
 struct DataBlock;
 struct MapConnection;
 

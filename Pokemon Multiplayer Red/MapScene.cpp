@@ -4,6 +4,23 @@
 MapScene::MapScene() : Scene()
 {
 	active_map = 0;
+	test_menu.SetFrame(10, 0, 10, 16);
+	test_menu.SetMenu(true, 7, 7, 7, sf::Vector2u(1, 1), sf::Vector2u(0, 2));
+	TextItem* t = new TextItem(&test_menu,"POKéDEX", 0, 0);
+	test_menu.SetItem(0, t);
+	t = new TextItem(&test_menu, "POKéMON", 1, 0);
+	test_menu.SetItem(1, t);
+	t = new TextItem(&test_menu, "ITEMS", 2, 0);
+	test_menu.SetItem(2, t);
+	t = new TextItem(&test_menu, "Lin", 3, 0);
+	test_menu.SetItem(3, t);
+	t = new TextItem(&test_menu, "SAVE", 4, 0);
+	test_menu.SetItem(4, t);
+	t = new TextItem(&test_menu, "OPTION", 5, 0);
+	test_menu.SetItem(5, t);
+	t = new TextItem(&test_menu, "EXIT", 6, 0);
+	test_menu.SetItem(6, t);
+	test_menu.UpdateMenu();
 
 	Focus(STARTING_X, STARTING_Y);
 	SwitchMap(STARTING_MAP);
@@ -117,6 +134,8 @@ void MapScene::Render(sf::RenderWindow* window)
 	}
 
 	test_entity->Render(window);
+	window->setView(window->getDefaultView());
+	test_menu.Render(window);
 }
 
 void MapScene::SwitchMap(unsigned char index)

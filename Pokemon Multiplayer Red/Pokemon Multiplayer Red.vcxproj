@@ -81,10 +81,11 @@
     <ClCompile Include="OverworldEntity.cpp" />
     <ClCompile Include="PaletteTexture.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Startup.cpp" />
     <ClCompile Include="ResourceCache.cpp" />
+    <ClCompile Include="StringConverter.cpp" />
+    <ClCompile Include="Textbox.cpp" />
     <ClCompile Include="TileMap.cpp" />
     <ClCompile Include="Tileset.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -94,6 +95,7 @@
     <ClInclude Include="DataBlock.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="TextItem.h" />
     <ClInclude Include="LoopableMusic.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapConnection.h" />
@@ -101,9 +103,10 @@
     <ClInclude Include="OverworldEntity.h" />
     <ClInclude Include="PaletteTexture.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="Rendering.h" />
     <ClInclude Include="ResourceCache.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="StringConverter.h" />
+    <ClInclude Include="Textbox.h" />
     <ClInclude Include="TileMap.h" />
     <ClInclude Include="Tileset.h" />
     <ClInclude Include="Utils.h" />

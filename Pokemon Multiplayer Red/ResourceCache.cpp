@@ -11,6 +11,10 @@ DataBlock* ResourceCache::ledges;
 DataBlock* ResourceCache::jump_coordinates;
 PaletteTexture* ResourceCache::shadow_texture;
 
+PaletteTexture* ResourceCache::menu_texture;
+PaletteTexture* ResourceCache::font_texture;
+DataBlock* ResourceCache::ascii_table;
+
 ResourceCache::ResourceCache()
 {
 }
@@ -38,6 +42,13 @@ ResourceCache::~ResourceCache()
 		delete jump_coordinates;
 	if (shadow_texture)
 		delete shadow_texture;
+
+	if (menu_texture)
+		delete menu_texture;
+	if (font_texture)
+		delete font_texture;
+	if (ascii_table)
+		delete ascii_table;
 }
 
 void ResourceCache::LoadAll()
@@ -116,6 +127,13 @@ void ResourceCache::LoadMisc()
 
 	shadow_texture = new PaletteTexture();
 	shadow_texture->loadFromFile(ResourceCache::GetResourceLocation(string("npcs\\shadow.png")));
+
+	menu_texture = new PaletteTexture();
+	menu_texture->loadFromFile(ResourceCache::GetResourceLocation(string("misc\\menu.png")));
+	font_texture = new PaletteTexture();
+	font_texture->loadFromFile(ResourceCache::GetResourceLocation(string("misc\\font.png")));
+	ascii_table = ReadFile(ResourceCache::GetResourceLocation(string("misc\\ascii_table.dat")).c_str());
+
 #ifdef _DEBUG
 	cout << "Done\n";
 #endif

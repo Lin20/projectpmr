@@ -38,6 +38,14 @@ enum States
 #define MOVEMENT_NONE		255
 #define JUMP_STEPS			16
 
+#define MENU_BLANK			31
+#define MENU_CORNER_UL		25
+#define MENU_H				26
+#define MENU_CORNER_UR		27
+#define MENU_V			28
+#define MENU_CORNER_DL		29
+#define MENU_CORNER_DR		30
+
 //#define DEFAULT_PALETTE { sf::Color(255, 255, 255, 255), sf::Color(168, 168, 168, 255), sf::Color(96, 96, 96, 255), sf::Color(0, 0, 0, 255)}
 #define DEFAULT_PALETTE_0 sf::Color(255, 255, 255, 255)
 #define DEFAULT_PALETTE_1 sf::Color(168, 168, 168, 255)
