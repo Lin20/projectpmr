@@ -2,18 +2,18 @@
 
 Tileset* ResourceCache::tilesets[24];
 PaletteTexture* ResourceCache::entity_textures[73];
-PaletteTexture* ResourceCache::flower_texture;
+PaletteTexture* ResourceCache::flower_texture = 0;
 
 sf::Color ResourceCache::overworld_palettes[768];
-DataBlock* ResourceCache::map_palette_indexes;
+DataBlock* ResourceCache::map_palette_indexes = 0;
 
-DataBlock* ResourceCache::ledges;
-DataBlock* ResourceCache::jump_coordinates;
-PaletteTexture* ResourceCache::shadow_texture;
+DataBlock* ResourceCache::ledges = 0;
+DataBlock* ResourceCache::jump_coordinates = 0;
+PaletteTexture* ResourceCache::shadow_texture = 0;
 
-PaletteTexture* ResourceCache::menu_texture;
-PaletteTexture* ResourceCache::font_texture;
-DataBlock* ResourceCache::ascii_table;
+PaletteTexture* ResourceCache::menu_texture = 0;
+PaletteTexture* ResourceCache::font_texture = 0;
+DataBlock* ResourceCache::ascii_table = 0;
 
 ResourceCache::ResourceCache()
 {

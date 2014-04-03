@@ -4,24 +4,6 @@
 MapScene::MapScene() : Scene()
 {
 	active_map = 0;
-	test_menu.SetFrame(10, 0, 10, 16);
-	test_menu.SetMenu(true, 7, 7, 7, sf::Vector2u(1, 1), sf::Vector2u(0, 2));
-	TextItem* t = new TextItem(&test_menu,"POKÈDEX", 0, 0);
-	test_menu.SetItem(0, t);
-	t = new TextItem(&test_menu, "POKÈMON", 1, 0);
-	test_menu.SetItem(1, t);
-	t = new TextItem(&test_menu, "ITEMS", 2, 0);
-	test_menu.SetItem(2, t);
-	t = new TextItem(&test_menu, "Lin", 3, 0);
-	test_menu.SetItem(3, t);
-	t = new TextItem(&test_menu, "SAVE", 4, 0);
-	test_menu.SetItem(4, t);
-	t = new TextItem(&test_menu, "OPTION", 5, 0);
-	test_menu.SetItem(5, t);
-	t = new TextItem(&test_menu, "EXIT", 6, 0);
-	test_menu.SetItem(6, t);
-	test_menu.UpdateMenu();
-
 	Focus(STARTING_X, STARTING_Y);
 	SwitchMap(STARTING_MAP);
 }
@@ -38,16 +20,29 @@ MapScene::~MapScene()
 /// </summary>
 void MapScene::Update()
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-		test_entity->StartMoving(ENTITY_DOWN);
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-		test_entity->StartMoving(ENTITY_UP);
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-		test_entity->StartMoving(ENTITY_LEFT);
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-		test_entity->StartMoving(ENTITY_RIGHT);
+	if (textboxes.size() > 0) //if there is a textbox displaying or a menu open...
+	{
+		textboxes[textboxes.size() - 1]->Update();
+	}
 	else
-		test_entity->StopMoving();
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+			test_entity->StartMoving(ENTITY_DOWN);
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+			test_entity->StartMoving(ENTITY_UP);
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+			test_entity->StartMoving(ENTITY_LEFT);
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+			test_entity->StartMoving(ENTITY_RIGHT);
+		else
+			test_entity->StopMoving();
+
+		if (test_entity->Snapped() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
+		{
+			textboxes.push_back(MenuCache::StartMenu());
+			textboxes.push_back(MenuCache::DebugMenu());
+		}
+	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F1))
 	{
 		test_entity->x = STARTING_X * 16;
@@ -69,15 +64,6 @@ void MapScene::Update()
 	}
 	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
 		key_down = false;
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-		viewport.move(-8, 0);
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		viewport.move(8, 0);
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-		viewport.move(0, -8);
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		viewport.move(0, 8);
 
 	int x = (int)viewport.getCenter().x;
 	int y = (int)viewport.getCenter().y;
@@ -135,7 +121,9 @@ void MapScene::Render(sf::RenderWindow* window)
 
 	test_entity->Render(window);
 	window->setView(window->getDefaultView());
-	test_menu.Render(window);
+	
+	for (int i = 0; i < textboxes.size(); i++)
+		textboxes[i]->Render(window);
 }
 
 void MapScene::SwitchMap(unsigned char index)
@@ -171,6 +159,8 @@ void MapScene::SwitchMap(unsigned char index)
 				ResourceCache::GetTileset(active_map->connected_maps[i]->tileset)->SetPalette(active_map->GetPalette());
 		}
 	}
+	ResourceCache::GetMenuTexture()->SetPalette(active_map->GetPalette());
+	ResourceCache::GetFontTexture()->SetPalette(active_map->GetPalette());
 }
 
 void MapScene::Focus(signed char x, signed char y)

@@ -8,14 +8,13 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 
 Textbox::~Textbox()
 {
-	if (delete_items && items)
+	if (delete_items)
 	{
-		for (int i = 0; i < item_limit; i++)
+		for (int i = 0; i < items.size(); i++)
 		{
 			if (items[i])
 				delete items[i];
 		}
-		delete[] items;
 	}
 	if (tiles)
 		delete tiles;
@@ -42,18 +41,22 @@ void Textbox::SetFrame(unsigned char x, unsigned char y, unsigned char width, un
 		tiles[i] = MENU_BLANK;
 }
 
-void Textbox::SetMenu(bool menu, unsigned int item_count, unsigned int item_limit, unsigned char display_count, sf::Vector2u start, sf::Vector2u spacing, bool delete_items)
+void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2u start, sf::Vector2u spacing, bool delete_items)
 {
 	this->is_menu = menu;
-	this->item_count = item_count;
-	this->item_limit = item_limit;
 	this->display_count = display_count;
 	this->delete_items = delete_items;
 	this->item_start = start;
 	this->item_spacing = spacing;
-	this->items = new TextItem*[item_limit];
-	for (int i = 0; i < item_limit; i++)
-		this->items[i] = 0;
+	if (this->delete_items)
+	{
+		for (int i = 0; i < items.size(); i++)
+		{
+			if (items[i])
+				delete items[i];
+		}
+	}
+	this->items.resize(0);
 	UpdateMenu();
 }
 
@@ -106,7 +109,7 @@ void Textbox::DrawMenu(sf::RenderWindow* window)
 void Textbox::UpdateMenu()
 {
 	//this function creates "tiles" for display
-	for (int i = scroll_start; i < scroll_start + display_count && i < item_count; i++)
+	for (int i = scroll_start; i < scroll_start + display_count && i < items.size(); i++)
 	{
 		TextItem* item = items[i];
 		if (!item)

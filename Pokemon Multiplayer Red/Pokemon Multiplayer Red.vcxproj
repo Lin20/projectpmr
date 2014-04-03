@@ -78,6 +78,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapScene.cpp" />
+    <ClCompile Include="MenuCache.cpp" />
     <ClCompile Include="OverworldEntity.cpp" />
     <ClCompile Include="PaletteTexture.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -95,6 +96,7 @@
     <ClInclude Include="DataBlock.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="MenuCache.h" />
     <ClInclude Include="TextItem.h" />
     <ClInclude Include="LoopableMusic.h" />
     <ClInclude Include="Map.h" />

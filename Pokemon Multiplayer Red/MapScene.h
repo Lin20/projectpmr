@@ -6,6 +6,7 @@
 #include "OverworldEntity.h"
 #include "PaletteTexture.h"
 #include "Textbox.h"
+#include "MenuCache.h"
 
 class MapScene : public Scene
 {
@@ -28,7 +29,6 @@ private:
 	sf::View viewport; //this is declared here because the maps are only places where the camera scrolls
 
 	OverworldEntity* test_entity;
-	Textbox test_menu;
 
 	bool key_down;
 };

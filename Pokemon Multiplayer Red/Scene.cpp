@@ -3,6 +3,7 @@
 
 Scene::Scene()
 {
+	//textboxes = std::vector<Textbox>()
 }
 
 Scene::~Scene()

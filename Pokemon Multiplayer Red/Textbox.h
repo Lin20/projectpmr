@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <SFML\Graphics.hpp>
 #include "Common.h"
 #include "ResourceCache.h"
@@ -16,17 +17,13 @@ public:
 	void Render(sf::RenderWindow* window);
 
 	void SetFrame(unsigned char x, unsigned char y, unsigned char width, unsigned char height);
-	void SetMenu(bool menu, unsigned int item_count, unsigned int item_limit, unsigned char display_count, sf::Vector2u start, sf::Vector2u spacing, bool delete_items = true);
-	inline void SetItem(unsigned int index, TextItem* item)
-	{
-		if (index < item_limit)
-			items[index] = item;
-	}
-
+	void SetMenu(bool menu, unsigned char display_count, sf::Vector2u start, sf::Vector2u spacing, bool delete_items = true);
+	
 	void UpdateMenu();
 
 	sf::Vector2u GetPosition() { return pos; }
 	sf::Vector2u GetSize() { return size; }
+	vector<TextItem*>& GetItems() { return items; }
 
 private:
 	sf::Vector2u pos;
@@ -34,11 +31,9 @@ private:
 
 	//menu-related stuff
 	bool is_menu; //is this textbox a menu?
-	unsigned int item_count; //how many items can this menu display? eg. the player's inventory
-	unsigned int item_limit; //what is the max number of items?
 	unsigned char display_count; //how many items get displayed?
 	unsigned char scroll_start; //when does the scrolling start? eg. 3/4 in the inventory
-	TextItem** items; //the items get displayed
+	vector<TextItem*> items; //the items get displayed
 	bool delete_items;
 
 	//text-box related stuff
