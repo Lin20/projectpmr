@@ -6,6 +6,23 @@ enum States
 	OVERWORLD_MENU
 };
 
+//how the menu functions
+enum MenuFlags
+{
+	NONE =			0,
+	FOCUSABLE =		1,
+	WRAPS =			2,
+	HOLD_INPUT =	4 //whether or not a button can be held to cycle through items
+};
+
+//the state the cursor is in (flags because of moving items with both visible)
+enum ArrowStates
+{
+	HIDDEN =	0,
+	ACTIVE =	1,
+	INACTIVE =	2
+};
+
 #define STARTING_MAP	18
 #define STARTING_X		5
 #define STARTING_Y		5
@@ -45,9 +62,23 @@ enum States
 #define MENU_V			28
 #define MENU_CORNER_DL		29
 #define MENU_CORNER_DR		30
+#define CURSOR_ACTIVE		109
+#define CURSOR_INACTIVE 	108 
+
+#define MESSAGE_MORE		110
 
 //#define DEFAULT_PALETTE { sf::Color(255, 255, 255, 255), sf::Color(168, 168, 168, 255), sf::Color(96, 96, 96, 255), sf::Color(0, 0, 0, 255)}
 #define DEFAULT_PALETTE_0 sf::Color(255, 255, 255, 255)
 #define DEFAULT_PALETTE_1 sf::Color(168, 168, 168, 255)
 #define DEFAULT_PALETTE_2 sf::Color(96, 96, 96, 255)
 #define DEFAULT_PALETTE_3 sf::Color(0, 0, 0, 255)
+
+//temporary input
+#define INPUT_UP		sf::Keyboard::Key::W
+#define INPUT_DOWN		sf::Keyboard::Key::S
+#define INPUT_LEFT		sf::Keyboard::Key::A
+#define INPUT_RIGHT		sf::Keyboard::Key::D
+#define INPUT_A			sf::Keyboard::Key::Z
+#define INPUT_B			sf::Keyboard::Key::X
+#define INPUT_START		sf::Keyboard::Key::Return
+#define INPUT_SELECT	sf::Keyboard::Key::BackSpace

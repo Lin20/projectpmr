@@ -26,21 +26,22 @@ void MapScene::Update()
 	}
 	else
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+		if (sf::Keyboard::isKeyPressed(INPUT_DOWN))
 			test_entity->StartMoving(ENTITY_DOWN);
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+		else if (sf::Keyboard::isKeyPressed(INPUT_UP))
 			test_entity->StartMoving(ENTITY_UP);
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+		else if (sf::Keyboard::isKeyPressed(INPUT_LEFT))
 			test_entity->StartMoving(ENTITY_LEFT);
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+		else if (sf::Keyboard::isKeyPressed(INPUT_RIGHT))
 			test_entity->StartMoving(ENTITY_RIGHT);
 		else
 			test_entity->StopMoving();
 
-		if (test_entity->Snapped() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
+		if (test_entity->Snapped() && sf::Keyboard::isKeyPressed(INPUT_START))
 		{
 			textboxes.push_back(MenuCache::StartMenu());
-			textboxes.push_back(MenuCache::DebugMenu());
+			MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
+			//textboxes.push_back(MenuCache::DebugMenu());
 		}
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F1))
@@ -122,7 +123,7 @@ void MapScene::Render(sf::RenderWindow* window)
 	test_entity->Render(window);
 	window->setView(window->getDefaultView());
 	
-	for (int i = 0; i < textboxes.size(); i++)
+	for (unsigned int i = 0; i < textboxes.size(); i++)
 		textboxes[i]->Render(window);
 }
 

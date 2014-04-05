@@ -200,7 +200,7 @@ void Map::RenderRectangle(int x, int y, int width, int height, sf::Sprite& sprit
 			src_rect.width = w;
 			src_rect.height = h;
 			sprite.setTextureRect(src_rect);
-			sprite.setPosition(lX + 8 - w, lY + 8 - h);
+			sprite.setPosition((float)(lX + 8 - w), (float)(lY + 8 - h));
 			window->draw(sprite);
 		}
 	}

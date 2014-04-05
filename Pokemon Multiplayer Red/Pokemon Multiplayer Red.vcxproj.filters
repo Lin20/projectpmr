@@ -122,5 +122,8 @@
     <ClInclude Include="MenuCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InputController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

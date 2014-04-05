@@ -135,7 +135,7 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 			src_rect.width = 8 + (i % 2) * -16;
 			src_rect.height = 8 + (i / 2) * -16;
 			shadow8x8.setTextureRect(src_rect);
-			shadow8x8.setPosition(x, y);
+			shadow8x8.setPosition((float)x, (float)y);
 			window->draw(shadow8x8);
 		}
 	}

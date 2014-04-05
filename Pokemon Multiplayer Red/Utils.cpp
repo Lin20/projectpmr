@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Utils.h"
+#include "InputController.h"
+
+bool InputController::last_keys[256];
 
 DataBlock* ReadFile(const std::string& filename)
 {

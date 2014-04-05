@@ -25,8 +25,8 @@ public:
 
 	void Action()
 	{
-		//if (callback)
-		//	callback();
+		if (callback)
+			callback();
 	}
 
 	string text; //the text that the item displays
@@ -35,5 +35,5 @@ public:
 
 private:
 	Textbox* owner_textbox;
-	//std::function<void()> callback; //the function that gets called when the item is selected
+	std::function<void()> callback; //the function that gets called when the item is selected
 };
