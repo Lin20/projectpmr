@@ -8,10 +8,10 @@
 class TextItem
 {
 public:
-	TextItem(Textbox* owner, string text = 0, unsigned char index = 0, unsigned int value = 0)
+	TextItem(Textbox* owner, void (*action_callback)() = 0, string text = 0, unsigned char index = 0, unsigned int value = 0)
 	{
 		this->owner_textbox = owner;
-		//this->callback = action_callback;
+		this->callback = action_callback;
 		this->text = text;
 		this->index = 0;
 		this->value = 0;
@@ -27,6 +27,12 @@ public:
 	{
 		if (callback)
 			callback();
+	}
+
+	void SetText(const std::string& to)
+	{
+		this->text = to;
+		pokestring(this->text);
 	}
 
 	string text; //the text that the item displays

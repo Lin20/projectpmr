@@ -66,6 +66,7 @@ enum ArrowStates
 #define CURSOR_INACTIVE 	108 
 
 #define MESSAGE_MORE		110
+#define MESSAGE_END			0x57
 
 //#define DEFAULT_PALETTE { sf::Color(255, 255, 255, 255), sf::Color(168, 168, 168, 255), sf::Color(96, 96, 96, 255), sf::Color(0, 0, 0, 255)}
 #define DEFAULT_PALETTE_0 sf::Color(255, 255, 255, 255)

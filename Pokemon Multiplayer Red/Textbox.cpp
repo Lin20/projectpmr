@@ -1,8 +1,9 @@
 #include "Textbox.h"
 
-Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned char height)
+Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned char height, bool d)
 {
 	tiles = 0;
+	delete_on_close = d;
 	SetFrame(x, y, width, height);
 }
 
@@ -52,6 +53,19 @@ void Textbox::Update()
 				active_index = 0;
 			}
 		}
+		else if (InputController::KeyDownOnce(INPUT_A)) //press a
+		{
+			items[active_index]->Action();
+		}
+	}
+	else if (!is_menu) //it's a regular textbox
+	{
+		if (text_timer > 0)
+			text_timer--;
+		if (!text_timer)
+		{
+			ProcessNextCharacter();
+		}
 	}
 }
 
@@ -76,6 +90,15 @@ void Textbox::SetFrame(unsigned char x, unsigned char y, unsigned char width, un
 	tiles = new unsigned char[(width - 2) * (height - 2)];
 	for (int i = 0; i < (width - 2) * (height - 2); i++)
 		tiles[i] = MENU_BLANK;
+}
+
+void Textbox::SetText(std::string& text)
+{
+	this->text = text;
+	pokestring(this->text);
+	this->text_tile_pos = 0;
+	this->text_pos = 0;
+	this->text_timer = 0;
 }
 
 void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, unsigned int flags, bool delete_items)
@@ -142,6 +165,7 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 
 void Textbox::UpdateMenu()
 {
+	memset(tiles, MENU_BLANK, (size.x - 2) * (size.y - 2));
 	//this function creates "tiles" for display
 	for (unsigned int i = scroll_start; i < scroll_start + display_count && i < items.size(); i++)
 	{
@@ -168,4 +192,21 @@ void Textbox::DrawArrow(sf::RenderWindow* window, bool active)
 	sprite8x8.setPosition((float)(pos.x * 8 + item_start.x * 8), (float)(pos.y * 8 + item_start.y * 8 + 8 + index * 8 * item_spacing.y));
 	sprite8x8.setTextureRect(src_rect);
 	window->draw(sprite8x8);
+}
+
+void Textbox::ProcessNextCharacter()
+{
+	unsigned char c = text[text_pos];
+	if (c == 0 || c == MESSAGE_END)
+	{
+		if (InputController::KeyDownOnce(INPUT_A))
+		{
+			close = true;
+		}
+		return;
+	}
+
+	tiles[text_tile_pos++] = c;
+	text_timer = 5;
+	text_pos++;
 }

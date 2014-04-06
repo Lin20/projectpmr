@@ -23,6 +23,12 @@ void MapScene::Update()
 	if (textboxes.size() > 0) //if there is a textbox displaying or a menu open...
 	{
 		textboxes[textboxes.size() - 1]->Update();
+		if (textboxes[textboxes.size() - 1]->SetToClose())
+		{
+			if (textboxes[textboxes.size() - 1]->DeleteOnClose())
+				delete textboxes[textboxes.size() - 1];
+			textboxes.pop_back();
+		}
 	}
 	else
 	{
@@ -37,10 +43,14 @@ void MapScene::Update()
 		else
 			test_entity->StopMoving();
 
-		if (test_entity->Snapped() && sf::Keyboard::isKeyPressed(INPUT_START))
+		if (test_entity->Snapped() && InputController::KeyDownOnce(INPUT_START))
 		{
-			textboxes.push_back(MenuCache::StartMenu());
-			MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
+			Textbox* t = new Textbox(0, 0, 20, 8);
+			t->SetText(string("This is a test."));
+			textboxes.push_back(t);
+			//textboxes.push_back(new Textbox())
+			//textboxes.push_back(MenuCache::StartMenu());
+			//MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
 			//textboxes.push_back(MenuCache::DebugMenu());
 		}
 	}

@@ -28,13 +28,13 @@ Textbox* MenuCache::StartMenu()
 
 	start_menu = new Textbox(10, 0, 10, 16);
 	start_menu->SetMenu(true, 7, sf::Vector2i(1, 1), sf::Vector2u(0, 2), MenuFlags::FOCUSABLE | MenuFlags::WRAPS);
-	start_menu->GetItems().push_back(new TextItem(start_menu, "POKéDEX", 0));
-	start_menu->GetItems().push_back(new TextItem(start_menu, "POKéMON", 1));
-	start_menu->GetItems().push_back(new TextItem(start_menu, "ITEMS", 2));
-	start_menu->GetItems().push_back(new TextItem(start_menu, "Lin", 3));
-	start_menu->GetItems().push_back(new TextItem(start_menu, "SAVE", 4));
-	start_menu->GetItems().push_back(new TextItem(start_menu, "OPTIONS", 5));
-	start_menu->GetItems().push_back(new TextItem(start_menu, "EXIT", 6));
+	start_menu->GetItems().push_back(new TextItem(start_menu, ([]()->void { start_menu->GetItems()[0]->SetText("Test"); start_menu->UpdateMenu(); }), "POKéDEX", 0));
+	start_menu->GetItems().push_back(new TextItem(start_menu, 0, "POKéMON", 1));
+	start_menu->GetItems().push_back(new TextItem(start_menu, 0, "ITEMS", 2));
+	start_menu->GetItems().push_back(new TextItem(start_menu, 0, "Lin", 3));
+	start_menu->GetItems().push_back(new TextItem(start_menu, 0, "SAVE", 4));
+	start_menu->GetItems().push_back(new TextItem(start_menu, 0, "OPTIONS", 5));
+	start_menu->GetItems().push_back(new TextItem(start_menu, 0, "EXIT", 6));
 
 	start_menu->UpdateMenu();
 	return start_menu;
@@ -47,9 +47,9 @@ Textbox* MenuCache::DebugMenu()
 
 	debug_menu = new Textbox(0, 8, 14, 7);
 	debug_menu->SetMenu(true, 3, sf::Vector2i(1, 1), sf::Vector2u(0, 1), MenuFlags::FOCUSABLE);
-	debug_menu->GetItems().push_back(new TextItem(debug_menu, "Testing"));
-	debug_menu->GetItems().push_back(new TextItem(debug_menu, "multiple"));
-	debug_menu->GetItems().push_back(new TextItem(debug_menu, "menus."));
+	debug_menu->GetItems().push_back(new TextItem(debug_menu, 0, "Testing"));
+	debug_menu->GetItems().push_back(new TextItem(debug_menu, 0, "multiple"));
+	debug_menu->GetItems().push_back(new TextItem(debug_menu, 0, "menus."));
 
 	debug_menu->UpdateMenu();
 	return debug_menu;
