@@ -21,6 +21,11 @@ ResourceCache::ResourceCache()
 
 ResourceCache::~ResourceCache()
 {
+	
+}
+
+void ResourceCache::ReleaseResources()
+{
 	for (int i = 0; i < 24; i++)
 	{
 		if (tilesets[i])
@@ -112,6 +117,7 @@ void ResourceCache::LoadPalettes()
 		unsigned char b = *data->data++;
 		overworld_palettes[i] = sf::Color(r * 8, g * 8, b * 8, 255);
 	}
+	delete data;
 #ifdef _DEBUG
 	cout << "Done\n";
 #endif

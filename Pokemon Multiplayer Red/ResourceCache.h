@@ -27,6 +27,7 @@ public:
 	static void LoadPalettes();
 	static void LoadMisc();
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
+	static void ReleaseResources();
 
 	inline static Tileset* GetTileset(unsigned char index) 
 	{

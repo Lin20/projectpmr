@@ -16,6 +16,11 @@ TileMap::~TileMap()
 {
 	if (formation)
 		delete formation;
+	if (delete_texture)
+	{
+		if (tiles_tex)
+			delete tiles_tex;
+	}
 }
 
 void TileMap::Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y)

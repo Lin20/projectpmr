@@ -27,6 +27,8 @@ bool PaletteTexture::loadFromFile(const std::string& filename)
 		return false;
 	underlying_texture.loadFromImage(temp);
 	size = temp.getSize();
+	if (pixels)
+		delete[] pixels;
 	pixels = new sf::Uint8[size.x * size.y * 4];
 	memcpy(pixels, temp.getPixelsPtr(), size.x * size.y * 4);
 	return true;
@@ -36,6 +38,8 @@ void PaletteTexture::Copy(PaletteTexture* src)
 {
 	size = src->GetTexture()->getSize();
 	underlying_texture.create(size.x, size.y);
+	if (pixels)
+		delete[] pixels;
 	pixels = new unsigned char[size.x * size.y * 4];
 	memcpy(pixels, src->GetPixels(), size.x * size.y * 4);
 	memcpy(palette, src->GetPalette(), sizeof(sf::Color) * 4);
@@ -49,6 +53,8 @@ void PaletteTexture::As8x8Tile(PaletteTexture* from, int tile)
 	if (from)
 	{
 		underlying_texture.create(8, 8);
+		if (pixels)
+			delete[] pixels;
 		pixels = new unsigned char[8 * 8 * 4];
 		size = sf::Vector2u(8, 8);
 		for (int x = 0; x < 8; x++)

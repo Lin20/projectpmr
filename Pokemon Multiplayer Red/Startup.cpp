@@ -1,3 +1,11 @@
+#ifdef _WIN32
+#ifdef _DEBUG
+#define CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#endif
+#endif
+
 #include <fstream>
 #include <iostream>
 
@@ -19,7 +27,6 @@ int main()
 	Engine engine;
 	
 	sf::RenderWindow window(sf::VideoMode(VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16), "SFML works!");
-
 
 	window.setFramerateLimit(60);
 
@@ -72,6 +79,18 @@ int main()
 		}*/
 		window.display();
 	}
+
+	MenuCache::ReleaseResources();
+	ResourceCache::ReleaseResources();
+	engine.~Engine(); //this makes memory leak detection easier
+
+#ifdef _WIN32
+#ifdef _DEBUG
+#define CRTDBG_MAP_ALLOC
+	_CrtDumpMemoryLeaks();
+#endif
+#endif
+
 
 	return 0;
 }

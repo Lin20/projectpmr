@@ -2,6 +2,7 @@
 
 Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned char height)
 {
+	tiles = 0;
 	SetFrame(x, y, width, height);
 }
 
@@ -70,6 +71,8 @@ void Textbox::SetFrame(unsigned char x, unsigned char y, unsigned char width, un
 {
 	pos = sf::Vector2i(x, y);
 	size = sf::Vector2u(width, height);
+	if (tiles)
+		delete[] tiles;
 	tiles = new unsigned char[(width - 2) * (height - 2)];
 	for (int i = 0; i < (width - 2) * (height - 2); i++)
 		tiles[i] = MENU_BLANK;
@@ -91,6 +94,7 @@ void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start
 				delete items[i];
 		}
 	}
+	this->delete_items = delete_items;
 	this->items.resize(0);
 	UpdateMenu();
 }

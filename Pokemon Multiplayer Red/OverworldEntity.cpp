@@ -7,6 +7,7 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	this->x = x * 16;
 	this->y = y * 16;
 	this->is_npc = npc;
+	this->delete_texture = false;
 
 	this->tiles_tex = ResourceCache::GetEntityTexture(index);
 	this->formation = new DataBlock(4);

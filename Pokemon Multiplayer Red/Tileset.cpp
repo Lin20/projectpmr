@@ -2,6 +2,7 @@
 
 Tileset::Tileset(unsigned char index) : TileMap()
 {
+	tiles_tex = 0;
 	Load(index);
 }
 
@@ -9,6 +10,8 @@ Tileset::~Tileset()
 {
 	if (misc_data)
 		delete misc_data;
+	if (collision_data)
+		delete collision_data;
 }
 
 void Tileset::Load(unsigned char index)

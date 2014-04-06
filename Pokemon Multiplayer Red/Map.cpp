@@ -26,7 +26,11 @@ bool Map::Load(bool only_load_tiles)
 {
 	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("maps\\").append(to_string(index).append(".dat"))).c_str());
 	if (!ParseHeader(data, only_load_tiles))
+	{
+		delete data;
 		return false;
+	}
+	delete data;
 	LoadPalette();
 	return true;
 }
@@ -48,6 +52,8 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 	height = *p++;
 	width = *p++;
 
+	if (tiles)
+		delete[] tiles;
 	tiles = new unsigned char[width * height];
 	if (data->size - 3 < (unsigned int)(width * height))
 		return true;

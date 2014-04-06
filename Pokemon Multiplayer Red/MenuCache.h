@@ -8,6 +8,7 @@ public:
 	MenuCache();
 	~MenuCache();
 
+	static void ReleaseResources();
 	static Textbox* StartMenu();
 	static Textbox* DebugMenu();
 

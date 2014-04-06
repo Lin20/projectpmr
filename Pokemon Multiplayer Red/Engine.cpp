@@ -13,7 +13,10 @@ Engine::Engine()
 Engine::~Engine()
 {
 	if (map_scene)
+	{
 		delete map_scene;
+		map_scene = 0;
+	}
 }
 
 void Engine::Update()

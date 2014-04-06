@@ -9,8 +9,14 @@ MenuCache::MenuCache()
 
 MenuCache::~MenuCache()
 {
+}
+
+void MenuCache::ReleaseResources()
+{
 	if (start_menu)
 		delete start_menu;
+	if (debug_menu)
+		delete debug_menu;
 }
 
 //Return the start menu or create it if it doesn't exist
