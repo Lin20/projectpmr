@@ -2,6 +2,7 @@
 
 class Map;
 class ResourceCache;
+class MenuCache;
 class TileMap;
 class Tileset;
 class PaletteTexture;
@@ -12,6 +13,7 @@ class MapScene;
 
 class OverworldEntity;
 
+class TextboxParent;
 class Textbox;
 class TextItem;
 

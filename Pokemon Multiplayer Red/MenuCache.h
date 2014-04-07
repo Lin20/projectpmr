@@ -9,8 +9,8 @@ public:
 	~MenuCache();
 
 	static void ReleaseResources();
-	static Textbox* StartMenu();
-	static Textbox* DebugMenu();
+	static Textbox* StartMenu(std::vector<Textbox*>* owner = 0);
+	static Textbox* DebugMenu(std::vector<Textbox*>* owner = 0);
 
 private:
 	static Textbox* start_menu;

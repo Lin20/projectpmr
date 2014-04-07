@@ -60,6 +60,9 @@
     <ClCompile Include="MenuCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextboxParent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Map.h">
@@ -123,6 +126,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InputController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextboxParent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

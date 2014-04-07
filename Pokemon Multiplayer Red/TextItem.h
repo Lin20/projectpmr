@@ -35,6 +35,8 @@ public:
 		pokestring(this->text);
 	}
 
+	string& GetText() { return text; }
+
 	string text; //the text that the item displays
 	unsigned char index; //the slot of the item
 	unsigned int value; //the value on the item (used for items)

@@ -20,17 +20,7 @@ MapScene::~MapScene()
 /// </summary>
 void MapScene::Update()
 {
-	if (textboxes.size() > 0) //if there is a textbox displaying or a menu open...
-	{
-		textboxes[textboxes.size() - 1]->Update();
-		if (textboxes[textboxes.size() - 1]->SetToClose())
-		{
-			if (textboxes[textboxes.size() - 1]->DeleteOnClose())
-				delete textboxes[textboxes.size() - 1];
-			textboxes.pop_back();
-		}
-	}
-	else
+	if (!UpdateTextboxes())
 	{
 		if (sf::Keyboard::isKeyPressed(INPUT_DOWN))
 			test_entity->StartMoving(ENTITY_DOWN);
@@ -45,13 +35,12 @@ void MapScene::Update()
 
 		if (test_entity->Snapped() && InputController::KeyDownOnce(INPUT_START))
 		{
-			Textbox* t = new Textbox(0, 0, 20, 8);
-			t->SetText(string("This is a test."));
-			textboxes.push_back(t);
+			//Textbox* t = new Textbox(0, 12, 20, 6);
+			//t->SetText(new TextItem(t, 0, string("Macro: #MON\nNew line test: ...\rInput continuation\ntest successful.")));
+			//textboxes.push_back(t);
 			//textboxes.push_back(new Textbox())
-			//textboxes.push_back(MenuCache::StartMenu());
-			//MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
-			//textboxes.push_back(MenuCache::DebugMenu());
+			ShowTextbox(MenuCache::StartMenu());
+			MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
 		}
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F1))

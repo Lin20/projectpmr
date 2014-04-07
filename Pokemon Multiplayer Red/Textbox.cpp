@@ -9,8 +9,11 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 
 Textbox::~Textbox()
 {
-	if (delete_items)
+	if (delete_on_close)
 	{
+		if (text)
+			delete text;
+
 		for (unsigned int i = 0; i < items.size(); i++)
 		{
 			if (items[i])
@@ -23,6 +26,10 @@ Textbox::~Textbox()
 
 void Textbox::Update()
 {
+	if (UpdateTextboxes())
+		return;
+	if (arrow_timer > 0)
+		arrow_timer--;
 	//try to move the cursor
 	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE) && (arrow_state & ArrowStates::ACTIVE))
 	{
@@ -92,24 +99,22 @@ void Textbox::SetFrame(unsigned char x, unsigned char y, unsigned char width, un
 		tiles[i] = MENU_BLANK;
 }
 
-void Textbox::SetText(std::string& text)
+void Textbox::SetText(TextItem* text)
 {
 	this->text = text;
-	pokestring(this->text);
-	this->text_tile_pos = 0;
+	this->text_tile_pos = size.x - 2;
 	this->text_pos = 0;
 	this->text_timer = 0;
 }
 
-void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, unsigned int flags, bool delete_items)
+void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, unsigned int flags)
 {
 	this->is_menu = menu;
 	this->display_count = display_count;
-	this->delete_items = delete_items;
 	this->item_start = start;
 	this->item_spacing = spacing;
 	this->menu_flags = flags;
-	if (this->delete_items)
+	if (this->delete_on_close)
 	{
 		for (unsigned int i = 0; i < items.size(); i++)
 		{
@@ -117,7 +122,6 @@ void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start
 				delete items[i];
 		}
 	}
-	this->delete_items = delete_items;
 	this->items.resize(0);
 	UpdateMenu();
 }
@@ -147,10 +151,18 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 				tile = MENU_V;
 			else
 			{
-				tile = (unsigned char)tiles[(x - pos.x - 1) + (y - pos.y - 1) * (size.x - 2)];
-				if (tile >= 0x80) //use the font texture
+				if (x == pos.x + size.x - 2 && y == pos.y + size.y - 2 && arrow_timer > CURSOR_MORE_TIME / 2)
+				{
+					tile = CURSOR_MORE;
 					sprite8x8.setTexture(*ResourceCache::GetFontTexture());
-				tile &= 0x7F;
+				}
+				else
+				{
+					tile = (unsigned char)tiles[(x - pos.x - 1) + (y - pos.y - 1) * (size.x - 2)];
+					if (tile >= 0x80) //use the font texture
+						sprite8x8.setTexture(*ResourceCache::GetFontTexture());
+					tile &= 0x7F;
+				}
 			}
 
 			src_rect.left = (tile % 16) * 8;
@@ -161,6 +173,9 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 			window->draw(sprite8x8);
 		}
 	}
+
+	for (int i = 0; i < textboxes.size(); i++)
+		textboxes[i]->Render(window);
 }
 
 void Textbox::UpdateMenu()
@@ -196,17 +211,44 @@ void Textbox::DrawArrow(sf::RenderWindow* window, bool active)
 
 void Textbox::ProcessNextCharacter()
 {
-	unsigned char c = text[text_pos];
-	if (c == 0 || c == MESSAGE_END)
+	unsigned char c = text->GetText()[text_pos];
+	switch (c)
 	{
+	case 0: //end
+	case MESSAGE_END: //end
 		if (InputController::KeyDownOnce(INPUT_A))
 		{
-			close = true;
+			text->Action();
+			Close();
 		}
 		return;
+
+	case MESSAGE_LINE: //new line
+		text_tile_pos = (text_tile_pos + ((size.x - 2) - text_tile_pos)) % ((size.x - 2) * (size.y - 2)) * 2 + size.x - 2;
+		break;
+
+	case MESSAGE_PARA: //require input to continue
+		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
+		{
+			memset(tiles, MENU_BLANK, (size.x - 2) * (size.y - 2));
+			text_tile_pos = size.x - 2;
+			break;
+		}
+		else if (arrow_timer == 0)
+			arrow_timer = CURSOR_MORE_TIME;
+		return;
+
+	default: //regular char
+		tiles[text_tile_pos++] = c;
+		break;
 	}
 
-	tiles[text_tile_pos++] = c;
-	text_timer = 5;
+	arrow_timer = 0;
+	text_timer = 3;
 	text_pos++;
+}
+
+void Textbox::Close()
+{
+	close = true;
 }

@@ -63,10 +63,14 @@ enum ArrowStates
 #define MENU_CORNER_DL		29
 #define MENU_CORNER_DR		30
 #define CURSOR_ACTIVE		109
-#define CURSOR_INACTIVE 	108 
+#define CURSOR_INACTIVE 	108
+#define CURSOR_MORE			110
+#define CURSOR_MORE_TIME	45
 
-#define MESSAGE_MORE		110
+#define MESSAGE_LINE		0x4F
+#define MESSAGE_PARA		0x51
 #define MESSAGE_END			0x57
+#define MESSAGE_POKE		0x54
 
 //#define DEFAULT_PALETTE { sf::Color(255, 255, 255, 255), sf::Color(168, 168, 168, 255), sf::Color(96, 96, 96, 255), sf::Color(0, 0, 0, 255)}
 #define DEFAULT_PALETTE_0 sf::Color(255, 255, 255, 255)

@@ -87,6 +87,7 @@
     <ClCompile Include="ResourceCache.cpp" />
     <ClCompile Include="StringConverter.cpp" />
     <ClCompile Include="Textbox.cpp" />
+    <ClCompile Include="TextboxParent.cpp" />
     <ClCompile Include="TileMap.cpp" />
     <ClCompile Include="Tileset.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -98,6 +99,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="InputController.h" />
     <ClInclude Include="MenuCache.h" />
+    <ClInclude Include="TextboxParent.h" />
     <ClInclude Include="TextItem.h" />
     <ClInclude Include="LoopableMusic.h" />
     <ClInclude Include="Map.h" />
