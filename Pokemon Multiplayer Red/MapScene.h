@@ -24,12 +24,17 @@ public:
 	void FocusFree(int x, int y);
 
 	void DrawMap(sf::RenderWindow* window, Map& map, int connection_index, MapConnection* connection);
+	void ClearEntities(bool focused = false);
+	void SetPalette(sf::Color* palette);
 
 private:
 	Map* active_map;
 	sf::View viewport; //this is declared here because the maps are only places where the camera scrolls
 
-	OverworldEntity* test_entity;
+	vector<OverworldEntity*> entities;
+	OverworldEntity* focus_entity;
+	//OverworldEntity* test_entity;
 
+	bool can_warp;
 	bool key_down;
 };

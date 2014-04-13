@@ -131,5 +131,11 @@
     <ClInclude Include="TextboxParent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Events.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Fade.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

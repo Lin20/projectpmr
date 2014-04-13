@@ -4,6 +4,11 @@
 MapScene::MapScene() : Scene()
 {
 	active_map = 0;
+
+	//Initialize the player
+	entities.push_back(new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false));
+	focus_entity = entities[0];
+
 	Focus(STARTING_X, STARTING_Y);
 	SwitchMap(STARTING_MAP);
 }
@@ -12,7 +17,7 @@ MapScene::~MapScene()
 {
 	if (active_map)
 		delete active_map;
-	delete test_entity;
+	ClearEntities(true);
 }
 
 /// <summary>
@@ -20,89 +25,127 @@ MapScene::~MapScene()
 /// </summary>
 void MapScene::Update()
 {
-	if (!UpdateTextboxes())
+	current_fade.Update();
+	if (!UpdateTextboxes() && current_fade.Done())
 	{
 		if (sf::Keyboard::isKeyPressed(INPUT_DOWN))
-			test_entity->StartMoving(ENTITY_DOWN);
-		else if (sf::Keyboard::isKeyPressed(INPUT_UP))
-			test_entity->StartMoving(ENTITY_UP);
-		else if (sf::Keyboard::isKeyPressed(INPUT_LEFT))
-			test_entity->StartMoving(ENTITY_LEFT);
-		else if (sf::Keyboard::isKeyPressed(INPUT_RIGHT))
-			test_entity->StartMoving(ENTITY_RIGHT);
-		else
-			test_entity->StopMoving();
-
-		if (test_entity->Snapped() && InputController::KeyDownOnce(INPUT_START))
 		{
-			//Textbox* t = new Textbox(0, 12, 20, 6);
-			//t->SetText(new TextItem(t, 0, string("Macro: #MON\nNew line test: ...\rInput continuation\ntest successful.")));
-			//textboxes.push_back(t);
-			//textboxes.push_back(new Textbox())
+			focus_entity->StartMoving(ENTITY_DOWN);
+		}
+		else if (sf::Keyboard::isKeyPressed(INPUT_UP))
+		{
+			focus_entity->StartMoving(ENTITY_UP);
+		}
+		else if (sf::Keyboard::isKeyPressed(INPUT_LEFT))
+		{
+			focus_entity->StartMoving(ENTITY_LEFT);
+		}
+		else if (sf::Keyboard::isKeyPressed(INPUT_RIGHT))
+		{
+			focus_entity->StartMoving(ENTITY_RIGHT);
+		}
+		else
+			focus_entity->StopMoving();
+
+		if (focus_entity->Snapped() && InputController::KeyDownOnce(INPUT_START))
+		{
 			ShowTextbox(MenuCache::StartMenu());
 			MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
 		}
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F1))
-	{
-		test_entity->x = STARTING_X * 16;
-		test_entity->y = STARTING_Y * 16;
-		SwitchMap(STARTING_MAP);
-	}
+	else
+		focus_entity->StopMoving();
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !key_down)
-	{
-		key_down = true;
-		SwitchMap((active_map->index + 1) % 256);
-		return;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && !key_down)
-	{
-		key_down = true;
-		SwitchMap((active_map->index + 255) % 256);
-		return;
-	}
-	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
-		key_down = false;
+	int x = (int)(focus_entity ? focus_entity->x : 0);
+	int y = (int)(focus_entity ? focus_entity->y : 0);
 
-	int x = (int)viewport.getCenter().x;
-	int y = (int)viewport.getCenter().y;
-
-	if (x < 0 && active_map->HasConnection(CONNECTION_WEST))
+	if (x < -15 && active_map->HasConnection(CONNECTION_WEST))
 	{
 		MapConnection connection = active_map->connections[CONNECTION_WEST];
 		SwitchMap(active_map->connections[CONNECTION_WEST].map);
-		FocusFree(active_map->width * 32 + 16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
+		focus_entity->x = active_map->width * 32 - 16;
+		focus_entity->y = y + (connection.y_alignment + (connection.y_alignment < 0 ? 0 : 0)) * 16;
+		//FocusFree(active_map->width * 32 + 16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
 	}
 	else if (x >= active_map->width * 32 && active_map->HasConnection(CONNECTION_EAST))
 	{
 		MapConnection connection = active_map->connections[CONNECTION_EAST];
 		SwitchMap(active_map->connections[CONNECTION_EAST].map);
-		FocusFree(16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
+		focus_entity->x = 0;
+		focus_entity->y = y + (connection.y_alignment + (connection.y_alignment < 0 ? 0 : 0)) * 16;
+		//FocusFree(16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
 	}
 
-	if (y < 0 && active_map->HasConnection(CONNECTION_NORTH))
+	if (y < -15 && active_map->HasConnection(CONNECTION_NORTH))
 	{
 		MapConnection connection = active_map->connections[CONNECTION_NORTH];
 		SwitchMap(active_map->connections[CONNECTION_NORTH].map);
-		FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, active_map->height * 32 - 20);
+		focus_entity->x = x + (connection.x_alignment + (connection.x_alignment < 0 ? 0 : 0)) * 16;
+		focus_entity->y = active_map->height * 32 - 16;
+		//FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, active_map->height * 32 - 20);
 	}
 	else if (y >= active_map->height * 32 && active_map->HasConnection(CONNECTION_SOUTH))
 	{
 		MapConnection connection = active_map->connections[CONNECTION_SOUTH];
 		SwitchMap(active_map->connections[CONNECTION_SOUTH].map);
-		FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, -16);
+		focus_entity->x = x + (connection.x_alignment + (connection.x_alignment < 0 ? 0 : 0)) * 16;
+		focus_entity->y = 0;
+		//FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, -16);
 	}
+	else if (focus_entity->Snapped())
+	{
+		if (can_warp)
+		{
+			Warp* w = active_map->GetWarpAt(focus_entity->x / 16, focus_entity->y / 16);
+			if (w && w->dest_map != 255)
+			{
+				current_fade.SetFadeToBlack(active_map->GetPalette());
+				current_fade.Start(w);
+				can_warp = false;
+			}
+		}
+		else if (current_fade.Done())
+		{
+			Warp* to = current_fade.GetWarpTo();
+			if (to)
+			{
+				SwitchMap(to->dest_map);
+				focus_entity->x = active_map->GetWarp(to->dest_point).x * 16;
+				focus_entity->y = active_map->GetWarp(to->dest_point).y * 16;
+				current_fade.SetWarpTo(0);
+			}
+		}
+		/*else if (w)
+		{
+		current_fade.Reset();
+		Warp to = *w;
+		SwitchMap(to.dest_map);
+		focus_entity->x = active_map->GetWarp(to.dest_point).x * 16;
+		focus_entity->y = active_map->GetWarp(to.dest_point).y * 16;
+		}*/
+	}
+	else
+		can_warp = true;
 
 	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
 	if (tex)
 		tex->AnimateTiles();
-	test_entity->Update();
+
+	for (int i = 0; i < entities.size(); i++)
+	{
+		if (entities[i])
+			entities[i]->Update();
+	}
+
+	if (!current_fade.Done() && current_fade.CurrentFade() != current_fade.LastFade())
+	{
+		SetPalette(current_fade.GetCurrentPalette());
+	}
 }
 
 void MapScene::Render(sf::RenderWindow* window)
 {
-	FocusFree(test_entity->x, test_entity->y);
+	FocusFree(focus_entity->x, focus_entity->y);
 	window->setView(viewport);
 
 	if (active_map)
@@ -119,16 +162,18 @@ void MapScene::Render(sf::RenderWindow* window)
 		}
 	}
 
-	test_entity->Render(window);
+	focus_entity->Render(window);
 	window->setView(window->getDefaultView());
-	
+
 	for (unsigned int i = 0; i < textboxes.size(); i++)
 		textboxes[i]->Render(window);
 }
 
 void MapScene::SwitchMap(unsigned char index)
 {
+	ClearEntities();
 	unsigned char previous_palette = 0;
+
 	if (!active_map)
 	{
 		active_map = new Map(index);
@@ -138,6 +183,7 @@ void MapScene::SwitchMap(unsigned char index)
 		previous_palette = ResourceCache::GetMapPaletteIndex(active_map->index);
 		active_map->index = index;
 	}
+
 	if (!active_map->Load())
 	{
 #ifdef _DEBUG
@@ -145,22 +191,12 @@ void MapScene::SwitchMap(unsigned char index)
 		return;
 #endif
 	}
-	if (!test_entity)
-		test_entity = new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false);
 
-	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
+	if (focus_entity)
+		focus_entity->SetMap(active_map);
 
-	if (tex)
-	{
-		tex->SetPalette(active_map->GetPalette());
-		for (int i = 0; i < 4; i++)
-		{
-			if (active_map->connected_maps[i])
-				ResourceCache::GetTileset(active_map->connected_maps[i]->tileset)->SetPalette(active_map->GetPalette());
-		}
-	}
-	ResourceCache::GetMenuTexture()->SetPalette(active_map->GetPalette());
-	ResourceCache::GetFontTexture()->SetPalette(active_map->GetPalette());
+	SetPalette(active_map->GetPalette());
+
 }
 
 void MapScene::Focus(signed char x, signed char y)
@@ -266,5 +302,38 @@ void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index,
 
 			tileset->Render(window, drawX, drawY, tile, 4, 4);
 		}
+	}
+}
+
+void MapScene::ClearEntities(bool focused)
+{
+	for (int i = 0; i < entities.size(); i++)
+	{
+		if (entities[i] != focus_entity || focused)
+			delete entities[i];
+	}
+}
+
+void MapScene::SetPalette(sf::Color* pal)
+{
+	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
+
+	if (tex)
+	{
+		tex->SetPalette(pal);
+		for (int i = 0; i < 4; i++)
+		{
+			if (active_map->connected_maps[i])
+				ResourceCache::GetTileset(active_map->connected_maps[i]->tileset)->SetPalette(pal);
+		}
+	}
+
+	ResourceCache::GetMenuTexture()->SetPalette(pal);
+	ResourceCache::GetFontTexture()->SetPalette(pal);
+
+	for (int i = 0; i < entities.size(); i++)
+	{
+		if (entities[i])
+			entities[i]->SetPalette(pal);
 	}
 }

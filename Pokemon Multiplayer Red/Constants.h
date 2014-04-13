@@ -23,9 +23,9 @@ enum ArrowStates
 	INACTIVE =	2
 };
 
-#define STARTING_MAP	18
+#define STARTING_MAP	0
 #define STARTING_X		5
-#define STARTING_Y		5
+#define STARTING_Y		6 
 
 #define VIEWPORT_WIDTH	10
 #define VIEWPORT_HEIGHT	9
@@ -71,12 +71,17 @@ enum ArrowStates
 #define MESSAGE_PARA		0x51
 #define MESSAGE_END			0x57
 #define MESSAGE_POKE		0x54
+#define MESSAGE_PROMPT		0x58
 
 //#define DEFAULT_PALETTE { sf::Color(255, 255, 255, 255), sf::Color(168, 168, 168, 255), sf::Color(96, 96, 96, 255), sf::Color(0, 0, 0, 255)}
 #define DEFAULT_PALETTE_0 sf::Color(255, 255, 255, 255)
 #define DEFAULT_PALETTE_1 sf::Color(168, 168, 168, 255)
 #define DEFAULT_PALETTE_2 sf::Color(96, 96, 96, 255)
 #define DEFAULT_PALETTE_3 sf::Color(0, 0, 0, 255)
+#define PAL_0_RGBA	4177066239
+#define PAL_1_RGBA	2829625599
+#define PAL_2_RGBA	1616929023
+#define PAL_3_RGBA	255
 
 //temporary input
 #define INPUT_UP		sf::Keyboard::Key::W

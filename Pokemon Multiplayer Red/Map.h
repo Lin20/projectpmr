@@ -6,6 +6,7 @@
 #include "ResourceCache.h"
 #include "DataBlock.h"
 #include "MapConnection.h"
+#include "Events.h"
 
 class Map
 {
@@ -26,6 +27,7 @@ public:
 	unsigned char* tiles;
 	MapConnection connections[4];
 	Map* connected_maps[4];
+	std::vector<Warp> warps;
 
 	inline bool HasConnection(unsigned char e) { return (connection_mask & (1 << (3 - e))) != 0; }
 	inline sf::Color* GetPalette() { return palette; }
@@ -35,6 +37,23 @@ public:
 	bool InGrass(int x, int y);
 
 	void RenderRectangle(int x, int y, int width, int height, sf::Sprite& sprite, sf::RenderWindow* window);
+
+	Warp GetWarp(int index)
+	{
+		if (index < warps.size())
+			return warps[index];
+		return Warp();
+	}
+
+	Warp* GetWarpAt(int x, int y)
+	{
+		for (int i = 0; i < warps.size(); i++)
+		{
+			if (warps[i].x == x && warps[i].y == y)
+				return &warps[i];
+		}
+		return 0;
+	}
 
 private:
 	unsigned char connection_mask;

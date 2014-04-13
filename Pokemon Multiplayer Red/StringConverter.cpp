@@ -7,6 +7,7 @@ Note: These can all be changed in ascii_table.dat
 #	=	POKé
 \n	=	new line
 \r	=	paragraph (prompt for input)
+\f	=	prompt for input to continue event
 -------------------------------------------------
 */
 

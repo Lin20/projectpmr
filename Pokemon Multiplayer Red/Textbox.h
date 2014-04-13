@@ -20,7 +20,7 @@ public:
 
 	void SetFrame(unsigned char x, unsigned char y, unsigned char width, unsigned char height);
 	void SetText(TextItem* text);
-	void SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, unsigned int flags = MenuFlags::NONE);
+	void SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, void(*close_callback)() = 0, unsigned int flags = MenuFlags::NONE);
 
 	void SetMenuFlags(unsigned int f) { menu_flags = f; }
 	void SetArrowState(unsigned int f) { arrow_state = f; }
@@ -51,6 +51,7 @@ private:
 	vector<TextItem*> items; //the items get displayed
 	sf::Vector2i item_start; //where the items start drawing (relative to pos)
 	sf::Vector2u item_spacing; //the space between the items
+	std::function<void()> close_callback; //the function that's called when the menu is closed
 
 	//menu selection stuff
 	unsigned int active_index; //where the active arrow is

@@ -64,6 +64,10 @@ void Textbox::Update()
 		{
 			items[active_index]->Action();
 		}
+		else if (InputController::KeyDownOnce(INPUT_B)) //press b
+		{
+			Close();
+		}
 	}
 	else if (!is_menu) //it's a regular textbox
 	{
@@ -79,13 +83,6 @@ void Textbox::Update()
 void Textbox::Render(sf::RenderWindow* window)
 {
 	DrawFrame(window);
-	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE))
-	{
-		if (arrow_state & ArrowStates::ACTIVE)
-			DrawArrow(window, true);
-		if (arrow_state & ArrowStates::INACTIVE)
-			DrawArrow(window, false);
-	}
 }
 
 void Textbox::SetFrame(unsigned char x, unsigned char y, unsigned char width, unsigned char height)
@@ -107,13 +104,14 @@ void Textbox::SetText(TextItem* text)
 	this->text_timer = 0;
 }
 
-void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, unsigned int flags)
+void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, void(*close_callback)(), unsigned int flags)
 {
 	this->is_menu = menu;
 	this->display_count = display_count;
 	this->item_start = start;
 	this->item_spacing = spacing;
 	this->menu_flags = flags;
+	this->close_callback = close_callback;
 	if (this->delete_on_close)
 	{
 		for (unsigned int i = 0; i < items.size(); i++)
@@ -174,6 +172,16 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 		}
 	}
 
+	//This code to draw arrows must be here instead of in the Render function where it was before.
+	//They get drawn on top of children otherwise.
+	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE))
+	{
+		if (arrow_state & ArrowStates::ACTIVE)
+			DrawArrow(window, true);
+		if (arrow_state & ArrowStates::INACTIVE)
+			DrawArrow(window, false);
+	}
+
 	for (int i = 0; i < textboxes.size(); i++)
 		textboxes[i]->Render(window);
 }
@@ -216,7 +224,7 @@ void Textbox::ProcessNextCharacter()
 	{
 	case 0: //end
 	case MESSAGE_END: //end
-		if (InputController::KeyDownOnce(INPUT_A))
+		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
 		{
 			text->Action();
 			Close();
@@ -238,6 +246,17 @@ void Textbox::ProcessNextCharacter()
 			arrow_timer = CURSOR_MORE_TIME;
 		return;
 
+	case MESSAGE_PROMPT: //prompt for continue
+		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
+		{
+			text->Action();
+			Close();
+			break;
+		}
+		else if (arrow_timer == 0)
+			arrow_timer = CURSOR_MORE_TIME;
+		return;
+
 	default: //regular char
 		tiles[text_tile_pos++] = c;
 		break;
@@ -251,4 +270,6 @@ void Textbox::ProcessNextCharacter()
 void Textbox::Close()
 {
 	close = true;
+	if (this->close_callback)
+		close_callback();
 }

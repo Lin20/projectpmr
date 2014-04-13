@@ -97,6 +97,8 @@
     <ClInclude Include="DataBlock.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Events.h" />
+    <ClInclude Include="Fade.h" />
     <ClInclude Include="InputController.h" />
     <ClInclude Include="MenuCache.h" />
     <ClInclude Include="TextboxParent.h" />

@@ -23,12 +23,15 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	for (int i = 0; i < 4; i++)
 		formation->data[i] = direction * 4 + i;
 
-	sf::Color palette[4] = { sf::Color(0, 0, 0, 0), *on_map->GetPalette(), on_map->GetPalette()[1], on_map->GetPalette()[3] };
-	tiles_tex->SetPalette(palette);
+	if (m)
+	{
+		sf::Color palette[4] = { sf::Color(0, 0, 0, 0), *on_map->GetPalette(), on_map->GetPalette()[1], on_map->GetPalette()[3] };
+		tiles_tex->SetPalette(palette);
+		if (!npc)
+			ResourceCache::GetShadowTexture()->SetPalette(palette);
+	}
 	sprite8x8.setTexture(*tiles_tex);
 	shadow8x8.setTexture(*ResourceCache::GetShadowTexture());
-	if (!npc)
-		ResourceCache::GetShadowTexture()->SetPalette(palette);
 
 	Face(direction);
 }
@@ -167,7 +170,7 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 			if (movement_type == MOVEMENT_JUMP)
 			{
 				dest_x = (int)(this->x + (h_flip ? 1 - x : x) * 8);
-				int offset = (ResourceCache::GetJumpCoordinates()->data[min(JUMP_STEPS - 3, max(0, (int)(signed char)jump_index))] - 0x3C) - (jump_y - this->y)-2;
+				int offset = (ResourceCache::GetJumpCoordinates()->data[min(JUMP_STEPS - 3, max(0, (int)(signed char)jump_index))] - 0x3C) - (jump_y - this->y) - 2;
 				dest_y = (int)(this->jump_y + y * 8) + offset;
 			}
 			sprite8x8.setPosition((float)dest_x, (float)dest_y);
@@ -177,7 +180,7 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 
 	//draw the grass on top of the player... gah!
 	//i'll be incredibly relieved when this is over.
-	if (on_map->InGrass(this->x / 16, this->y / 16))
+	if (on_map && on_map->InGrass(this->x / 16, this->y / 16))
 	{
 		//store the previous texture and set it to the transparent tiles
 		const sf::Texture* tex = sprite8x8.getTexture();

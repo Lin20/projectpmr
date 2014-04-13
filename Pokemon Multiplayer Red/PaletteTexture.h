@@ -25,6 +25,7 @@ private:
 	sf::Texture underlying_texture;
 	sf::Color palette[4];
 	sf::Uint8* pixels;
+	sf::Uint8* original_pixels;
 	sf::Vector2u size;
 };
 

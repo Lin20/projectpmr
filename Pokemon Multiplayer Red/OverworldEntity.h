@@ -20,6 +20,19 @@ public:
 	void Move(unsigned char direction, unsigned char steps = 1);
 	
 	inline bool Snapped() { return x % 16 == 0 && y % 16 == 0; }
+	inline bool Moving() { return step_timer > 0; }
+	void SetMap(Map* m)
+	{
+		this->on_map = m;
+	}
+
+	void SetPalette(sf::Color* pal)
+	{
+		sf::Color palette[4] = { sf::Color(0, 0, 0, 0), *pal, pal[1], pal[3] };
+		tiles_tex->SetPalette(palette);
+		if (!is_npc)
+			ResourceCache::GetShadowTexture()->SetPalette(palette);
+	}
 
 	int x;
 	int y;

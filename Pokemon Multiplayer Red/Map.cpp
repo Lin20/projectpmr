@@ -90,6 +90,17 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 	}
 
 	border_tile = *p++;
+	unsigned char count = *p++;
+	warps.clear();
+	for (int i = 0; i < count; i++)
+	{
+		Warp w;
+		w.x = *p++;
+		w.y = *p++;
+		w.dest_point = *p++;
+		w.dest_map = *p++;
+		warps.push_back(w);
+	}
 	return true;
 }
 
@@ -106,7 +117,7 @@ unsigned char Map::Get8x8Tile(int x, int y)
 bool Map::IsPassable(int x, int y)
 {
 	if (x < 0 || y < 0 || x >= width * 2 || y >= height * 2)
-		return false;
+		return true;
 	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
 	if (!tileset)
 		return true;
