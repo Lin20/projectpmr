@@ -255,7 +255,7 @@ bool Map::CanWarp(int x, int y, unsigned char direction, Warp* check_warp)
 	y += DELTAY(direction);
 	if (!IsPassable(x, y))
 	{
-		return tileset->IsDoorTile(tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12))) || (index > OUTSIDE_MAP && tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12)) == tileset->GetTile8x8(border_tile, (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12)));
+		return tileset->IsDoorTile(tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12))) || (index > OUTSIDE_MAP && tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12)) == tileset->GetTile8x8(border_tile, (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12)) && direction == ENTITY_DOWN);
 	}
 	return false;
 }

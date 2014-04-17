@@ -348,7 +348,7 @@ void MapScene::CheckWarp()
 				focus_entity->x = active_map->GetWarp(to.dest_point).x * 16;
 				focus_entity->y = active_map->GetWarp(to.dest_point).y * 16;
 
-				if (active_map->IsPassable(focus_entity->x / 16, focus_entity->y / 16 + 1) && active_map->CanWarp(focus_entity->x / 16, focus_entity->y / 16, 0xFF, &to) && !active_map->IsPassable(focus_entity->x / 16, focus_entity->y / 16 - 1) && !active_map->IsPassable(focus_entity->x / 16 - 1, focus_entity->y / 16))
+				if (active_map->IsPassable(focus_entity->x / 16, focus_entity->y / 16 + 1) && active_map->CanWarp(focus_entity->x / 16, focus_entity->y / 16, 0xFF, &to) && !active_map->IsPassable(focus_entity->x / 16, focus_entity->y / 16 - 1) && !active_map->IsPassable(focus_entity->x / 16 - 1, focus_entity->y / 16) && !active_map->IsPassable(focus_entity->x / 16 + 1, focus_entity->y / 16))
 					walk_direction = ENTITY_DOWN;
 				if (walk_direction == ENTITY_DOWN)
 					focus_entity->Move(walk_direction, 1);
