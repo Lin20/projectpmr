@@ -17,10 +17,14 @@ public:
 	void Face(unsigned char direction);
 	void StartMoving(unsigned char direction);
 	void StopMoving();
+	void ForceStop();
 	void Move(unsigned char direction, unsigned char steps = 1);
 	
 	inline bool Snapped() { return x % 16 == 0 && y % 16 == 0; }
 	inline bool Moving() { return step_timer > 0; }
+	inline unsigned char GetDirection() { return direction; }
+	inline unsigned char GetMovementDirection() { return movement_direction; }
+
 	void SetMap(Map* m)
 	{
 		this->on_map = m;
@@ -40,6 +44,7 @@ private:
 	unsigned char index;
 	Map* on_map;
 	bool is_npc;
+	bool can_move;
 
 	//movement stuff
 	unsigned char direction;

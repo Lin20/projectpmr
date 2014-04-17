@@ -24,9 +24,12 @@ public:
 	unsigned char GetTile8x8(unsigned char tile, unsigned char corner4x4);
 	inline PaletteTexture* GetTransparentTiles() { return &transparent_tiles; }
 
+	bool IsDoorTile(unsigned char tile);
+
 protected:
 	DataBlock* misc_data;
 	DataBlock* collision_data;
+	DataBlock* door_tiles;
 
 	PaletteTexture water_tile;
 	PaletteTexture transparent_tiles; //transparent texture for drawing grass overlays

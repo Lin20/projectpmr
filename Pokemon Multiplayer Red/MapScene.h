@@ -36,5 +36,10 @@ private:
 	//OverworldEntity* test_entity;
 
 	bool can_warp;
-	bool key_down;
+	unsigned char previous_palette;
+	unsigned char previous_map; //previous overworld map
+	unsigned char elevator_map; //where to go when an elevator is exited
+
+	void CheckWarp();
+	void TryResetWarp();
 };

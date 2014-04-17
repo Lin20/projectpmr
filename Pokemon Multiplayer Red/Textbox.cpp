@@ -182,7 +182,7 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 			DrawArrow(window, false);
 	}
 
-	for (int i = 0; i < textboxes.size(); i++)
+	for (unsigned int i = 0; i < textboxes.size(); i++)
 		textboxes[i]->Render(window);
 }
 

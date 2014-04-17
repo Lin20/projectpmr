@@ -4,6 +4,7 @@
 MapScene::MapScene() : Scene()
 {
 	active_map = 0;
+	previous_map = 13;
 
 	//Initialize the player
 	entities.push_back(new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false));
@@ -26,23 +27,28 @@ MapScene::~MapScene()
 void MapScene::Update()
 {
 	current_fade.Update();
-	if (!UpdateTextboxes() && current_fade.Done())
+	CheckWarp();
+	if (!UpdateTextboxes() && current_fade.Done() && input_enabled)
 	{
 		if (sf::Keyboard::isKeyPressed(INPUT_DOWN))
 		{
 			focus_entity->StartMoving(ENTITY_DOWN);
+			TryResetWarp();
 		}
 		else if (sf::Keyboard::isKeyPressed(INPUT_UP))
 		{
 			focus_entity->StartMoving(ENTITY_UP);
+			TryResetWarp();
 		}
 		else if (sf::Keyboard::isKeyPressed(INPUT_LEFT))
 		{
 			focus_entity->StartMoving(ENTITY_LEFT);
+			TryResetWarp();
 		}
 		else if (sf::Keyboard::isKeyPressed(INPUT_RIGHT))
 		{
 			focus_entity->StartMoving(ENTITY_RIGHT);
+			TryResetWarp();
 		}
 		else
 			focus_entity->StopMoving();
@@ -59,11 +65,11 @@ void MapScene::Update()
 	int x = (int)(focus_entity ? focus_entity->x : 0);
 	int y = (int)(focus_entity ? focus_entity->y : 0);
 
-	if (x < -15 && active_map->HasConnection(CONNECTION_WEST))
+	if (x < 0 && active_map->HasConnection(CONNECTION_WEST))
 	{
 		MapConnection connection = active_map->connections[CONNECTION_WEST];
 		SwitchMap(active_map->connections[CONNECTION_WEST].map);
-		focus_entity->x = active_map->width * 32 - 16;
+		focus_entity->x = active_map->width * 32 - 1;
 		focus_entity->y = y + (connection.y_alignment + (connection.y_alignment < 0 ? 0 : 0)) * 16;
 		//FocusFree(active_map->width * 32 + 16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
 	}
@@ -76,12 +82,12 @@ void MapScene::Update()
 		//FocusFree(16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
 	}
 
-	if (y < -15 && active_map->HasConnection(CONNECTION_NORTH))
+	if (y < 0 && active_map->HasConnection(CONNECTION_NORTH))
 	{
 		MapConnection connection = active_map->connections[CONNECTION_NORTH];
 		SwitchMap(active_map->connections[CONNECTION_NORTH].map);
 		focus_entity->x = x + (connection.x_alignment + (connection.x_alignment < 0 ? 0 : 0)) * 16;
-		focus_entity->y = active_map->height * 32 - 16;
+		focus_entity->y = active_map->height * 32 - 1;
 		//FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, active_map->height * 32 - 20);
 	}
 	else if (y >= active_map->height * 32 && active_map->HasConnection(CONNECTION_SOUTH))
@@ -92,46 +98,12 @@ void MapScene::Update()
 		focus_entity->y = 0;
 		//FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, -16);
 	}
-	else if (focus_entity->Snapped())
-	{
-		if (can_warp)
-		{
-			Warp* w = active_map->GetWarpAt(focus_entity->x / 16, focus_entity->y / 16);
-			if (w && w->dest_map != 255)
-			{
-				current_fade.SetFadeToBlack(active_map->GetPalette());
-				current_fade.Start(w);
-				can_warp = false;
-			}
-		}
-		else if (current_fade.Done())
-		{
-			Warp* to = current_fade.GetWarpTo();
-			if (to)
-			{
-				SwitchMap(to->dest_map);
-				focus_entity->x = active_map->GetWarp(to->dest_point).x * 16;
-				focus_entity->y = active_map->GetWarp(to->dest_point).y * 16;
-				current_fade.SetWarpTo(0);
-			}
-		}
-		/*else if (w)
-		{
-		current_fade.Reset();
-		Warp to = *w;
-		SwitchMap(to.dest_map);
-		focus_entity->x = active_map->GetWarp(to.dest_point).x * 16;
-		focus_entity->y = active_map->GetWarp(to.dest_point).y * 16;
-		}*/
-	}
-	else
-		can_warp = true;
 
 	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
 	if (tex)
 		tex->AnimateTiles();
 
-	for (int i = 0; i < entities.size(); i++)
+	for (unsigned int i = 0; i < entities.size(); i++)
 	{
 		if (entities[i])
 			entities[i]->Update();
@@ -141,6 +113,7 @@ void MapScene::Update()
 	{
 		SetPalette(current_fade.GetCurrentPalette());
 	}
+
 }
 
 void MapScene::Render(sf::RenderWindow* window)
@@ -173,6 +146,8 @@ void MapScene::SwitchMap(unsigned char index)
 {
 	ClearEntities();
 	unsigned char previous_palette = 0;
+	if (index <= OUTSIDE_MAP)
+		previous_map = index;
 
 	if (!active_map)
 	{
@@ -206,7 +181,7 @@ void MapScene::Focus(signed char x, signed char y)
 
 void MapScene::FocusFree(int x, int y)
 {
-	viewport.reset(sf::FloatRect(x - (int)(VIEWPORT_WIDTH / 2 - 1) * 16, y - ((int)(VIEWPORT_HEIGHT / 2)) * 16, VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16));
+	viewport.reset(sf::FloatRect((float)(x - (int)(VIEWPORT_WIDTH / 2 - 1) * 16), (float)(y - ((int)(VIEWPORT_HEIGHT / 2)) * 16), VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16));
 }
 
 void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index, MapConnection* connection)
@@ -307,7 +282,7 @@ void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index,
 
 void MapScene::ClearEntities(bool focused)
 {
-	for (int i = 0; i < entities.size(); i++)
+	for (unsigned int i = 0; i < entities.size(); i++)
 	{
 		if (entities[i] != focus_entity || focused)
 			delete entities[i];
@@ -331,9 +306,70 @@ void MapScene::SetPalette(sf::Color* pal)
 	ResourceCache::GetMenuTexture()->SetPalette(pal);
 	ResourceCache::GetFontTexture()->SetPalette(pal);
 
-	for (int i = 0; i < entities.size(); i++)
+	for (unsigned int i = 0; i < entities.size(); i++)
 	{
 		if (entities[i])
 			entities[i]->SetPalette(pal);
+	}
+}
+
+void MapScene::CheckWarp()
+{
+	if (focus_entity->Snapped())
+	{
+		Warp* w = active_map->GetWarpAt(focus_entity->x / 16, focus_entity->y / 16);
+		if (can_warp && active_map->CanWarp(focus_entity->x / 16, focus_entity->y / 16, focus_entity->GetMovementDirection(), w))
+		{
+			current_fade.SetFadeToBlack(active_map->GetPalette());
+			current_fade.Start(w);
+			if (w->dest_map != ELEVATOR_MAP)
+			{
+				elevator_map = active_map->index;
+			}
+			can_warp = false;
+			input_enabled = false;
+			focus_entity->ForceStop();
+		}
+		else if (current_fade.Done())
+		{
+			if (current_fade.GetWarpTo())
+			{
+				Warp to = *current_fade.GetWarpTo();
+				unsigned char walk_direction = 0xFF;
+				//Determine whether or not the player walks after exiting a map
+				if (to.dest_map == 255)
+					to.dest_map = previous_map;
+				else if (to.dest_map == ELEVATOR_MAP)
+					to.dest_map = elevator_map;
+				if (focus_entity->GetDirection() == ENTITY_DOWN && to.type == WARP_TO_OUTSIDE && to.dest_map <= OUTSIDE_MAP)
+					walk_direction = ENTITY_DOWN;
+
+				SwitchMap(to.dest_map);
+				focus_entity->x = active_map->GetWarp(to.dest_point).x * 16;
+				focus_entity->y = active_map->GetWarp(to.dest_point).y * 16;
+
+				if (active_map->IsPassable(focus_entity->x / 16, focus_entity->y / 16 + 1) && active_map->CanWarp(focus_entity->x / 16, focus_entity->y / 16, 0xFF, &to) && !active_map->IsPassable(focus_entity->x / 16, focus_entity->y / 16 - 1) && !active_map->IsPassable(focus_entity->x / 16 - 1, focus_entity->y / 16))
+					walk_direction = ENTITY_DOWN;
+				if (walk_direction == ENTITY_DOWN)
+					focus_entity->Move(walk_direction, 1);
+				current_fade.SetWarpTo(0);
+
+				input_enabled = true;
+			}
+		}
+	}
+	else if (current_fade.Done())
+		can_warp = true;
+}
+
+void MapScene::TryResetWarp()
+{
+	Warp* w = active_map->GetWarpAt(focus_entity->x / 16, focus_entity->y / 16);
+	if (!active_map->CanWarp(focus_entity->x / 16, focus_entity->y / 16, focus_entity->GetMovementDirection(), w))
+	{
+		if (w)
+		{
+			can_warp = true;
+		}
 	}
 }

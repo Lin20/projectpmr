@@ -32,13 +32,15 @@ public:
 	inline bool HasConnection(unsigned char e) { return (connection_mask & (1 << (3 - e))) != 0; }
 	inline sf::Color* GetPalette() { return palette; }
 	unsigned char Get8x8Tile(int x, int y);
+	unsigned char GetCornerTile(int x, int y, unsigned char corner);
 	bool IsPassable(int x, int y);
 	bool CanJump(int x, int y, unsigned char direction); //can jump from the current position facing the specified direction
 	bool InGrass(int x, int y);
+	bool CanWarp(int x, int y, unsigned char direction, Warp* check_warp);
 
 	void RenderRectangle(int x, int y, int width, int height, sf::Sprite& sprite, sf::RenderWindow* window);
 
-	Warp GetWarp(int index)
+	Warp GetWarp(unsigned int index)
 	{
 		if (index < warps.size())
 			return warps[index];
@@ -47,9 +49,9 @@ public:
 
 	Warp* GetWarpAt(int x, int y)
 	{
-		for (int i = 0; i < warps.size(); i++)
+		for (unsigned int i = 0; i < warps.size(); i++)
 		{
-			if (warps[i].x == x && warps[i].y == y)
+			if ((int)warps[i].x == x && (int)warps[i].y == y)
 				return &warps[i];
 		}
 		return 0;

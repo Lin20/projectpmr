@@ -18,4 +18,5 @@ public:
 
 protected:
 	Fade current_fade;
+	bool input_enabled;
 };

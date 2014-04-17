@@ -106,27 +106,59 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 
 unsigned char Map::Get8x8Tile(int x, int y)
 {
+	return GetCornerTile(x / 2, y / 2, (abs(x) % 2) + (abs(y) % 2) * 2);
+	/*Tileset* tileset = ResourceCache::GetTileset(this->tileset);
+	if (!tileset)
+		return 0;
 	if (x < 0 || y < 0 || x >= width * 4 || y >= height * 4)
-		return false;
+	{
+		return tileset->GetTile8x8(border_tile, x % 4 + (y % 4) * 4);
+	}
+	return tileset->GetTile8x8(tiles[x / 4 + y / 4 * width], x % 4 + (y % 4) * 4);*/
+}
+
+unsigned char Map::GetCornerTile(int x, int y, unsigned char corner)
+{
 	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
 	if (!tileset)
 		return 0;
-	return tileset->GetTile8x8(tiles[x / 4 + y / 4 * width], x % 4 + (y % 4) * 4);
+	if (x < 0 || y < 0 || x >= width * 2 || y >= height * 2)
+	{
+		if (x < 0 && HasConnection(CONNECTION_WEST))
+		{
+			return connected_maps[CONNECTION_WEST]->GetCornerTile(connected_maps[CONNECTION_WEST]->width * 2 - 1, y + connections[CONNECTION_WEST].y_alignment, corner);
+		}
+		if (x >= width * 2 && HasConnection(CONNECTION_EAST))
+		{
+			return connected_maps[CONNECTION_EAST]->GetCornerTile(0, y + connections[CONNECTION_EAST].y_alignment, corner);
+		}
+		if (y < 0 && HasConnection(CONNECTION_NORTH))
+		{
+			return connected_maps[CONNECTION_NORTH]->GetCornerTile(x + connections[CONNECTION_NORTH].x_alignment, connected_maps[CONNECTION_NORTH]->height * 2 - 1, corner);
+		}
+		if (y >= height * 2 && HasConnection(CONNECTION_SOUTH))
+		{
+			return connected_maps[CONNECTION_SOUTH]->GetCornerTile(x + connections[CONNECTION_SOUTH].x_alignment, 0, corner);
+		}
+		corner = (x % 2 == 0 ? 0 : 2) + corner % 2 + (y % 2 == 0 ? 0 : 8) + (corner / 2) * 4;
+		return tileset->GetTile8x8(border_tile, corner);
+	}
+	corner = (x % 2 == 0 ? 0 : 2) + corner % 2 + (y % 2 == 0 ? 0 : 8) + (corner / 2) * 4;
+	return tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], corner);
 }
 
 bool Map::IsPassable(int x, int y)
 {
-	if (x < 0 || y < 0 || x >= width * 2 || y >= height * 2)
-		return true;
 	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
 	if (!tileset)
 		return true;
+	unsigned char tile = GetCornerTile(x, y, 2);
+
 	DataBlock* collision = tileset->GetCollisionData();
 	if (!collision)
 		return true;
 
 	//the original game uses the lower-left tile of a 16x16 block to determine whether or not that block is passable
-	unsigned char tile = tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12));
 	for (unsigned int i = 0; i < collision->size; i++)
 	{
 		if (collision->data[i] == tile)
@@ -194,12 +226,44 @@ bool Map::InGrass(int x, int y)
 		return true;
 
 	//the original game uses the lower-left tile of a 16x16 block to determine whether or not that block is passable
-	unsigned char tile = tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12));
-	return tile == tileset->GetMiscData()->data[3]; //second to last byte in the tileset header is the grass tile
+	return GetCornerTile(x, y, 2) == tileset->GetMiscData()->data[3]; //second to last byte in the tileset header is the grass tile
+}
+
+bool Map::CanWarp(int x, int y, unsigned char direction, Warp* check_warp)
+{
+	if (!check_warp)
+		return false;
+	x += DELTAX(direction);
+	y += DELTAY(direction);
+	if (x < 0 || y < 0 || x >= width * 2 || y >= height * 2)
+	{
+		check_warp->type = WARP_TO_OUTSIDE;
+		return true;
+	}
+	x -= DELTAX(direction);
+	y -= DELTAY(direction);
+	check_warp->type = WARP_TILE;
+
+	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
+	if (!tileset)
+		return false;
+
+	bool b = tileset->IsDoorTile(tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12)));
+	if (b)
+		return true;
+	x += DELTAX(direction);
+	y += DELTAY(direction);
+	if (!IsPassable(x, y))
+	{
+		return tileset->IsDoorTile(tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12))) || (index > OUTSIDE_MAP && tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12)) == tileset->GetTile8x8(border_tile, (x % 2 == 0 ? 0 : 2) + (y % 2 == 0 ? 4 : 12)));
+	}
+	return false;
 }
 
 void Map::RenderRectangle(int x, int y, int width, int height, sf::Sprite& sprite, sf::RenderWindow* window)
 {
+	int delta_y = (y < 0 ? (y - 7) / 8 * 8 + y % 8 : 0);
+	y -= delta_y;
 	sf::IntRect src_rect;
 	int _px = x;
 	int _py = y;
@@ -208,12 +272,12 @@ void Map::RenderRectangle(int x, int y, int width, int height, sf::Sprite& sprit
 		int lX = x / 8 * 8;
 		for (y = _py; y <= _py + height; y += 8)
 		{
-			int lY = y / 8 * 8;
-			unsigned char tile = Get8x8Tile(x / 8, y / 8);
+			int lY = (y < 0 ? y - (8 + (y % 8)) : y) / 8 * 8;
+			unsigned char tile = Get8x8Tile(x / 8, lY / 8);
 			int w = 8 - (lX < _px ? x % 8 : lX + 8 > _px + width ? 8 - x % 8 : 0);
 			int h = 8 - (lY < _py ? y % 8 : lY + 8 > _py + height ? 8 - y % 8 : 0);
 			src_rect.left = (tile % 16) * 8 + (8 - w);
-			src_rect.top = (tile / 16) * 8 + (8 - h);
+			src_rect.top = (tile / 16) * 8 + (8 - h) - (delta_y > 0 ? 8 + (delta_y % 8) : 0);
 			src_rect.width = w;
 			src_rect.height = h;
 			sprite.setTextureRect(src_rect);

@@ -12,6 +12,8 @@ Tileset::~Tileset()
 		delete misc_data;
 	if (collision_data)
 		delete collision_data;
+	if (door_tiles)
+		delete door_tiles;
 }
 
 void Tileset::Load(unsigned char index)
@@ -22,6 +24,7 @@ void Tileset::Load(unsigned char index)
 	formation = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\formation\\").append(to_string(index)).append(".dat")).c_str());
 	misc_data = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\misc\\").append(to_string(index)).append(".dat")).c_str());
 	collision_data = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\collision\\").append(to_string(index)).append(".dat")).c_str());
+	door_tiles = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\warp\\").append(to_string(index)).append(".dat")).c_str());
 
 	tiles_x = 16;
 	this->index = index;
@@ -99,4 +102,18 @@ unsigned char Tileset::GetTile8x8(unsigned char tile, unsigned char corner4x4)
 	if (a >= formation->size)
 		return 0;
 	return formation->data[a];
+}
+
+bool Tileset::IsDoorTile(unsigned char tile)
+{
+	if (!door_tiles || !door_tiles->data)
+		return false;
+
+	for (unsigned int i = 0; i < door_tiles->size; i++)
+	{
+		if (door_tiles->data[i] == tile)
+			return true;
+	}
+
+	return false;
 }

@@ -24,8 +24,8 @@ enum ArrowStates
 };
 
 #define STARTING_MAP	0
-#define STARTING_X		5
-#define STARTING_Y		6 
+#define STARTING_X		10
+#define STARTING_Y		0
 
 #define VIEWPORT_WIDTH	10
 #define VIEWPORT_HEIGHT	9
@@ -34,6 +34,12 @@ enum ArrowStates
 #define CONNECTION_SOUTH	1
 #define CONNECTION_WEST		2
 #define CONNECTION_EAST		3
+#define OUTSIDE_MAP			36
+
+//warp stuff
+#define WARP_TILE			0
+#define WARP_TO_OUTSIDE		1
+#define ELEVATOR_MAP		237
 
 #define WATER_TILE 20
 #define FLOWER_TILE 3
@@ -59,7 +65,7 @@ enum ArrowStates
 #define MENU_CORNER_UL		25
 #define MENU_H				26
 #define MENU_CORNER_UR		27
-#define MENU_V			28
+#define MENU_V				28
 #define MENU_CORNER_DL		29
 #define MENU_CORNER_DR		30
 #define CURSOR_ACTIVE		109

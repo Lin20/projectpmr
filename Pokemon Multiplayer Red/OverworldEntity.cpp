@@ -262,6 +262,14 @@ void OverworldEntity::StopMoving()
 	movement_direction = MOVEMENT_NONE;
 }
 
+void OverworldEntity::ForceStop()
+{
+	movement_direction = MOVEMENT_NONE;
+	step_timer = 0;
+	steps_remaining = 0;
+	step_frame = 0;
+}
+
 void OverworldEntity::Move(unsigned char direction, unsigned char steps)
 {
 	StartMoving(direction);
