@@ -1,8 +1,8 @@
 #pragma once
 
-#include <SFML\Graphics.hpp>
+#include <string.h>
+#include <SFML/Graphics.hpp>
 #include "Events.h"
-
 /* This whole class is a mess.
  * I don't like how it's an entire class definition, but none of the functions are
  * long/complicated enough (in my opinion) to create a regular cpp file containing the
@@ -15,7 +15,9 @@ class Fade
 public:
 	Fade(unsigned int start = 0)
 	{
+		this->fade_timer = 0;
 		this->start_fade = start;
+		this->warp_to = 0;
 	}
 	~Fade() { }
 
@@ -72,5 +74,5 @@ private:
 	unsigned int start_fade;
 	unsigned int previous_fade_index;
 	bool done;
-	Warp* warp_to; //warp 
+	Warp* warp_to; //warp
 };

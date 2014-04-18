@@ -19,12 +19,12 @@ Tileset::~Tileset()
 void Tileset::Load(unsigned char index)
 {
 	tiles_tex = new PaletteTexture();
-	tiles_tex->loadFromFile(ResourceCache::GetResourceLocation(string("tilesets\\").append(to_string(index)).append(".png")));
-	water_tile.loadFromFile(ResourceCache::GetResourceLocation(string("tilesets\\water\\").append(to_string(index)).append(".png")));
-	formation = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\formation\\").append(to_string(index)).append(".dat")).c_str());
-	misc_data = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\misc\\").append(to_string(index)).append(".dat")).c_str());
-	collision_data = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\collision\\").append(to_string(index)).append(".dat")).c_str());
-	door_tiles = ReadFile(ResourceCache::GetResourceLocation(string("tilesets\\warp\\").append(to_string(index)).append(".dat")).c_str());
+	tiles_tex->loadFromFile(ResourceCache::GetResourceLocation(string("tilesets/").append(itos(index)).append(".png")));
+	water_tile.loadFromFile(ResourceCache::GetResourceLocation(string("tilesets/water/").append(itos(index)).append(".png")));
+	formation = ReadFile(ResourceCache::GetResourceLocation(string("tilesets/formation/").append(itos(index)).append(".dat")).c_str());
+	misc_data = ReadFile(ResourceCache::GetResourceLocation(string("tilesets/misc/").append(itos(index)).append(".dat")).c_str());
+	collision_data = ReadFile(ResourceCache::GetResourceLocation(string("tilesets/collision/").append(itos(index)).append(".dat")).c_str());
+	door_tiles = ReadFile(ResourceCache::GetResourceLocation(string("tilesets/warp/").append(itos(index)).append(".dat")).c_str());
 
 	tiles_x = 16;
 	this->index = index;

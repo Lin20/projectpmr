@@ -11,11 +11,15 @@ public:
 	TextItem(Textbox* owner, void (*action_callback)() = 0, string text = 0, unsigned char index = 0, unsigned int value = 0)
 	{
 		this->owner_textbox = owner;
-		this->callback = action_callback;
+		//for this stupid block of code, see Textbox.cpp
+		if(action_callback)
+			this->callback = action_callback;
+		else
+			this->callback = nullptr;
 		this->text = text;
 		this->index = 0;
 		this->value = 0;
-		
+
 		pokestring(this->text);
 	}
 
@@ -25,7 +29,7 @@ public:
 
 	void Action()
 	{
-		if (callback)
+		if (callback != nullptr)
 			callback();
 	}
 

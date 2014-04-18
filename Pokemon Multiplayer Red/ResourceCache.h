@@ -1,11 +1,12 @@
 #pragma once
 
 #include <string>
-#include <SFML\Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 #include "Common.h"
 #include "Tileset.h"
 #include "PaletteTexture.h"
+#include "Utils.h"
 
 #ifdef _DEBUG
 #include <iostream>
@@ -13,7 +14,8 @@
 
 using namespace std;
 
-#define RESOURCE_DIR "C:\\red dumps\\"
+#define RESOURCE_DIR "C:/red dumps/"
+
 
 class ResourceCache
 {
@@ -29,7 +31,7 @@ public:
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 	static void ReleaseResources();
 
-	inline static Tileset* GetTileset(unsigned char index) 
+	inline static Tileset* GetTileset(unsigned char index)
 	{
 		if (index >= 24)
 			return 0;

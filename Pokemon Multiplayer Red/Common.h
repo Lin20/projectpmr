@@ -22,4 +22,4 @@ struct DataBlock;
 struct MapConnection;
 struct Warp;
 
-enum States;
+//enum States;

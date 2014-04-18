@@ -23,9 +23,9 @@ enum ArrowStates
 	INACTIVE =	2
 };
 
-#define STARTING_MAP	96
-#define STARTING_X		9
-#define STARTING_Y		12
+#define STARTING_MAP	0
+#define STARTING_X		5
+#define STARTING_Y		6
 
 #define VIEWPORT_WIDTH	10
 #define VIEWPORT_HEIGHT	9

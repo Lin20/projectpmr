@@ -4,6 +4,26 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 {
 	tiles = 0;
 	delete_on_close = d;
+	close = false;
+
+	is_menu = false;
+	display_count = 0;
+	scroll_start = 0;
+	scroll_position = 0;
+	close_callback = nullptr;
+
+	active_index = 0;
+	inactive_index = 0;
+	menu_flags = 0;
+	arrow_state = 0;
+
+	text = 0;
+	text_tile_pos = 0;
+	text_pos = 0;
+	autoscroll = false;
+	text_timer = 0;
+	arrow_timer = 0;
+
 	SetFrame(x, y, width, height);
 }
 
@@ -104,14 +124,20 @@ void Textbox::SetText(TextItem* text)
 	this->text_timer = 0;
 }
 
-void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, void(*close_callback)(), unsigned int flags)
+void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, void(*callback)(), unsigned int flags)
 {
 	this->is_menu = menu;
 	this->display_count = display_count;
 	this->item_start = start;
 	this->item_spacing = spacing;
 	this->menu_flags = flags;
-	this->close_callback = close_callback;
+	//for assigning close_callback, you'd think if we passed nullptr to callback and assigned close_callback to callback, close_callback would be assigned nullptr
+	//but no, for some stupid reason the gcc doesn't like that. >:(
+	if (callback)
+		this->close_callback = callback;
+	else
+		this->close_callback = nullptr;
+	//this->close_callback = (callback ? nullptr : callback);
 	if (this->delete_on_close)
 	{
 		for (unsigned int i = 0; i < items.size(); i++)
@@ -270,6 +296,6 @@ void Textbox::ProcessNextCharacter()
 void Textbox::Close()
 {
 	close = true;
-	if (this->close_callback)
+	if (this->close_callback != nullptr)
 		close_callback();
 }

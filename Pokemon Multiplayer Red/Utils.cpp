@@ -20,7 +20,7 @@ DataBlock* ReadFile(const std::string& filename)
 
 DataBlock* ReadFile(const char* filename)
 {
-	std::ifstream myfile = std::ifstream(filename, std::ios::in | std::ios::binary | std::ios::ate);
+	std::ifstream myfile(filename, std::ios::in | std::ios::binary | std::ios::ate);
 	if (!myfile)
 		return 0;
 	unsigned int size = (unsigned int)myfile.tellg();
@@ -29,4 +29,11 @@ DataBlock* ReadFile(const char* filename)
 	myfile.read((char*)data, size);
 	myfile.close();
 	return new DataBlock(data, size);
+}
+
+std::string itos(int i)
+{
+	std::ostringstream temp;
+    temp << i;
+    return temp.str();
 }

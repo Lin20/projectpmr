@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <SFML/Graphics.hpp>
 #include "Constants.h"
 

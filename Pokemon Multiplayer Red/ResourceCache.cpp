@@ -21,7 +21,7 @@ ResourceCache::ResourceCache()
 
 ResourceCache::~ResourceCache()
 {
-	
+
 }
 
 void ResourceCache::ReleaseResources()
@@ -78,7 +78,7 @@ void ResourceCache::LoadTilesets()
 	cout << "--Loading tilesets...";
 #endif
 	flower_texture = new PaletteTexture();
-	flower_texture->loadFromFile(ResourceCache::GetResourceLocation(string("tilesets\\flower.png")));
+	flower_texture->loadFromFile(ResourceCache::GetResourceLocation(string("tilesets/flower.png")));
 	for (int i = 0; i < 24; i++)
 	{
 		tilesets[i] = new Tileset(i);
@@ -96,7 +96,7 @@ void ResourceCache::LoadEntities()
 	for (int i = 0; i < 73; i++)
 	{
 		entity_textures[i] = new PaletteTexture();
-		entity_textures[i]->loadFromFile(ResourceCache::GetResourceLocation(string("npcs\\").append(to_string(i)).append(".png")));
+		entity_textures[i]->loadFromFile(ResourceCache::GetResourceLocation(string("npcs/").append(itos(i)).append(".png")));
 	}
 #ifdef _DEBUG
 	cout << "Done\n";
@@ -108,8 +108,8 @@ void ResourceCache::LoadPalettes()
 #ifdef _DEBUG
 	cout << "--Loading palettes...";
 #endif
-	map_palette_indexes = ReadFile(ResourceCache::GetResourceLocation(string("pal\\map_index.dat")).c_str());
-	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("pal\\main.dat")).c_str());
+	map_palette_indexes = ReadFile(ResourceCache::GetResourceLocation(string("pal/map_index.dat")).c_str());
+	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("pal/main.dat")).c_str());
 	for (int i = 0; i < 768; i++)
 	{
 		unsigned char r = *data->data++;
@@ -128,17 +128,17 @@ void ResourceCache::LoadMisc()
 #ifdef _DEBUG
 	cout << "--Loading misc...";
 #endif
-	ledges = ReadFile(ResourceCache::GetResourceLocation(string("misc\\ledges.dat")).c_str());
-	jump_coordinates = ReadFile(ResourceCache::GetResourceLocation(string("misc\\jumps.dat")).c_str());
+	ledges = ReadFile(ResourceCache::GetResourceLocation(string("misc/ledges.dat")).c_str());
+	jump_coordinates = ReadFile(ResourceCache::GetResourceLocation(string("misc/jumps.dat")).c_str());
 
 	shadow_texture = new PaletteTexture();
-	shadow_texture->loadFromFile(ResourceCache::GetResourceLocation(string("npcs\\shadow.png")));
+	shadow_texture->loadFromFile(ResourceCache::GetResourceLocation(string("npcs/shadow.png")));
 
 	menu_texture = new PaletteTexture();
-	menu_texture->loadFromFile(ResourceCache::GetResourceLocation(string("misc\\menu.png")));
+	menu_texture->loadFromFile(ResourceCache::GetResourceLocation(string("misc/menu.png")));
 	font_texture = new PaletteTexture();
-	font_texture->loadFromFile(ResourceCache::GetResourceLocation(string("misc\\font.png")));
-	ascii_table = ReadFile(ResourceCache::GetResourceLocation(string("misc\\ascii_table.dat")).c_str());
+	font_texture->loadFromFile(ResourceCache::GetResourceLocation(string("misc/font.png")));
+	ascii_table = ReadFile(ResourceCache::GetResourceLocation(string("misc/ascii_table.dat")).c_str());
 
 #ifdef _DEBUG
 	cout << "Done\n";

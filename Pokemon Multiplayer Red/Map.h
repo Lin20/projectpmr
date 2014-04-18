@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include "Common.h"
 #include "TileMap.h"
 #include "Utils.h"

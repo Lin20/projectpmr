@@ -1,9 +1,11 @@
 #pragma once
 
+#include <cstring.>
+#include <string>
 #include "Common.h"
 #include "TextboxParent.h"
 #include <vector>
-#include <SFML\Graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include "ResourceCache.h"
 #include "TextItem.h"
 #include "StringConverter.h"
@@ -24,7 +26,7 @@ public:
 
 	void SetMenuFlags(unsigned int f) { menu_flags = f; }
 	void SetArrowState(unsigned int f) { arrow_state = f; }
-	
+
 	void UpdateMenu();
 
 	sf::Vector2i GetPosition() { return pos; }

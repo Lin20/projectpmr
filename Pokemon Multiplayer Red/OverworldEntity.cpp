@@ -17,6 +17,9 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	animation_timer = 0;
 	movement_direction = 0xFF;
 	turn_delay_timer = 0;
+	steps_remaining = 0;
+	movement_type = 0;
+	forced_steps = false;
 
 	//is this entity a moving npc or a static image (eg. pokeball)
 	direction = (direction > 3 ? 0 : index <= ENTITY_LIMIT ? direction : 0);

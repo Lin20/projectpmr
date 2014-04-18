@@ -9,6 +9,8 @@ Map::Map(unsigned char index)
 	this->index = index;
 	tiles = 0;
 	palette = ResourceCache::GetPalette(0);
+	for(int i = 0; i < 4; i++)
+		connected_maps[i] = 0;
 }
 
 Map::~Map()
@@ -24,7 +26,7 @@ Map::~Map()
 
 bool Map::Load(bool only_load_tiles)
 {
-	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("maps\\").append(to_string(index).append(".dat"))).c_str());
+	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("maps/").append(itos(index).append(".dat"))).c_str());
 	if (!ParseHeader(data, only_load_tiles))
 	{
 		delete data;
@@ -87,6 +89,8 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 				connection_mask ^= 1 << (3 - i);
 			}
 		}
+		else
+			connected_maps[i] = 0;
 	}
 
 	border_tile = *p++;

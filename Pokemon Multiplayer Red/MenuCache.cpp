@@ -35,7 +35,7 @@ Textbox* MenuCache::StartMenu(std::vector<Textbox*>* owner)
 		start_menu->ShowTextbox(message);
 		start_menu->CancelClose();
 	};
-	start_menu->SetMenu(true, 7, sf::Vector2i(1, 1), sf::Vector2u(0, 2), 0, MenuFlags::FOCUSABLE | MenuFlags::WRAPS);
+	start_menu->SetMenu(true, 7, sf::Vector2i(1, 1), sf::Vector2u(0, 2), nullptr, MenuFlags::FOCUSABLE | MenuFlags::WRAPS);
 
 	auto doe = []()->void
 	{
