@@ -135,7 +135,8 @@ void MapScene::Render(sf::RenderWindow* window)
 		}
 	}
 
-	focus_entity->Render(window);
+	for (int i = entities.size() - 1; i > -1; i--)
+		entities[i]->Render(window);
 	window->setView(window->getDefaultView());
 
 	for (unsigned int i = 0; i < textboxes.size(); i++)

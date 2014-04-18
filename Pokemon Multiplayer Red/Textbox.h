@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstring.>
+#include <cstring>
 #include <string>
 #include "Common.h"
 #include "TextboxParent.h"

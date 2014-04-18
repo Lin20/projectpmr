@@ -41,6 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>E:\Libraries\VLD\include;E:\Libraries\SFML-2.1\include;$(IncludePath)</IncludePath>
     <LibraryPath>E:\Libraries\VLD\lib;E:\Libraries\SFML-2.1\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>src</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>E:\Libraries\SFML-2.1\include;$(IncludePath)</IncludePath>

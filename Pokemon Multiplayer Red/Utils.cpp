@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Utils.h"
 #include "InputController.h"
 
