@@ -20,7 +20,9 @@ bool TextboxParent::UpdateTextboxes()
 	if (active->SetToClose())
 	{
 		if (active->DeleteOnClose())
+		{
 			delete active;
+		}
 		else
 			active->CancelClose();
 		textboxes.pop_back();

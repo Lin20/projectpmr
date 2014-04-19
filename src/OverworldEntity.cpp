@@ -59,7 +59,7 @@ void OverworldEntity::Update()
 		{
 			if (step_timer < 1)
 			{
-				if (!Snapped() || on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction)))
+				if (!Snapped() || on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction), this))
 				{
 					x += DELTAX(direction);
 					y += DELTAY(direction);
@@ -73,9 +73,15 @@ void OverworldEntity::Update()
 						{
 							StartMoving(direction);
 						}
+						else if (is_npc)
+							StopMoving();
 					}
 					step_timer = STEP_TIMER * 2;
 					forced_steps = false;
+				}
+				else if (is_npc && steps_remaining > 0)
+				{
+					step_timer = STEP_TIMER * 2.0f;
 				}
 			}
 			if ((int)animation_timer == 0)
@@ -106,6 +112,8 @@ void OverworldEntity::Update()
 				movement_type = MOVEMENT_NORMAL;
 				if (steps_remaining > 0)
 					steps_remaining--;
+				if (steps_remaining == 0 && is_npc)
+					StopMoving();
 			}
 			else
 			{
@@ -192,7 +200,7 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 		//after several tries with using single grass tiles and drawing things manually i decided to create
 		//a function that renders all the tiles in a certain spot
 		//much easier...
-		on_map->RenderRectangle(this->x, this->y + 4, 24, 12, sprite8x8, window);
+		on_map->RenderRectangle(this->x, this->y + 4, 24, 8, sprite8x8, window);
 
 		//set the texture back to what it was
 		sprite8x8.setTexture(*tex);
@@ -201,7 +209,7 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 
 void OverworldEntity::Face(unsigned char direction)
 {
-	if (!Snapped() || !ISNPC(index))
+	if (!Snapped() || !ISNPC(index) || direction == MOVEMENT_NONE)
 		return;
 	unsigned char f = direction * 4;
 	if (direction == ENTITY_RIGHT)
@@ -235,7 +243,7 @@ void OverworldEntity::StartMoving(unsigned char direction)
 	}
 
 	//set to walk on update
-	if (on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction)))
+	if (on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction), this))
 	{
 		if (!same_dir)
 			step_timer = STEP_TIMER * 2.0f;
@@ -275,6 +283,10 @@ void OverworldEntity::ForceStop()
 
 void OverworldEntity::Move(unsigned char direction, unsigned char steps)
 {
+	if (direction == MOVEMENT_NONE)
+		return;
 	StartMoving(direction);
 	steps_remaining = steps;
+	if (is_npc && steps_remaining == 0)
+		ForceStop();
 }

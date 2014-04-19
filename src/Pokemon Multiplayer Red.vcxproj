@@ -80,6 +80,7 @@
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapScene.cpp" />
     <ClCompile Include="MenuCache.cpp" />
+    <ClCompile Include="NPC.cpp" />
     <ClCompile Include="OverworldEntity.cpp" />
     <ClCompile Include="PaletteTexture.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="Fade.h" />
     <ClInclude Include="InputController.h" />
     <ClInclude Include="MenuCache.h" />
+    <ClInclude Include="NPC.h" />
     <ClInclude Include="TextboxParent.h" />
     <ClInclude Include="TextItem.h" />
     <ClInclude Include="LoopableMusic.h" />

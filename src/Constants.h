@@ -23,9 +23,9 @@ enum ArrowStates
 	INACTIVE =	2
 };
 
-#define STARTING_MAP	0
-#define STARTING_X		5
-#define STARTING_Y		6
+#define STARTING_MAP	1
+#define STARTING_X		20
+#define STARTING_Y		20
 
 #define VIEWPORT_WIDTH	10
 #define VIEWPORT_HEIGHT	9
@@ -60,6 +60,19 @@ enum ArrowStates
 #define MOVEMENT_JUMP		2
 #define MOVEMENT_NONE		255
 #define JUMP_STEPS			16
+
+//movement types
+#define MTYPE_DIRECTIONAL	255
+#define MTYPE_WALK			254
+#define RANDOM_WALK			3
+#define MDIR_ANY			0
+#define MDIR_NONE			255
+#define MDIR_DOWN			208
+#define MDIR_UP				209
+#define MDIR_LEFT			210
+#define MDIR_RIGHT			211
+#define MDIR_VERTICAL		1
+#define MDIR_HORIZONTAL		2
 
 #define MENU_BLANK			31
 #define MENU_CORNER_UL		25

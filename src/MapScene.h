@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "Map.h"
 #include "OverworldEntity.h"
+#include "NPC.h"
 #include "PaletteTexture.h"
 #include "Textbox.h"
 #include "MenuCache.h"
@@ -26,6 +27,10 @@ public:
 	void DrawMap(sf::RenderWindow* window, Map& map, int connection_index, MapConnection* connection);
 	void ClearEntities(bool focused = false);
 	void SetPalette(sf::Color* palette);
+
+	bool Interact();
+
+	vector<OverworldEntity*>& GetEntities() { return entities; }
 
 private:
 	Map* active_map;

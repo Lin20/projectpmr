@@ -10,10 +10,10 @@ class OverworldEntity : public TileMap
 {
 public:
 	OverworldEntity(Map* on_map, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc = true);
-	~OverworldEntity();
+	virtual ~OverworldEntity();
 
-	void Update();
-	void Render(sf::RenderWindow* window);
+	virtual void Update();
+	virtual void Render(sf::RenderWindow* window);
 	void Face(unsigned char direction);
 	void StartMoving(unsigned char direction);
 	void StopMoving();
@@ -40,7 +40,7 @@ public:
 
 	int x;
 	int y;
-private:
+protected:
 	unsigned char index;
 	Map* on_map;
 	bool is_npc;

@@ -4,9 +4,10 @@ Map::Map()
 {
 }
 
-Map::Map(unsigned char index)
+Map::Map(unsigned char index,vector<OverworldEntity*>* scene_entities)
 {
 	this->index = index;
+	this->scene_entities = scene_entities;
 	tiles = 0;
 	palette = ResourceCache::GetPalette(0);
 	for(int i = 0; i < 4; i++)
@@ -79,7 +80,7 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 		if (HasConnection(i))
 		{
 			if (!connected_maps[i])
-				connected_maps[i] = new Map(connections[i].map);
+				connected_maps[i] = new Map(connections[i].map, scene_entities);
 			else
 				connected_maps[i]->index = connections[i].map;
 			connected_maps[i]->Load(true);
@@ -105,6 +106,41 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 		w.dest_map = *p++;
 		warps.push_back(w);
 	}
+
+	count = *p++;
+	signs.clear();
+	for (int i = 0; i < count; i++)
+	{
+		Sign s;
+		s.x = *p++;
+		s.y = *p++;
+		s.text = *p++;
+		signs.push_back(s);
+	}
+
+	count = *p++;
+	entities.clear();
+	for (int i = 0; i < count; i++)
+	{
+		Entity e;
+		e.sprite = *p++;
+		e.x = *p++ - 4;
+		e.y = *p++ - 4;
+		e.movement1 = *p++;
+		e.movement2 = *p++;
+		e.text = *p++;
+		if ((e.text & 0x40) != 0)
+		{
+			e.trainer = *p++;
+			e.pokemon_set = *p++;
+		}
+		else if ((e.text & 0x80) != 0)
+		{
+			e.item = *p++;
+		}
+		entities.push_back(e);
+	}
+
 	return true;
 }
 
@@ -151,7 +187,7 @@ unsigned char Map::GetCornerTile(int x, int y, unsigned char corner)
 	return tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], corner);
 }
 
-bool Map::IsPassable(int x, int y)
+bool Map::IsPassable(int x, int y, OverworldEntity* ignore)
 {
 	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
 	if (!tileset)
@@ -161,6 +197,30 @@ bool Map::IsPassable(int x, int y)
 	DataBlock* collision = tileset->GetCollisionData();
 	if (!collision)
 		return true;
+
+	if (scene_entities)
+	{
+		for (unsigned int i = 0; i < scene_entities->size(); i++)
+		{
+			if (!(*scene_entities)[i])
+				continue;
+			OverworldEntity* e = (*scene_entities)[i];
+			if (e == ignore)
+				continue;
+			int ex = e->x / 16;
+			int ey = e->y / 16;
+			if (x == ex && y == ey)
+				return false;
+			ex += DELTAX(e->GetMovementDirection());
+			ey += DELTAY(e->GetMovementDirection());
+			if (x == ex && y == ey)
+				return false;
+			ex = (e->x + 15) / 16;
+			ey = (e->y + 15) / 16;
+			if (x == ex && y == ey)
+				return false;
+		}
+	}
 
 	//the original game uses the lower-left tile of a 16x16 block to determine whether or not that block is passable
 	for (unsigned int i = 0; i < collision->size; i++)
@@ -274,19 +334,36 @@ void Map::RenderRectangle(int x, int y, int width, int height, sf::Sprite& sprit
 	for (; x <= _px + width; x += 8)
 	{
 		int lX = x / 8 * 8;
-		for (y = _py; y <= _py + height; y += 8)
+		for (y = _py; y <= _py + height; y += (y % 8 != 0 ? y % 8 : 8))
 		{
-			int lY = (y < 0 ? y - (8 + (y % 8)) : y) / 8 * 8;
-			unsigned char tile = Get8x8Tile(x / 8, lY / 8);
+			unsigned char tile = Get8x8Tile(x / 8, y / 8);
 			int w = 8 - (lX < _px ? x % 8 : lX + 8 > _px + width ? 8 - x % 8 : 0);
-			int h = 8 - (lY < _py ? y % 8 : lY + 8 > _py + height ? 8 - y % 8 : 0);
+			int h = 8 - y % 8;
+			if (y + h > _py + height)
+				h = _py + height - y;
 			src_rect.left = (tile % 16) * 8 + (8 - w);
-			src_rect.top = (tile / 16) * 8 + (8 - h) - (delta_y > 0 ? 8 + (delta_y % 8) : 0);
+			src_rect.top = (tile / 16) * 8 + y % 8;
 			src_rect.width = w;
 			src_rect.height = h;
 			sprite.setTextureRect(src_rect);
-			sprite.setPosition((float)(lX + 8 - w), (float)(lY + 8 - h));
+			sprite.setPosition((float)(lX + 8 - w), (float)y);
 			window->draw(sprite);
 		}
 	}
 }
+
+/*
+int lY = (y < 0 ? y - (8 + (y % 8)) : y) / 8 * 8;
+unsigned char tile = Get8x8Tile(x / 8, lY / 8);
+int w = 8 - (lX < _px ? x % 8 : lX + 8 > _px + width ? 8 - x % 8 : 0);
+int h = (lY < _py ? y % 8 : lY + 8 > _py + height ? 8 - y % 8 : 0);
+if (lY + h > _py + height)
+h = _py + height - lY;
+src_rect.left = (tile % 16) * 8 + (8 - w);
+src_rect.top = (tile / 16) * 8 + (8 - h) - (delta_y > 0 ? 8 + (delta_y % 8) : 0);
+src_rect.width = w;
+src_rect.height = h;
+sprite.setTextureRect(src_rect);
+sprite.setPosition((float)(lX + 8 - w), (float)(lY + 8 - h));
+window->draw(sprite);
+*/

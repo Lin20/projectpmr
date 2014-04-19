@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <ctime>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -29,6 +30,8 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16), "SFML works!");
 
 	window.setFramerateLimit(60);
+
+	srand((unsigned int)time(0));
 
 	while (window.isOpen())
 	{

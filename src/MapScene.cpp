@@ -30,33 +30,36 @@ void MapScene::Update()
 	CheckWarp();
 	if (!UpdateTextboxes() && current_fade.Done() && input_enabled)
 	{
-		if (sf::Keyboard::isKeyPressed(INPUT_DOWN))
+		if (!Interact())
 		{
-			focus_entity->StartMoving(ENTITY_DOWN);
-			TryResetWarp();
-		}
-		else if (sf::Keyboard::isKeyPressed(INPUT_UP))
-		{
-			focus_entity->StartMoving(ENTITY_UP);
-			TryResetWarp();
-		}
-		else if (sf::Keyboard::isKeyPressed(INPUT_LEFT))
-		{
-			focus_entity->StartMoving(ENTITY_LEFT);
-			TryResetWarp();
-		}
-		else if (sf::Keyboard::isKeyPressed(INPUT_RIGHT))
-		{
-			focus_entity->StartMoving(ENTITY_RIGHT);
-			TryResetWarp();
-		}
-		else
-			focus_entity->StopMoving();
+			if (sf::Keyboard::isKeyPressed(INPUT_DOWN))
+			{
+				focus_entity->StartMoving(ENTITY_DOWN);
+				TryResetWarp();
+			}
+			else if (sf::Keyboard::isKeyPressed(INPUT_UP))
+			{
+				focus_entity->StartMoving(ENTITY_UP);
+				TryResetWarp();
+			}
+			else if (sf::Keyboard::isKeyPressed(INPUT_LEFT))
+			{
+				focus_entity->StartMoving(ENTITY_LEFT);
+				TryResetWarp();
+			}
+			else if (sf::Keyboard::isKeyPressed(INPUT_RIGHT))
+			{
+				focus_entity->StartMoving(ENTITY_RIGHT);
+				TryResetWarp();
+			}
+			else
+				focus_entity->StopMoving();
 
-		if (focus_entity->Snapped() && InputController::KeyDownOnce(INPUT_START))
-		{
-			ShowTextbox(MenuCache::StartMenu());
-			MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
+			if (focus_entity->Snapped() && InputController::KeyDownOnce(INPUT_START))
+			{
+				ShowTextbox(MenuCache::StartMenu());
+				MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
+			}
 		}
 	}
 	else
@@ -152,7 +155,7 @@ void MapScene::SwitchMap(unsigned char index)
 
 	if (!active_map)
 	{
-		active_map = new Map(index);
+		active_map = new Map(index, &entities);
 	}
 	else
 	{
@@ -164,8 +167,15 @@ void MapScene::SwitchMap(unsigned char index)
 	{
 #ifdef _DEBUG
 		cout << "FATAL: Failed to load map " << index << "!";
-		return;
 #endif
+		return;
+	}
+
+	for (unsigned int i = 0; i < active_map->entities.size(); i++)
+	{
+		Entity e = active_map->entities[i];
+		NPC* o = new NPC(active_map, e);
+		entities.push_back(o);
 	}
 
 	if (focus_entity)
@@ -286,7 +296,10 @@ void MapScene::ClearEntities(bool focused)
 	for (unsigned int i = 0; i < entities.size(); i++)
 	{
 		if (entities[i] != focus_entity || focused)
+		{
 			delete entities[i];
+			entities.erase(entities.begin() + i--);
+		}
 	}
 }
 
@@ -312,6 +325,51 @@ void MapScene::SetPalette(sf::Color* pal)
 		if (entities[i])
 			entities[i]->SetPalette(pal);
 	}
+}
+
+bool MapScene::Interact()
+{
+	if (!focus_entity || !focus_entity->Snapped() || !InputController::KeyDownOnce(INPUT_A))
+		return false;
+	int x = focus_entity->x / 16 + DELTAX(focus_entity->GetDirection());
+	int y = focus_entity->y / 16 + DELTAY(focus_entity->GetDirection());
+
+	//check for signs
+	for (unsigned int i = 0; i < active_map->signs.size(); i++)
+	{
+		if (active_map->signs[i].x == x && active_map->signs[i].y == y)
+		{
+			Textbox* t = new Textbox();
+			t->SetText(new TextItem(t, nullptr, string("This is a sign\nwith index ").append(itos((int)i).append("."))));
+			textboxes.push_back(t);
+			return true;
+		}
+	}
+
+	//check for entities
+	for (unsigned int i = 1; i < entities.size(); i++)
+	{
+		if (entities[i]->Snapped() && entities[i]->GetMovementDirection() == MOVEMENT_NONE && entities[i]->x / 16 == x && entities[i]->y / 16 == y)
+		{
+			Textbox* t = new Textbox();
+			string s;
+			if ((active_map->entities[i - 1].text & 0x40) != 0)
+				s = string("This is a trainer\nwith index ").append(itos((int)(i - 1)).append(".")).append("\rTrainer ID: ").append(itos(active_map->entities[i - 1].trainer)).append("\n#MON set: ").append(itos(active_map->entities[i - 1].pokemon_set));
+			else if ((active_map->entities[i - 1].text & 0x80) != 0)
+				s = string("This is an item\nwith index ").append(itos((int)(i - 1)).append(".")).append("\rItem ID: ").append(itos(active_map->entities[i - 1].item));
+			else
+				s = string("This is a person\nwith index ").append(itos((int)(i - 1)).append("."));
+
+			t->SetText(new TextItem(t, nullptr, s, i));
+			textboxes.push_back(t);
+			entities[i]->Face((1 - (focus_entity->GetDirection() % 2) + (focus_entity->GetDirection() / 2 * 2)));
+			((NPC*)entities[i])->occupation = t;
+
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void MapScene::CheckWarp()
