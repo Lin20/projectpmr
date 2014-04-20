@@ -68,6 +68,7 @@ public:
 	inline static PaletteTexture* GetMenuTexture() { return menu_texture; }
 	inline static PaletteTexture* GetFontTexture() { return font_texture; }
 	inline static DataBlock* GetAsciiTable() { return ascii_table; }
+	inline static string& GetItemName(unsigned char index) { return item_names[index]; }
 
 private:
 	//tilesets
@@ -88,5 +89,5 @@ private:
 	static PaletteTexture* menu_texture;
 	static PaletteTexture* font_texture;
 	static DataBlock* ascii_table;
+	static string item_names[256];
 };
-

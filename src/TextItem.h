@@ -8,7 +8,7 @@
 class TextItem
 {
 public:
-	TextItem(Textbox* owner, void (*action_callback)() = 0, string text = 0, unsigned char index = 0, unsigned int value = 0)
+	TextItem(Textbox* owner, std::function<void(TextItem* source)> action_callback = nullptr, string text = 0, unsigned char index = 0, unsigned int value = 0)
 	{
 		this->owner_textbox = owner;
 		//for this stupid block of code, see Textbox.cpp
@@ -19,8 +19,7 @@ public:
 		this->text = text;
 		this->index = 0;
 		this->value = 0;
-
-		pokestring(this->text);
+		//pokestring(this->text);
 	}
 
 	~TextItem()
@@ -30,13 +29,13 @@ public:
 	void Action()
 	{
 		if (callback != nullptr)
-			callback();
+			callback(this);
 	}
 
 	void SetText(const std::string& to)
 	{
 		this->text = to;
-		pokestring(this->text);
+		//pokestring(this->text);
 	}
 
 	string& GetText() { return text; }
@@ -47,5 +46,5 @@ public:
 
 private:
 	Textbox* owner_textbox;
-	std::function<void()> callback; //the function that gets called when the item is selected
+	std::function<void(TextItem* source)> callback; //the function that gets called when the item is selected
 };

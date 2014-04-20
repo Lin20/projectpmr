@@ -87,10 +87,13 @@ enum ArrowStates
 #define CURSOR_MORE_TIME	45
 
 #define MESSAGE_LINE		0x4F
+#define MESSAGE_ENDNAME		0x50
 #define MESSAGE_PARA		0x51
-#define MESSAGE_END			0x57
 #define MESSAGE_POKE		0x54
+#define MESSAGE_END			0x57
 #define MESSAGE_PROMPT		0x58
+
+#define MAX_ITEMS			20
 
 //#define DEFAULT_PALETTE { sf::Color(255, 255, 255, 255), sf::Color(168, 168, 168, 255), sf::Color(96, 96, 96, 255), sf::Color(0, 0, 0, 255)}
 #define DEFAULT_PALETTE_0 sf::Color(255, 255, 255, 255)

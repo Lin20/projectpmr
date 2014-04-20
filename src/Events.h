@@ -28,3 +28,15 @@ struct Entity
 	unsigned char pokemon_set;
 	unsigned char item;
 };
+
+struct Item
+{
+	unsigned char id;
+	unsigned char quantity;
+
+	struct Item()
+	{
+		id = 0;
+		quantity = 0;
+	}
+};

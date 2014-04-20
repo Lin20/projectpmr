@@ -340,7 +340,7 @@ bool MapScene::Interact()
 		if (active_map->signs[i].x == x && active_map->signs[i].y == y)
 		{
 			Textbox* t = new Textbox();
-			t->SetText(new TextItem(t, nullptr, string("This is a sign\nwith index ").append(itos((int)i).append("."))));
+			t->SetText(new TextItem(t, nullptr, pokestring(string("This is a sign\nwith index ").append(itos((int)i).append(".")))));
 			textboxes.push_back(t);
 			return true;
 		}
@@ -354,11 +354,11 @@ bool MapScene::Interact()
 			Textbox* t = new Textbox();
 			string s;
 			if ((active_map->entities[i - 1].text & 0x40) != 0)
-				s = string("This is a trainer\nwith index ").append(itos((int)(i - 1)).append(".")).append("\rTrainer ID: ").append(itos(active_map->entities[i - 1].trainer)).append("\n#MON set: ").append(itos(active_map->entities[i - 1].pokemon_set));
+				s = pokestring(string("This is a trainer\nwith index ").append(itos((int)(i - 1)).append(".")).append("\rTrainer ID: ").append(itos(active_map->entities[i - 1].trainer)).append("\n#MON set: ").append(itos(active_map->entities[i - 1].pokemon_set)));
 			else if ((active_map->entities[i - 1].text & 0x80) != 0)
-				s = string("This is an item\nwith index ").append(itos((int)(i - 1)).append(".")).append("\rItem ID: ").append(itos(active_map->entities[i - 1].item));
+				s = pokestring(string("This is an item\nwith index ")).append(pokestring(itos((int)(i - 1)))).append(pokestring(".\rItem: ")).append(ResourceCache::GetItemName(active_map->entities[i - 1].item));
 			else
-				s = string("This is a person\nwith index ").append(itos((int)(i - 1)).append("."));
+				s = pokestring(string("This is a person\nwith index ").append(itos((int)(i - 1)).append(".")));
 
 			t->SetText(new TextItem(t, nullptr, s, i));
 			textboxes.push_back(t);

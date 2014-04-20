@@ -3,4 +3,5 @@
 #include <string>
 #include "ResourceCache.h"
 
-void pokestring(std::string& src);
+string& pokestring(std::string& src);
+string pokestring(const char* c);

@@ -11,7 +11,7 @@ Note: These can all be changed in ascii_table.dat
 -------------------------------------------------
 */
 
-void pokestring(std::string& src)
+string& pokestring(std::string& src)
 {
 	//we will convert the regular ascii table into a "pokestring"
 	//in other words, we'll convert src to a be an array of tiles.
@@ -33,4 +33,13 @@ void pokestring(std::string& src)
 			break;
 		}
 	}
+	
+	return src;
+}
+
+string pokestring(const char* c)
+{
+	string s(c);
+	pokestring(s);
+	return s;
 }

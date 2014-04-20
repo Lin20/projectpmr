@@ -14,6 +14,7 @@ PaletteTexture* ResourceCache::shadow_texture = 0;
 PaletteTexture* ResourceCache::menu_texture = 0;
 PaletteTexture* ResourceCache::font_texture = 0;
 DataBlock* ResourceCache::ascii_table = 0;
+string ResourceCache::item_names[256];
 
 ResourceCache::ResourceCache()
 {
@@ -139,6 +140,18 @@ void ResourceCache::LoadMisc()
 	font_texture = new PaletteTexture();
 	font_texture->loadFromFile(ResourceCache::GetResourceLocation(string("misc/font.png")));
 	ascii_table = ReadFile(ResourceCache::GetResourceLocation(string("misc/ascii_table.dat")).c_str());
+
+	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("misc/items.dat")).c_str());
+	unsigned char* p = d->data;
+	for (int i = 1; i < 256; i++)
+	{
+		string s;
+		while ((unsigned int)(p - d->data_start) < d->size && *p != MESSAGE_ENDNAME)
+			s.insert(s.begin() + s.length(), (char)*p++);
+		p++;
+		item_names[i] = s;
+	}
+	//delete d;
 
 #ifdef _DEBUG
 	cout << "Done\n";

@@ -27,37 +27,29 @@ Textbox* MenuCache::StartMenu(std::vector<Textbox*>* owner)
 		return start_menu;
 
 	start_menu = new Textbox(10, 0, 10, 16, false);
-	auto cancel = []()->void
-	{
-		Textbox* message = new Textbox();
-		message->SetText(new TextItem(start_menu, []()->void { start_menu->SetArrowState(ArrowStates::ACTIVE); }, string("You cannot\ncancel!")));
-		start_menu->SetArrowState(ArrowStates::INACTIVE);
-		start_menu->ShowTextbox(message);
-		start_menu->CancelClose();
-	};
 	start_menu->SetMenu(true, 7, sf::Vector2i(1, 1), sf::Vector2u(0, 2), nullptr, MenuFlags::FOCUSABLE | MenuFlags::WRAPS);
 
-	auto doe = []()->void
+	auto doe = [](TextItem* source)->void
 	{
 
 		Textbox* message = new Textbox();
-		message->SetText(new TextItem(start_menu, []()->void { start_menu->SetArrowState(ArrowStates::ACTIVE); }, string("Sorry! That\nfeature has not\rbeen implemented\nyet.")));
+		message->SetText(new TextItem(start_menu, [](TextItem* source)->void { start_menu->SetArrowState(ArrowStates::ACTIVE); }, pokestring(string("Sorry! That\nfeature has not\rbeen implemented\nyet."))));
 		start_menu->SetArrowState(ArrowStates::INACTIVE);
 		start_menu->ShowTextbox(message);
 	};
-	start_menu->GetItems().push_back(new TextItem(start_menu, doe, "POKéDEX", 0));
-	start_menu->GetItems().push_back(new TextItem(start_menu, doe, "POKéMON", 1));
-	start_menu->GetItems().push_back(new TextItem(start_menu, []()->void
+	start_menu->GetItems().push_back(new TextItem(start_menu, doe, pokestring("POKéDEX"), 0));
+	start_menu->GetItems().push_back(new TextItem(start_menu, doe, pokestring("POKéMON"), 1));
+	start_menu->GetItems().push_back(new TextItem(start_menu, [](TextItem* source)->void
 	{
 		Textbox* t = new Textbox();
-		t->SetText(new TextItem(start_menu, 0, "You selected the\nitems option.\rDramatic...\rtrigger...\revent!\f"));
+		t->SetText(new TextItem(start_menu, nullptr, pokestring("You selected the\nitems option.\rDramatic...\rtrigger...\revent!\f")));
 		start_menu->ShowTextbox(t);
 	}
-	, "ITEMS", 2));
-	start_menu->GetItems().push_back(new TextItem(start_menu, 0, "Lin", 3));
-	start_menu->GetItems().push_back(new TextItem(start_menu, 0, "SAVE", 4));
-	start_menu->GetItems().push_back(new TextItem(start_menu, 0, "OPTIONS", 5));
-	start_menu->GetItems().push_back(new TextItem(start_menu, []()->void { start_menu->Close(); }, "EXIT", 6));
+	, pokestring("ITEMS"), 2));
+	start_menu->GetItems().push_back(new TextItem(start_menu, doe, pokestring("Lin"), 3));
+	start_menu->GetItems().push_back(new TextItem(start_menu, doe, pokestring("SAVE"), 4));
+	start_menu->GetItems().push_back(new TextItem(start_menu, doe, pokestring("OPTIONS"), 5));
+	start_menu->GetItems().push_back(new TextItem(start_menu, [](TextItem* source)->void { start_menu->Close(); }, pokestring("EXIT"), 6));
 
 	start_menu->UpdateMenu();
 	return start_menu;
@@ -70,9 +62,9 @@ Textbox* MenuCache::DebugMenu(std::vector<Textbox*>* owner)
 
 	debug_menu = new Textbox(0, 8, 14, 7, false);
 	debug_menu->SetMenu(true, 3, sf::Vector2i(1, 1), sf::Vector2u(0, 1), 0, MenuFlags::FOCUSABLE);
-	debug_menu->GetItems().push_back(new TextItem(debug_menu, 0, "Testing"));
-	debug_menu->GetItems().push_back(new TextItem(debug_menu, 0, "multiple"));
-	debug_menu->GetItems().push_back(new TextItem(debug_menu, 0, "menus."));
+	debug_menu->GetItems().push_back(new TextItem(debug_menu, nullptr, "Testing"));
+	debug_menu->GetItems().push_back(new TextItem(debug_menu, nullptr, "multiple"));
+	debug_menu->GetItems().push_back(new TextItem(debug_menu, nullptr, "menus."));
 
 	debug_menu->UpdateMenu();
 	return debug_menu;
