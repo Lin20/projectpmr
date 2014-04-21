@@ -48,6 +48,7 @@ int main()
 		window.display();
 	}
 
+	Players::ReleaseResources();
 	MenuCache::ReleaseResources();
 	ResourceCache::ReleaseResources();
 	engine.~Engine(); //this makes memory leak detection easier

@@ -23,6 +23,7 @@ public:
 	void SetFrame(unsigned char x, unsigned char y, unsigned char width, unsigned char height);
 	void SetText(TextItem* text);
 	void SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void()> = nullptr, unsigned int flags = MenuFlags::NONE, unsigned int scroll_start = INT_MAX);
+	void ClearItems();
 
 	void SetMenuFlags(unsigned int f) { menu_flags = f; }
 	void SetArrowState(unsigned int f) { arrow_state = f; }
@@ -60,6 +61,7 @@ private:
 	unsigned int inactive_index; //where the inactive arrow is
 	unsigned int menu_flags; //uses the MenuFlags enum
 	unsigned int arrow_state; //uses the ArrowStates enum
+	unsigned char cursor_visibility_timer; //timer for hiding and showing the selection cursor
 
 	//text-box related stuff
 	TextItem* text; //the text that is going to be displayed (null-terminated)
@@ -70,11 +72,13 @@ private:
 	int text_timer; //the time until the next char is parsed
 	unsigned char arrow_timer; //if > CURSOR_NEXT_TIME / 2 then show "more" arrow
 	unsigned char text_speed; //speed the text moves at
-	unsigned char text_scroll_stage; //stage of text scrolling
+	unsigned char scroll_timer; //stage of text scrolling
 
 	//render stuff
 	sf::Sprite sprite8x8;
 	void DrawFrame(sf::RenderWindow* window);
 	void DrawArrow(sf::RenderWindow* window, bool active);
 	void ProcessNextCharacter();
+
+	void Scroll(bool up);
 };

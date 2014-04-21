@@ -4,6 +4,7 @@
 #include "Constants.h"
 #include "Scene.h"
 #include "MapScene.h"
+#include "Players.h"
 
 class Engine
 {

@@ -17,8 +17,8 @@ public:
 
 	vector<Item>& GetItems() { return items; }
 	Textbox* GetMenu() { return menu; }
-	bool AddItem(Item i);
 	bool AddItem(unsigned char id, unsigned char quantity);
+	bool AddItem(Item i) { AddItem(i.id, i.quantity); }
 
 	unsigned char GetQuantity(unsigned char id);
 	void RemoveItem(Item i);

@@ -41,7 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>E:\Libraries\VLD\include;E:\Libraries\SFML-2.1\include;$(IncludePath)</IncludePath>
     <LibraryPath>E:\Libraries\VLD\lib;E:\Libraries\SFML-2.1\lib;$(LibraryPath)</LibraryPath>
-    <TargetName>src</TargetName>
+    <TargetName>Pokemon Multiplayer Red</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>E:\Libraries\SFML-2.1\include;$(IncludePath)</IncludePath>
@@ -84,7 +84,7 @@
     <ClCompile Include="NPC.cpp" />
     <ClCompile Include="OverworldEntity.cpp" />
     <ClCompile Include="PaletteTexture.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Players.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Startup.cpp" />
     <ClCompile Include="ResourceCache.cpp" />
@@ -106,6 +106,8 @@
     <ClInclude Include="ItemStorage.h" />
     <ClInclude Include="MenuCache.h" />
     <ClInclude Include="NPC.h" />
+    <ClInclude Include="PlayerProperties.h" />
+    <ClInclude Include="Players.h" />
     <ClInclude Include="TextboxParent.h" />
     <ClInclude Include="TextItem.h" />
     <ClInclude Include="LoopableMusic.h" />
@@ -114,7 +116,6 @@
     <ClInclude Include="MapScene.h" />
     <ClInclude Include="OverworldEntity.h" />
     <ClInclude Include="PaletteTexture.h" />
-    <ClInclude Include="Player.h" />
     <ClInclude Include="ResourceCache.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="StringConverter.h" />

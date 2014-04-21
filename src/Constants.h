@@ -85,6 +85,7 @@ enum ArrowStates
 #define CURSOR_INACTIVE 	108
 #define CURSOR_MORE			110
 #define CURSOR_MORE_TIME	60
+#define CURSOR_VIS_TIME		4
 #define TEXT_SPEED_SLOW		8
 #define TEXT_SPEED_MEDIUM	5
 #define TEXT_SPEED_FAST		1

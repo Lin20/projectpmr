@@ -45,4 +45,6 @@ struct Item
 		this->id = id;
 		this->quantity = quantity;
 	}
+
+	bool Empty() { return id == 0 || quantity == 0; }
 };

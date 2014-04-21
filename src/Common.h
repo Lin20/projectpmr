@@ -14,6 +14,8 @@ class Fade;
 
 class OverworldEntity;
 class NPC;
+class PlayerProperties;
+class Players;
 
 class TextboxParent;
 class Textbox;

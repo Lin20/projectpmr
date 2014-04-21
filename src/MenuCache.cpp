@@ -2,7 +2,6 @@
 
 Textbox* MenuCache::start_menu = 0;
 Textbox* MenuCache::debug_menu = 0;
-ItemStorage* MenuCache::item_menu = 0;
 
 MenuCache::MenuCache()
 {
@@ -18,8 +17,6 @@ void MenuCache::ReleaseResources()
 		delete start_menu;
 	if (debug_menu)
 		delete debug_menu;
-	if (item_menu)
-		delete item_menu;
 }
 
 //Return the start menu or create it if it doesn't exist
@@ -45,7 +42,7 @@ Textbox* MenuCache::StartMenu(std::vector<Textbox*>* owner)
 	start_menu->GetItems().push_back(new TextItem(start_menu, [](TextItem* source)->void
 	{
 		start_menu->SetArrowState(ArrowStates::INACTIVE);
-		start_menu->ShowTextbox(ItemMenu()->GetMenu());
+		start_menu->ShowTextbox(Players::GetPlayer1()->GetInventory()->GetMenu());
 	}
 	, pokestring("ITEMS"), 2));
 	start_menu->GetItems().push_back(new TextItem(start_menu, doe, pokestring("Lin"), 3));
@@ -70,13 +67,4 @@ Textbox* MenuCache::DebugMenu(std::vector<Textbox*>* owner)
 
 	debug_menu->UpdateMenu();
 	return debug_menu;
-}
-
-ItemStorage* MenuCache::ItemMenu(std::vector<Textbox*>* owner)
-{
-	if (item_menu)
-		return item_menu;
-
-	item_menu = new ItemStorage();
-	return item_menu;
 }

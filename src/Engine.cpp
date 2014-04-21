@@ -3,6 +3,7 @@
 Engine::Engine()
 {
 	resources.LoadAll();
+	Players::Initialize();
 
 	//Initialize the scenes
 	map_scene = new MapScene();

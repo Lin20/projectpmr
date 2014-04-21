@@ -356,7 +356,18 @@ bool MapScene::Interact()
 			if ((active_map->entities[i - 1].text & 0x40) != 0)
 				s = pokestring(string("This is a trainer\nwith index ").append(itos((int)(i - 1)).append(".")).append("\rTrainer ID: ").append(itos(active_map->entities[i - 1].trainer)).append("\n#MON set: ").append(itos(active_map->entities[i - 1].pokemon_set)));
 			else if ((active_map->entities[i - 1].text & 0x80) != 0)
-				s = pokestring(string("This is an item\nwith index ")).append(pokestring(itos((int)(i - 1)))).append(pokestring(".\rItem: ")).append(ResourceCache::GetItemName(active_map->entities[i - 1].item));
+			{
+				if (!Players::GetPlayer1()->GetInventory()->AddItem(active_map->entities[i - 1].item, 1))
+					s = pokestring("No more room for\nitems!");
+				else
+				{
+					s = pokestring(string("Lin found\n")).append(ResourceCache::GetItemName(active_map->entities[i - 1].item)).append(pokestring("!"));
+					entities.erase(entities.begin() + i--);
+					t->SetText(new TextItem(t, nullptr, s, i));
+					textboxes.push_back(t);
+					continue;
+				}
+			}
 			else
 				s = pokestring(string("This is a person\nwith index ").append(itos((int)(i - 1)).append(".")));
 

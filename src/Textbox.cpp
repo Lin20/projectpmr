@@ -23,8 +23,9 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 	autoscroll = false;
 	text_timer = 0;
 	arrow_timer = 0;
-	text_speed = 3;
-	text_scroll_stage = 0;
+	text_speed = TEXT_SPEED_SLOW;
+	scroll_timer = 0;
+	cursor_visibility_timer = 0;
 
 	SetFrame(x, y, width, height);
 }
@@ -52,40 +53,46 @@ void Textbox::Update()
 		return;
 	if (arrow_timer > 0)
 		arrow_timer--;
+	if (cursor_visibility_timer > 0)
+		cursor_visibility_timer--;
 	//try to move the cursor
 	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE) && (arrow_state & ArrowStates::ACTIVE))
 	{
 		//this menu is active, so try to move the cursor up
 		if (InputController::KeyDownOnce(INPUT_UP))
 		{
-			if (active_index > 0)
+			if (GetScrollIndex() - 1 < 0)
+				if (cursor_visibility_timer == 0)
+					cursor_visibility_timer = CURSOR_VIS_TIME;
+			scroll_timer = 0;
+			Scroll(true);
+		}
+		else if (InputController::KeyDown(INPUT_UP) && (menu_flags & MenuFlags::HOLD_INPUT)) //hold down
+		{
+			scroll_timer++;
+			if (scroll_timer >= 36 && scroll_timer % 6 == 0)
 			{
-				active_index--;
-				if (GetScrollIndex() < 0)
-				{
-					scroll_pos--;
-					UpdateMenu();
-				}
-			}
-			else if (menu_flags & MenuFlags::WRAPS)
-			{
-				active_index = items.size() - 1;
+				if (cursor_visibility_timer == 0)
+					cursor_visibility_timer = CURSOR_VIS_TIME;
+				Scroll(true);
 			}
 		}
 		else if (InputController::KeyDownOnce(INPUT_DOWN)) //try down now
 		{
-			if (active_index < items.size() - 1)
+			if (GetScrollIndex() + 1 > scroll_start)
+				if (cursor_visibility_timer == 0)
+					cursor_visibility_timer = CURSOR_VIS_TIME;
+			scroll_timer = 0;
+			Scroll(false);
+		}
+		else if (InputController::KeyDown(INPUT_DOWN) && (menu_flags & MenuFlags::HOLD_INPUT)) //hold down
+		{
+			scroll_timer++;
+			if (scroll_timer >= 36 && scroll_timer % 6 == 0)
 			{
-				active_index++;
-				if (GetScrollIndex() > scroll_start)
-				{
-					scroll_pos++;
-					UpdateMenu();
-				}
-			}
-			else if (menu_flags & MenuFlags::WRAPS)
-			{
-				active_index = 0;
+				if (cursor_visibility_timer == 0)
+					cursor_visibility_timer = CURSOR_VIS_TIME;
+				Scroll(false);
 			}
 		}
 		else if (InputController::KeyDownOnce(INPUT_A)) //press a
@@ -96,6 +103,10 @@ void Textbox::Update()
 		{
 			Close();
 		}
+		else
+			scroll_timer = 0;
+		if (scroll_pos + display_count < items.size() && arrow_timer == 0)
+			arrow_timer = CURSOR_MORE_TIME;
 	}
 	else if (!is_menu) //it's a regular textbox
 	{
@@ -159,6 +170,19 @@ void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start
 	UpdateMenu();
 }
 
+void Textbox::ClearItems()
+{
+	if (delete_on_close)
+	{
+		for (unsigned int i = 0; i < items.size(); i++)
+		{
+			if (items[i])
+				delete items[i];
+		}
+	}
+	items.clear();
+}
+
 void Textbox::DrawFrame(sf::RenderWindow* window)
 {
 	PaletteTexture* frame = ResourceCache::GetMenuTexture();
@@ -211,7 +235,7 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 	//They get drawn on top of children otherwise.
 	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE))
 	{
-		if (arrow_state & ArrowStates::ACTIVE)
+		if (arrow_state & ArrowStates::ACTIVE && cursor_visibility_timer < CURSOR_VIS_TIME / 2)
 			DrawArrow(window, true);
 		if (arrow_state & ArrowStates::INACTIVE)
 			DrawArrow(window, false);
@@ -262,15 +286,15 @@ void Textbox::DrawArrow(sf::RenderWindow* window, bool active)
 
 void Textbox::ProcessNextCharacter()
 {
-	if (text_scroll_stage > 0)
+	if (scroll_timer > 0)
 	{
-		if (text_scroll_stage / 4 > 0 && text_scroll_stage % 4 == 0)
+		if (scroll_timer / 4 > 0 && scroll_timer % 4 == 0)
 		{
 			memcpy(tiles, tiles + size.x - 2, (size.x - 2) * 3);
 			memset(tiles + (size.x - 2) * 3, MENU_BLANK, (size.x - 2));
 		}
-		text_scroll_stage--;
-		if (text_scroll_stage == 0)
+		scroll_timer--;
+		if (scroll_timer == 0)
 			text_tile_pos = (size.x - 2) * 3;
 		return;
 	}
@@ -306,7 +330,7 @@ void Textbox::ProcessNextCharacter()
 	case MESSAGE_SCROLL: //scroll down one line
 		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
 		{
-			text_scroll_stage = 10;
+			scroll_timer = 10;
 			arrow_timer = 0;
 			text_timer = 0;
 			text_pos++;
@@ -346,4 +370,48 @@ void Textbox::Close()
 	close = true;
 	if (this->close_callback != nullptr)
 		close_callback();
+}
+
+void Textbox::Scroll(bool up)
+{
+	if (up)
+	{
+		if (active_index > 0)
+		{
+			active_index--;
+			if (GetScrollIndex() < 0)
+			{
+				scroll_pos--;
+				if (scroll_pos + display_count < items.size())
+					arrow_timer = CURSOR_MORE_TIME;
+				else
+					arrow_timer = 0;
+				UpdateMenu();
+			}
+		}
+		else if (menu_flags & MenuFlags::WRAPS)
+		{
+			active_index = items.size() - 1;
+		}
+	}
+	else
+	{
+		if (active_index < items.size() - 1)
+		{
+			active_index++;
+			if (GetScrollIndex() > scroll_start)
+			{
+				scroll_pos++;
+				if (scroll_pos + display_count < items.size())
+					arrow_timer = CURSOR_MORE_TIME;
+				else
+					arrow_timer = 0;
+				UpdateMenu();
+			}
+		}
+		else if (menu_flags & MenuFlags::WRAPS)
+		{
+			active_index = 0;
+		}
+	}
 }
