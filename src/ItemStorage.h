@@ -5,6 +5,7 @@
 #include "Common.h"
 #include "Events.h"
 #include "Textbox.h"
+#include "MenuCache.h"
 
 using namespace std;
 
@@ -15,6 +16,7 @@ public:
 	~ItemStorage();
 
 	vector<Item>& GetItems() { return items; }
+	Textbox* GetMenu() { return menu; }
 	bool AddItem(Item i);
 	bool AddItem(unsigned char id, unsigned char quantity);
 

@@ -5,9 +5,12 @@ TABLE OF ASCII POKESTRING EQUIVALENTS
 Note: These can all be changed in ascii_table.dat
 ------------------------------------------------
 #	=	POKé
-\n	=	new line
+*	=	x
+$	=	pokedollar
 \r	=	paragraph (prompt for input)
+\n	=	new line
 \f	=	prompt for input to continue event
+\v	=	scroll to next line
 -------------------------------------------------
 */
 

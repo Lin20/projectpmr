@@ -8,8 +8,8 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 
 	is_menu = false;
 	display_count = 0;
-	scroll_start = 0;
-	scroll_position = 0;
+	scroll_pos = 0;
+	scroll_start = INT_MAX;
 	close_callback = nullptr;
 
 	active_index = 0;
@@ -23,6 +23,8 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 	autoscroll = false;
 	text_timer = 0;
 	arrow_timer = 0;
+	text_speed = 3;
+	text_scroll_stage = 0;
 
 	SetFrame(x, y, width, height);
 }
@@ -60,7 +62,10 @@ void Textbox::Update()
 			{
 				active_index--;
 				if (GetScrollIndex() < 0)
-					scroll_start--;
+				{
+					scroll_pos--;
+					UpdateMenu();
+				}
 			}
 			else if (menu_flags & MenuFlags::WRAPS)
 			{
@@ -72,8 +77,11 @@ void Textbox::Update()
 			if (active_index < items.size() - 1)
 			{
 				active_index++;
-				//if (GetScrollIndex() >= scroll_start)
-				//	scroll_start++;
+				if (GetScrollIndex() > scroll_start)
+				{
+					scroll_pos++;
+					UpdateMenu();
+				}
 			}
 			else if (menu_flags & MenuFlags::WRAPS)
 			{
@@ -124,13 +132,14 @@ void Textbox::SetText(TextItem* text)
 	this->text_timer = 0;
 }
 
-void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, void(*callback)(), unsigned int flags)
+void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void()> callback, unsigned int flags, unsigned int scroll_start)
 {
 	this->is_menu = menu;
 	this->display_count = display_count;
 	this->item_start = start;
 	this->item_spacing = spacing;
 	this->menu_flags = flags;
+	this->scroll_start = scroll_start;
 	//for assigning close_callback, you'd think if we passed nullptr to callback and assigned close_callback to callback, close_callback would be assigned nullptr
 	//but no, for some stupid reason the gcc doesn't like that. >:(
 	if (callback)
@@ -216,16 +225,24 @@ void Textbox::UpdateMenu()
 {
 	memset(tiles, MENU_BLANK, (size.x - 2) * (size.y - 2));
 	//this function creates "tiles" for display
-	for (unsigned int i = scroll_start; i < scroll_start + display_count && i < items.size(); i++)
+	for (unsigned int i = scroll_pos; i < scroll_pos + display_count && i < items.size(); i++)
 	{
 		TextItem* item = items[i];
 		if (!item)
 			continue;
 		unsigned int x = item_start.x;
-		unsigned int y = item_start.y + (i - scroll_start) * item_spacing.y;
+		unsigned int y = item_start.y + (i - scroll_pos) * item_spacing.y;
 		for (unsigned int c = 0; c < item->text.length(); c++)
 		{
-			tiles[x + c + y * (size.x - 2)] = item->text[c];
+			unsigned char at = item->text[c];
+			if (at == MESSAGE_LINE)
+			{
+				x = item_start.x;
+				y++;
+				continue;
+			}
+			tiles[x + y * (size.x - 2)] = item->text[c];
+			x++;
 		}
 	}
 }
@@ -237,7 +254,7 @@ void Textbox::DrawArrow(sf::RenderWindow* window, bool active)
 
 	src_rect.left = ((active ? CURSOR_ACTIVE : CURSOR_INACTIVE) % 16) * 8;
 	src_rect.top = ((active ? CURSOR_ACTIVE : CURSOR_INACTIVE) / 16) * 8;
-	unsigned int index = active_index - scroll_start;
+	unsigned int index = active_index - scroll_pos;
 	sprite8x8.setPosition((float)(pos.x * 8 + item_start.x * 8), (float)(pos.y * 8 + item_start.y * 8 + 8 + index * 8 * item_spacing.y));
 	sprite8x8.setTextureRect(src_rect);
 	window->draw(sprite8x8);
@@ -245,6 +262,19 @@ void Textbox::DrawArrow(sf::RenderWindow* window, bool active)
 
 void Textbox::ProcessNextCharacter()
 {
+	if (text_scroll_stage > 0)
+	{
+		if (text_scroll_stage / 4 > 0 && text_scroll_stage % 4 == 0)
+		{
+			memcpy(tiles, tiles + size.x - 2, (size.x - 2) * 3);
+			memset(tiles + (size.x - 2) * 3, MENU_BLANK, (size.x - 2));
+		}
+		text_scroll_stage--;
+		if (text_scroll_stage == 0)
+			text_tile_pos = (size.x - 2) * 3;
+		return;
+	}
+
 	unsigned char c = text->GetText()[text_pos];
 	switch (c)
 	{
@@ -266,7 +296,20 @@ void Textbox::ProcessNextCharacter()
 		{
 			memset(tiles, MENU_BLANK, (size.x - 2) * (size.y - 2));
 			text_tile_pos = size.x - 2;
+			//text_speed = 3;
 			break;
+		}
+		else if (arrow_timer == 0)
+			arrow_timer = CURSOR_MORE_TIME;
+		return;
+
+	case MESSAGE_SCROLL: //scroll down one line
+		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
+		{
+			text_scroll_stage = 10;
+			arrow_timer = 0;
+			text_timer = 0;
+			text_pos++;
 		}
 		else if (arrow_timer == 0)
 			arrow_timer = CURSOR_MORE_TIME;
@@ -288,8 +331,13 @@ void Textbox::ProcessNextCharacter()
 		break;
 	}
 
+	if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
+		text_speed = TEXT_SPEED_FAST;
+	else if (!InputController::KeyDown(INPUT_A) && !InputController::KeyDown(INPUT_B))
+		text_speed = TEXT_SPEED_SLOW;
+
 	arrow_timer = 0;
-	text_timer = 3;
+	text_timer = text_speed;
 	text_pos++;
 }
 

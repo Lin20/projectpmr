@@ -84,12 +84,16 @@ enum ArrowStates
 #define CURSOR_ACTIVE		109
 #define CURSOR_INACTIVE 	108
 #define CURSOR_MORE			110
-#define CURSOR_MORE_TIME	45
+#define CURSOR_MORE_TIME	60
+#define TEXT_SPEED_SLOW		8
+#define TEXT_SPEED_MEDIUM	5
+#define TEXT_SPEED_FAST		1
 
 #define MESSAGE_LINE		0x4F
 #define MESSAGE_ENDNAME		0x50
 #define MESSAGE_PARA		0x51
 #define MESSAGE_POKE		0x54
+#define MESSAGE_SCROLL		0x55
 #define MESSAGE_END			0x57
 #define MESSAGE_PROMPT		0x58
 

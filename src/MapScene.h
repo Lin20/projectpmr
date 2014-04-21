@@ -9,6 +9,7 @@
 #include "PaletteTexture.h"
 #include "Textbox.h"
 #include "MenuCache.h"
+#include "ItemStorage.h"
 
 class MapScene : public Scene
 {

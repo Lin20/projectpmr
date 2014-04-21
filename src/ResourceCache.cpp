@@ -15,6 +15,7 @@ PaletteTexture* ResourceCache::menu_texture = 0;
 PaletteTexture* ResourceCache::font_texture = 0;
 DataBlock* ResourceCache::ascii_table = 0;
 string ResourceCache::item_names[256];
+bool ResourceCache::key_items[256];
 
 ResourceCache::ResourceCache()
 {
@@ -151,7 +152,11 @@ void ResourceCache::LoadMisc()
 		p++;
 		item_names[i] = s;
 	}
-	//delete d;
+
+	delete d;
+	d = ReadFile(ResourceCache::GetResourceLocation(string("misc/keyitems.dat")).c_str());
+	memcpy(key_items, d->data, 256);
+	delete d;
 
 #ifdef _DEBUG
 	cout << "Done\n";

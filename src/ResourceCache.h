@@ -69,6 +69,7 @@ public:
 	inline static PaletteTexture* GetFontTexture() { return font_texture; }
 	inline static DataBlock* GetAsciiTable() { return ascii_table; }
 	inline static string& GetItemName(unsigned char index) { return item_names[index]; }
+	inline static bool IsKeyItem(unsigned char index) { return key_items[index]; }
 
 private:
 	//tilesets
@@ -90,4 +91,5 @@ private:
 	static PaletteTexture* font_texture;
 	static DataBlock* ascii_table;
 	static string item_names[256];
+	static bool key_items[256];
 };

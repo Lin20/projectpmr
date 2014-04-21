@@ -39,4 +39,10 @@ struct Item
 		id = 0;
 		quantity = 0;
 	}
+
+	struct Item(unsigned char id, unsigned char quantity)
+	{
+		this->id = id;
+		this->quantity = quantity;
+	}
 };

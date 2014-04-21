@@ -18,6 +18,7 @@ class NPC;
 class TextboxParent;
 class Textbox;
 class TextItem;
+class ItemStorage;
 
 struct DataBlock;
 struct MapConnection;

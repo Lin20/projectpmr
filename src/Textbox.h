@@ -22,7 +22,7 @@ public:
 
 	void SetFrame(unsigned char x, unsigned char y, unsigned char width, unsigned char height);
 	void SetText(TextItem* text);
-	void SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, void(*close_callback)() = 0, unsigned int flags = MenuFlags::NONE);
+	void SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void()> = nullptr, unsigned int flags = MenuFlags::NONE, unsigned int scroll_start = INT_MAX);
 
 	void SetMenuFlags(unsigned int f) { menu_flags = f; }
 	void SetArrowState(unsigned int f) { arrow_state = f; }
@@ -33,7 +33,7 @@ public:
 	sf::Vector2u GetSize() { return size; }
 	vector<TextItem*>& GetItems() { return items; }
 
-	int GetScrollIndex() { return active_index - scroll_start; }
+	int GetScrollIndex() { return active_index - scroll_pos; }
 	bool SetToClose() { return close; }
 	void Close();
 	void CancelClose() { close = false; }
@@ -48,8 +48,8 @@ private:
 	//menu-related stuff
 	bool is_menu; //is this textbox a menu?
 	unsigned char display_count; //how many items get displayed?
+	unsigned int scroll_pos; //where the scroll is positioned
 	unsigned int scroll_start; //when does the scrolling start? eg. 3/4 in the inventory
-	unsigned int scroll_position; //where the scroll is position
 	vector<TextItem*> items; //the items get displayed
 	sf::Vector2i item_start; //where the items start drawing (relative to pos)
 	sf::Vector2u item_spacing; //the space between the items
@@ -69,6 +69,8 @@ private:
 	bool autoscroll; //does the text scroll if the player doesn't hit a button? (eg. in battles)
 	int text_timer; //the time until the next char is parsed
 	unsigned char arrow_timer; //if > CURSOR_NEXT_TIME / 2 then show "more" arrow
+	unsigned char text_speed; //speed the text moves at
+	unsigned char text_scroll_stage; //stage of text scrolling
 
 	//render stuff
 	sf::Sprite sprite8x8;
