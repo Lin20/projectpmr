@@ -29,3 +29,8 @@ bool TextboxParent::UpdateTextboxes()
 	}
 	return true;
 }
+
+std::vector<Textbox*>& TextboxParent::GetTextboxes()
+{
+	return textboxes;
+}

@@ -24,15 +24,19 @@ public:
 	void SetText(TextItem* text);
 	void SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void()> = nullptr, unsigned int flags = MenuFlags::NONE, unsigned int scroll_start = INT_MAX);
 	void ClearItems();
+	void SetCounter(bool is_counter, unsigned char min, unsigned char max, std::function<void()> action_callback = nullptr, std::function<void()> close_callback = nullptr);
 
 	void SetMenuFlags(unsigned int f) { menu_flags = f; }
-	void SetArrowState(unsigned int f) { arrow_state = f; }
+	void SetArrowState(unsigned int f) { arrow_state = f; if (f == ArrowStates::INACTIVE) inactive_index = active_index; }
 
 	void UpdateMenu();
+	void UpdateCounter();
 
 	sf::Vector2i GetPosition() { return pos; }
 	sf::Vector2u GetSize() { return size; }
 	vector<TextItem*>& GetItems() { return items; }
+	unsigned int GetActiveIndex() { return active_index; }
+	unsigned int GetInactiveIndex() { return inactive_index; }
 
 	int GetScrollIndex() { return active_index - scroll_pos; }
 	bool SetToClose() { return close; }
@@ -73,6 +77,14 @@ private:
 	unsigned char arrow_timer; //if > CURSOR_NEXT_TIME / 2 then show "more" arrow
 	unsigned char text_speed; //speed the text moves at
 	unsigned char scroll_timer; //stage of text scrolling
+
+	//counter stuff
+	bool is_counter; //is the textbox a counter?
+	unsigned char min_counter;
+	unsigned char max_counter;
+	unsigned char counter_value;
+	std::function<void()> counter_callback; //the function that's called when confirmed
+	std::function<void()> counter_close_callback; //the function that's called when confirmed
 
 	//render stuff
 	sf::Sprite sprite8x8;

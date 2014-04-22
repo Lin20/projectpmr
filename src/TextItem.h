@@ -17,8 +17,8 @@ public:
 		else
 			this->callback = nullptr;
 		this->text = text;
-		this->index = 0;
-		this->value = 0;
+		this->index = index;
+		this->value = value;
 		//pokestring(this->text);
 	}
 
@@ -39,6 +39,7 @@ public:
 	}
 
 	string& GetText() { return text; }
+	Textbox* GetParent() { return owner_textbox; }
 
 	string text; //the text that the item displays
 	unsigned char index; //the slot of the item

@@ -13,6 +13,8 @@ public:
 
 	virtual bool UpdateTextboxes();
 
+	std::vector<Textbox*>& GetTextboxes();
+
 protected:
 	std::vector<Textbox*> textboxes;
 };

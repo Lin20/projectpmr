@@ -81,6 +81,7 @@ enum ArrowStates
 #define MENU_V				28
 #define MENU_CORNER_DL		29
 #define MENU_CORNER_DR		30
+#define MENU_AMOUNT			
 #define CURSOR_ACTIVE		109
 #define CURSOR_INACTIVE 	108
 #define CURSOR_MORE			110

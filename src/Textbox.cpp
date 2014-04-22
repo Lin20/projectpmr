@@ -108,7 +108,35 @@ void Textbox::Update()
 		if (scroll_pos + display_count < items.size() && arrow_timer == 0)
 			arrow_timer = CURSOR_MORE_TIME;
 	}
-	else if (!is_menu) //it's a regular textbox
+	else if (is_counter) //it's a counter
+	{
+		if (InputController::KeyDownOnce(INPUT_DOWN))
+		{
+			counter_value--;
+			if (counter_value < min_counter)
+				counter_value = max_counter;
+			UpdateCounter();
+		}
+		else if (InputController::KeyDownOnce(INPUT_UP))
+		{
+			counter_value++;
+			if (counter_value > max_counter)
+				counter_value = min_counter;
+			UpdateCounter();
+		}
+		else if (InputController::KeyDownOnce(INPUT_A))
+		{
+			if (counter_callback != nullptr)
+				counter_callback();
+		}
+		else if (InputController::KeyDownOnce(INPUT_B))
+		{
+			if (counter_close_callback != nullptr)
+				counter_close_callback();
+			Close();
+		}
+	}
+	else if(!is_menu && !is_counter) //it's a regular textbox
 	{
 		if (text_timer > 0)
 			text_timer--;
@@ -181,6 +209,24 @@ void Textbox::ClearItems()
 		}
 	}
 	items.clear();
+}
+
+void Textbox::SetCounter(bool is_counter, unsigned char min, unsigned char max, std::function<void()> callback, std::function<void()> close_callback)
+{
+	this->is_counter = is_counter;
+	this->min_counter = min;
+	this->max_counter = max;
+	this->counter_value = min;
+	if (callback)
+		this->counter_callback = callback;
+	else
+		this->counter_callback = nullptr;
+	if (close_callback)
+		this->close_callback = close_callback;
+	else
+		this->close_callback = nullptr;
+
+	UpdateCounter();
 }
 
 void Textbox::DrawFrame(sf::RenderWindow* window)
@@ -271,6 +317,16 @@ void Textbox::UpdateMenu()
 	}
 }
 
+void Textbox::UpdateCounter()
+{
+	string s = "*";
+	s.append((counter_value < 10 ? "0" : ""));
+	s.append(itos(counter_value));
+	pokestring(s);
+	for (unsigned int i = 0; i < s.length(); i++)
+		tiles[i] = (unsigned char)s[i];
+}
+
 void Textbox::DrawArrow(sf::RenderWindow* window, bool active)
 {
 	sf::IntRect src_rect = sf::IntRect(0, 0, 8, 8);
@@ -298,6 +354,9 @@ void Textbox::ProcessNextCharacter()
 			text_tile_pos = (size.x - 2) * 3;
 		return;
 	}
+
+	//if (text_pos >= text->GetText().length())
+	//	return;
 
 	unsigned char c = text->GetText()[text_pos];
 	switch (c)
@@ -342,8 +401,8 @@ void Textbox::ProcessNextCharacter()
 	case MESSAGE_PROMPT: //prompt for continue
 		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
 		{
-			text->Action();
 			Close();
+			text->Action();
 			break;
 		}
 		else if (arrow_timer == 0)
