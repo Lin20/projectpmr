@@ -12,6 +12,7 @@ public:
 	virtual void ShowTextbox(Textbox* t);
 
 	virtual bool UpdateTextboxes();
+	virtual void CloseAll(bool include_this = false);
 
 	std::vector<Textbox*>& GetTextboxes();
 

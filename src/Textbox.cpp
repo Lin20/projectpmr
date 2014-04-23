@@ -5,6 +5,7 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 	tiles = 0;
 	delete_on_close = d;
 	close = false;
+	cancel_switch = false;
 
 	is_menu = false;
 	display_count = 0;
@@ -61,8 +62,7 @@ void Textbox::Update()
 		//this menu is active, so try to move the cursor up
 		if (InputController::KeyDownOnce(INPUT_UP))
 		{
-			if (GetScrollIndex() - 1 < 0)
-				if (cursor_visibility_timer == 0)
+			if (GetScrollIndex() - 1 < 0 && cursor_visibility_timer == 0 && scroll_start < display_count)
 					cursor_visibility_timer = CURSOR_VIS_TIME;
 			scroll_timer = 0;
 			Scroll(true);
@@ -79,7 +79,7 @@ void Textbox::Update()
 		}
 		else if (InputController::KeyDownOnce(INPUT_DOWN)) //try down now
 		{
-			if (GetScrollIndex() + 1 > scroll_start)
+			if (GetScrollIndex() + 1 > (int)scroll_start)
 				if (cursor_visibility_timer == 0)
 					cursor_visibility_timer = CURSOR_VIS_TIME;
 			scroll_timer = 0;
@@ -93,6 +93,32 @@ void Textbox::Update()
 				if (cursor_visibility_timer == 0)
 					cursor_visibility_timer = CURSOR_VIS_TIME;
 				Scroll(false);
+			}
+		}
+		else if (InputController::KeyDownOnce(INPUT_SELECT)) //press select
+		{
+			if (cursor_visibility_timer == 0)
+				cursor_visibility_timer = CURSOR_VIS_TIME;
+			if (switch_last_item || (!switch_last_item && active_index < items.size() - 1))
+			{
+				if ((menu_flags & MenuFlags::SWITCHABLE) && (arrow_state & ArrowStates::ACTIVE) && (arrow_state & ArrowStates::INACTIVE) && switch_callback != nullptr)
+				{
+					switch_callback();
+					if (!cancel_switch)
+					{
+						TextItem* t = items[active_index];
+						items[active_index] = items[inactive_index];
+						items[inactive_index] = t;
+						SetArrowState(ArrowStates::ACTIVE);
+						UpdateMenu();
+					}
+					cancel_switch = false;
+				}
+				else if (menu_flags & MenuFlags::SWITCHABLE)
+				{
+					SetArrowState(ArrowStates::ACTIVE | ArrowStates::INACTIVE);
+					inactive_index = active_index;
+				}
 			}
 		}
 		else if (InputController::KeyDownOnce(INPUT_A)) //press a
@@ -136,7 +162,7 @@ void Textbox::Update()
 			Close();
 		}
 	}
-	else if(!is_menu && !is_counter) //it's a regular textbox
+	else if (!is_menu && !is_counter) //it's a regular textbox
 	{
 		if (text_timer > 0)
 			text_timer--;
@@ -171,7 +197,7 @@ void Textbox::SetText(TextItem* text)
 	this->text_timer = 0;
 }
 
-void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void()> callback, unsigned int flags, unsigned int scroll_start)
+void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void(TextItem* source)> callback, unsigned int flags, unsigned int scroll_start, std::function<void()> switch_callback, bool can_switch_last)
 {
 	this->is_menu = menu;
 	this->display_count = display_count;
@@ -179,12 +205,18 @@ void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start
 	this->item_spacing = spacing;
 	this->menu_flags = flags;
 	this->scroll_start = scroll_start;
+	this->switch_last_item = can_switch_last;
+
 	//for assigning close_callback, you'd think if we passed nullptr to callback and assigned close_callback to callback, close_callback would be assigned nullptr
 	//but no, for some stupid reason the gcc doesn't like that. >:(
 	if (callback)
 		this->close_callback = callback;
 	else
 		this->close_callback = nullptr;
+	if (switch_callback)
+		this->switch_callback = switch_callback;
+	else
+		this->switch_callback = nullptr;
 	//this->close_callback = (callback ? nullptr : callback);
 	if (this->delete_on_close)
 	{
@@ -211,7 +243,7 @@ void Textbox::ClearItems()
 	items.clear();
 }
 
-void Textbox::SetCounter(bool is_counter, unsigned char min, unsigned char max, std::function<void()> callback, std::function<void()> close_callback)
+void Textbox::SetCounter(bool is_counter, unsigned char min, unsigned char max, std::function<void()> callback, std::function<void(TextItem* source)> close_callback)
 {
 	this->is_counter = is_counter;
 	this->min_counter = min;
@@ -281,10 +313,10 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 	//They get drawn on top of children otherwise.
 	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE))
 	{
-		if (arrow_state & ArrowStates::ACTIVE && cursor_visibility_timer < CURSOR_VIS_TIME / 2)
-			DrawArrow(window, true);
 		if (arrow_state & ArrowStates::INACTIVE)
 			DrawArrow(window, false);
+		if (arrow_state & ArrowStates::ACTIVE && cursor_visibility_timer < CURSOR_VIS_TIME / 2)
+			DrawArrow(window, true);
 	}
 
 	for (unsigned int i = 0; i < textboxes.size(); i++)
@@ -334,7 +366,9 @@ void Textbox::DrawArrow(sf::RenderWindow* window, bool active)
 
 	src_rect.left = ((active ? CURSOR_ACTIVE : CURSOR_INACTIVE) % 16) * 8;
 	src_rect.top = ((active ? CURSOR_ACTIVE : CURSOR_INACTIVE) / 16) * 8;
-	unsigned int index = active_index - scroll_pos;
+	int index = (int)((active ? active_index : inactive_index) - scroll_pos);
+	if (index < 0 || index >= display_count)
+		return;
 	sprite8x8.setPosition((float)(pos.x * 8 + item_start.x * 8), (float)(pos.y * 8 + item_start.y * 8 + 8 + index * 8 * item_spacing.y));
 	sprite8x8.setTextureRect(src_rect);
 	window->draw(sprite8x8);
@@ -403,7 +437,7 @@ void Textbox::ProcessNextCharacter()
 		{
 			Close();
 			text->Action();
-			break;
+			return;
 		}
 		else if (arrow_timer == 0)
 			arrow_timer = CURSOR_MORE_TIME;
@@ -424,11 +458,16 @@ void Textbox::ProcessNextCharacter()
 	text_pos++;
 }
 
-void Textbox::Close()
+void Textbox::Close(bool ignore_callback)
 {
 	close = true;
-	if (this->close_callback != nullptr)
-		close_callback();
+	if (!ignore_callback && this->close_callback != nullptr && !this->close_callback._Empty())
+		close_callback(0);
+	if (close && (arrow_state & ArrowStates::ACTIVE) && (arrow_state & ArrowStates::INACTIVE))
+	{
+		inactive_index = active_index;
+		SetArrowState(ArrowStates::ACTIVE);
+	}
 }
 
 void Textbox::Scroll(bool up)
@@ -458,7 +497,7 @@ void Textbox::Scroll(bool up)
 		if (active_index < items.size() - 1)
 		{
 			active_index++;
-			if (GetScrollIndex() > scroll_start)
+			if (GetScrollIndex() > (int)scroll_start)
 			{
 				scroll_pos++;
 				if (scroll_pos + display_count < items.size())

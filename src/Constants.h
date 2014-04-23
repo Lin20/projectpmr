@@ -12,7 +12,8 @@ enum MenuFlags
 	NONE =			0,
 	FOCUSABLE =		1,
 	WRAPS =			2,
-	HOLD_INPUT =	4 //whether or not a button can be held to cycle through items
+	HOLD_INPUT =	4, //whether or not a button can be held to cycle through items
+	SWITCHABLE =	8
 };
 
 //the state the cursor is in (flags because of moving items with both visible)

@@ -131,9 +131,7 @@ void MapScene::Render(sf::RenderWindow* window)
 		{
 			if (active_map->HasConnection(i))
 			{
-				Map* c = active_map->connected_maps[i];
-				c->Load();
-				DrawMap(window, *c, i, &active_map->connections[i]);
+				DrawMap(window, *active_map->connected_maps[i], i, &active_map->connections[i]);
 			}
 		}
 	}

@@ -21,9 +21,10 @@ public:
 	bool AddItem(Item i) { AddItem(i.id, i.quantity); }
 
 	unsigned char GetQuantity(unsigned char id);
-	void RemoveItem(Item i);
+	unsigned char GetItemCount();
 	void RemoveItem(unsigned char id, unsigned char quantity);
-	void RemoveItem(unsigned char slot);
+	void RemoveItemFromSlot(unsigned char slot, unsigned char quantity);
+	void RemoveItem(Item i) { RemoveItem(i.id, i.quantity); }
 
 private:
 	vector<Item> items;
