@@ -33,7 +33,7 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 
 Textbox::~Textbox()
 {
-	if (delete_on_close)
+	//if (delete_on_close)
 	{
 		if (text)
 			delete text;

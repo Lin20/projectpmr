@@ -151,7 +151,11 @@ void ResourceCache::LoadMisc()
 			s.insert(s.begin() + s.length(), (char)*p++);
 		p++;
 		item_names[i] = s;
+		//these item names get reported as a memory leak
+		//however since theyre static not manually allocated, they will be deleted when the program terminates
+		//the leak reportings are false
 	}
+	d->data = d->data_start;
 
 	delete d;
 	d = ReadFile(ResourceCache::GetResourceLocation(string("misc/keyitems.dat")).c_str());

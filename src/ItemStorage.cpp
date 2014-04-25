@@ -125,7 +125,7 @@ void ItemStorage::GenerateItems()
 	};
 
 	menu->ClearItems();
-	for (int i = 0; i < items.size(); i++)
+	for (unsigned int i = 0; i < items.size(); i++)
 	{
 		if (items[i].id == 0 || items[i].quantity == 0)
 			break;

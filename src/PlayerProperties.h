@@ -12,8 +12,7 @@ public:
 	}
 	~PlayerProperties()
 	{
-		if (inventory)
-			delete inventory;
+		//we can't delete the inventory here because of circular inclusion
 	}
 
 	ItemStorage* GetInventory() { return inventory; }

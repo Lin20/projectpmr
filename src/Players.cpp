@@ -24,9 +24,15 @@ void Players::Initialize()
 void Players::ReleaseResources()
 {
 	if (player1)
+	{
+		delete player1->GetInventory();
 		delete player1;
+	}
 	if (player2)
+	{
+		delete player2->GetInventory();
 		delete player2;
+	}
 }
 
 void Players::InitPlayer(PlayerProperties* p)

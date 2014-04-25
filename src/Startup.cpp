@@ -1,8 +1,8 @@
 #ifdef _WIN32
 #ifdef _DEBUG
-//#define CRTDBG_MAP_ALLOC
-//#include <stdlib.h>
-//#include <crtdbg.h>
+#define CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 #endif
 #endif
 
@@ -25,6 +25,7 @@ using namespace std;
 
 int main()
 {
+	//_crtBreakAlloc = 419;
 	Engine engine;
 
 	sf::RenderWindow window(sf::VideoMode(VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16), "SFML works!");
@@ -55,8 +56,7 @@ int main()
 
 #ifdef _WIN32
 #ifdef _DEBUG
-//#define CRTDBG_MAP_ALLOC
-//	_CrtDumpMemoryLeaks();
+	_CrtDumpMemoryLeaks();
 #endif
 #endif
 
