@@ -63,7 +63,7 @@ void Textbox::Update()
 		if (InputController::KeyDownOnce(INPUT_UP))
 		{
 			if (GetScrollIndex() - 1 < 0 && cursor_visibility_timer == 0 && scroll_start < display_count)
-					cursor_visibility_timer = CURSOR_VIS_TIME;
+				cursor_visibility_timer = CURSOR_VIS_TIME;
 			scroll_timer = 0;
 			Scroll(true);
 		}
@@ -232,14 +232,14 @@ void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start
 
 void Textbox::ClearItems()
 {
-	if (delete_on_close)
+	//if (delete_on_close)
+	//{
+	for (unsigned int i = 0; i < items.size(); i++)
 	{
-		for (unsigned int i = 0; i < items.size(); i++)
-		{
-			if (items[i])
-				delete items[i];
-		}
+		if (items[i])
+			delete items[i];
 	}
+	//}
 	items.clear();
 }
 
@@ -497,7 +497,7 @@ void Textbox::Scroll(bool up)
 		if (active_index < items.size() - 1)
 		{
 			active_index++;
-			if (GetScrollIndex() > (int)scroll_start)
+			if (GetScrollIndex() >(int)scroll_start)
 			{
 				scroll_pos++;
 				if (scroll_pos + display_count < items.size())
