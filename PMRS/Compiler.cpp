@@ -21,6 +21,7 @@ Compiler::Compiler(ostream& out, const char* filename)
 		}
 		else
 		{
+			ErrorReporter::Printout(out);
 			out << "Build succeeded with 0 errors and " << (ErrorReporter::GetMessageCount() - ErrorReporter::GetErrorCount()) << " warnings.\n\n";
 		}
 

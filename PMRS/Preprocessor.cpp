@@ -79,7 +79,7 @@ void Preprocessor::RemoveWhitespace(string& code)
 				i--;
 			}
 		}
-		else if (!in_string && ((at == ' ' && (previous == ' ' || previous == ',' || previous == '+' || i == code.length() - 1)) || at == '\r'))
+		else if (!in_string && ((at == ' ' && (previous == ' ' || previous == ',' || previous == '+' || i == code.length() - 1)) || at == '\r') || at == '\t')
 		{
 			code.erase(code.begin() + i);
 			i--;
@@ -206,13 +206,20 @@ void Preprocessor::AddDefinition(Line& line)
 	if (tokens.size() > 2)
 	{
 		string name = tokens[1];
-		if (defines.find(name) != defines.end())
+		if (TokenParser::IsVariable(name))
 		{
-			ErrorReporter::AddError(string("Redefinition of ").append(tokens[1]).append("."), line.GetLineNumber(), line.GetFormattedText());
+			if (defines.find(name) != defines.end())
+			{
+				ErrorReporter::AddError(string("Redefinition of \'").append(tokens[1]).append("\'."), line.GetLineNumber(), line.GetFormattedText());
+			}
+			else
+			{
+				defines.insert(pair<string, string>(name, line.GetFormattedText().substr(line.GetFormattedText().find(",", line.GetFormattedText().find(",") + 1) + 1)));
+			}
 		}
 		else
 		{
-			defines.insert(pair<string, string>(name, line.GetFormattedText().substr(line.GetFormattedText().find(",", line.GetFormattedText().find(",") + 1) + 1)));
+			ErrorReporter::AddError(string("Bad definition name \'").append(tokens[1]).append("\'."), line.GetLineNumber(), line.GetFormattedText());
 		}
 	}
 	else

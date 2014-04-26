@@ -27,6 +27,8 @@ bool TokenParser::IsVariable(string& token)
 {
 	if (token.find("\"") != string::npos)
 		return false;
+	if (!((token[0] >= 'A' && token[0] <= 'Z') || (token[0] >= 'a' && token[0] <= 'z')))
+		return false;
 	return true;
 }
 
