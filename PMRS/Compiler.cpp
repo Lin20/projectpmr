@@ -13,7 +13,7 @@ Compiler::Compiler(ostream& out, const char* filename)
 	{
 		Preprocessor::Process(str);
 		Preprocessor::FindLines(lines, str);
-		Preprocessor::ProcessDirectives(lines, str);
+		Preprocessor::ProcessDirectives(lines, str, string(filename));
 		if (ErrorReporter::GetErrorCount())
 		{
 			ErrorReporter::Printout(out);

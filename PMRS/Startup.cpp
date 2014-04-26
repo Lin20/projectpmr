@@ -9,7 +9,7 @@ using namespace std;
 
 int main(int count, char** args)
 {
-	Compiler c(cout, "C:\\red dumps\\test.txt");
+	Compiler c(cout, "C:/red dumps/test.txt");
 
 	cin.ignore(2);
 

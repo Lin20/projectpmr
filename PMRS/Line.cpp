@@ -58,3 +58,12 @@ void Line::FindTokens(string& code, unsigned int& start)
 	if (!token.empty())
 		tokens.push_back(token);
 }
+
+void Line::SetToken(unsigned int token_index, string value)
+{
+	formatted_text.clear();
+	tokens[token_index] = value;
+	for (unsigned int i = 0; i < tokens.size() - 1; i++)
+		formatted_text.append(tokens[i]).append(",");
+	formatted_text.append(tokens[tokens.size() - 1]);
+}

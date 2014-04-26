@@ -16,6 +16,8 @@ public:
 	inline string& GetFormattedText() { return formatted_text; }
 	inline unsigned int GetLineNumber() { return line_number; }
 
+	void SetToken(unsigned int token_index, string value);
+
 private:
 	string formatted_text;
 	vector<string> tokens;

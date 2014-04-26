@@ -1,5 +1,6 @@
 #include "Preprocessor.h"
 
+map<string, string> Preprocessor::defines;
 
 Preprocessor::Preprocessor()
 {
@@ -116,38 +117,106 @@ void Preprocessor::FindLines(vector<Line>& lines, string& formatted_code)
 	}
 }
 
-void Preprocessor::ProcessDirectives(vector<Line>& lines, string& formatted_code)
+void Preprocessor::ProcessDirectives(vector<Line>& lines, string& formatted_code, string filename)
 {
 	for (unsigned int i = 0; i < lines.size(); i++)
 	{
+		vector<string>& tokens = lines[i].GetTokens();
+		unsigned int k = 1;
+		if (tokens[0] == "#define")
+			k = 2;
+		for (; k < tokens.size(); k++) //don't replace the main command
+		{
+			if (TokenParser::IsVariable(tokens[k]))
+			{
+				map<string, string>::iterator it = defines.find(tokens[k]);
+				if (it != defines.end())
+				{
+					lines[i].SetToken(k, it->second);
+				}
+			}
+		}
+
 		//lines will never be empty since they're formatted beforehand, so we don't need to check for them
 		if (lines[i].GetFormattedText()[0] != '#')
 			continue;
 
 		//no switch(string) :(
-		vector<string>& tokens = lines[i].GetTokens();
+		//replace the defines inside it
 		string token = tokens[0];
 		if (token == "#include")
 		{
-			if (tokens.size() > 1)
+			IncludeFile(lines, i, formatted_code, tokens, filename);
+		}
+		else if (token == "#define")
+		{
+			AddDefinition(lines[i]);
+		}
+	}
+}
+
+void Preprocessor::IncludeFile(vector<Line>& lines, unsigned int& line_index, string& formatted_code, vector<string>& tokens, string this_filename)
+{
+	string filename;
+	Line& line = lines[line_index];
+	if (tokens.size() > 1)
+	{
+		if (TokenParser::IsPureString(line.GetTokens()[1], filename))
+		{
+			if (tokens.size() > 2)
 			{
-				string filename;
-				if (TokenParser::IsPureString(lines[i].GetTokens()[1], filename))
-				{
-					if (tokens.size() > 2)
-					{
-						ErrorReporter::AddWarning("Ignored parameters (expects 2).", lines[i].GetLineNumber(), lines[i].GetFormattedText());
-					}
-				}
-				else
-				{
-					ErrorReporter::AddError(string("\'").append(tokens[1]).append("\' is not a pure string literal."), lines[i].GetLineNumber(), lines[i].GetFormattedText());
-				}
+				ErrorReporter::AddWarning("Ignored parameters (expects 2).", line.GetLineNumber(), line.GetFormattedText());
+			}
+
+			//now actually include the file
+			filename = TokenParser::GetDirectory(this_filename).append("/").append(filename);
+			ifstream file(filename);
+			if (!file)
+			{
+				ErrorReporter::AddError(string("Cannot find file \'").append(filename).append("\'."), line.GetLineNumber(), line.GetFormattedText());
 			}
 			else
 			{
-				ErrorReporter::AddError("Expected pure string literal.", lines[i].GetLineNumber(), lines[i].GetFormattedText());
+				std::string include_src((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+				vector<Line> include_lines;
+				Preprocessor::Process(include_src);
+				Preprocessor::FindLines(include_lines, include_src);
+				Preprocessor::ProcessDirectives(include_lines, include_src, filename);
+				for (unsigned int i = 0; i < include_lines.size(); i++)
+				{
+					lines.insert(lines.begin() + line_index + i, include_lines[i]);
+				}
+				line_index += include_lines.size();
 			}
 		}
+		else
+		{
+			ErrorReporter::AddError(string("\'").append(tokens[1]).append("\' is not a pure string literal."), line.GetLineNumber(), line.GetFormattedText());
+		}
+	}
+	else
+	{
+		ErrorReporter::AddError("Expected pure string literal.", line.GetLineNumber(), line.GetFormattedText());
+	}
+}
+
+void Preprocessor::AddDefinition(Line& line)
+{
+	vector<string>& tokens = line.GetTokens();
+	if (tokens.size() > 2)
+	{
+		string name = tokens[1];
+		if (defines.find(name) != defines.end())
+		{
+			ErrorReporter::AddError(string("Redefinition of ").append(tokens[1]).append("."), line.GetLineNumber(), line.GetFormattedText());
+		}
+		else
+		{
+			defines.insert(pair<string, string>(name, line.GetFormattedText().substr(line.GetFormattedText().find(",", line.GetFormattedText().find(",") + 1) + 1)));
+		}
+	}
+	else
+	{
+		ErrorReporter::AddWarning("Empty define statement.", line.GetLineNumber(), line.GetFormattedText());
 	}
 }
