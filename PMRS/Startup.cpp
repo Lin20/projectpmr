@@ -1,16 +1,17 @@
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <streambuf>
+
+#include "Compiler.h"
 
 using namespace std;
 
 int main(int count, char** args)
 {
-	cout << (count - 1) << " args: ";
-	for (int i = 1; i < count; i++)
-	{
-		cout << args[i] << "; ";
-	}
-	cout << "\n";
+	Compiler c(cout, "C:\\red dumps\\test.txt");
+
 	cin.ignore(2);
+
 	return 0;
 }

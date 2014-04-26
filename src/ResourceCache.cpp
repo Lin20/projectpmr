@@ -155,7 +155,6 @@ void ResourceCache::LoadMisc()
 		//however since theyre static not manually allocated, they will be deleted when the program terminates
 		//the leak reportings are false
 	}
-	d->data = d->data_start;
 
 	delete d;
 	d = ReadFile(ResourceCache::GetResourceLocation(string("misc/keyitems.dat")).c_str());

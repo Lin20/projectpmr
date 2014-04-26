@@ -44,6 +44,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -64,7 +65,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="Compiler.cpp" />
+    <ClCompile Include="ErrorReporter.cpp" />
+    <ClCompile Include="Line.cpp" />
+    <ClCompile Include="Preprocessor.cpp" />
     <ClCompile Include="Startup.cpp" />
+    <ClCompile Include="TokenParser.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Command.h" />
+    <ClInclude Include="Commands.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="Compiler.h" />
+    <ClInclude Include="ErrorReporter.h" />
+    <ClInclude Include="Line.h" />
+    <ClInclude Include="Preprocessor.h" />
+    <ClInclude Include="TokenParser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
