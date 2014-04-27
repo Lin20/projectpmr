@@ -21,9 +21,10 @@ public:
 	~Commands();
 
 	static void LoadCommands();
+	static Command* GetCommand(string& name, unsigned int& start); //the start is used for commands with the same name but different parameters (overloading)
 
 private:
-	static Command commands[256];
+	static vector<Command> commands;
 
 	static void ProcessLine(string line);
 };

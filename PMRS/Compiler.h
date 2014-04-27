@@ -4,6 +4,7 @@
 #include <streambuf>
 #include "Preprocessor.h"
 #include "Commands.h"
+#include "CommandParser.h"
 
 class Compiler
 {

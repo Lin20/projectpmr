@@ -1,6 +1,6 @@
 #include "Commands.h"
 
-Command Commands::commands[256] = {};
+vector<Command> Commands::commands;
 
 Commands::Commands()
 {
@@ -18,6 +18,16 @@ void Commands::LoadCommands()
 	{
 		ProcessLine(line);
 	}
+}
+
+Command* Commands::GetCommand(string& name, unsigned int& start)
+{
+	for (unsigned int i = start; i < commands.size(); i++)
+	{
+		if (commands[i].name == name)
+			return &commands[i];
+	}
+	return 0;
 }
 
 void Commands::ProcessLine(string src)
@@ -54,5 +64,5 @@ void Commands::ProcessLine(string src)
 
 	}
 
-	commands[c.opcode] = c;
+	commands.push_back(c);
 }

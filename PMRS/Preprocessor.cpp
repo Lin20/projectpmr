@@ -75,16 +75,16 @@ void Preprocessor::RemoveWhitespace(string& code)
 			first_space = true;
 			if (previous == ' ')
 			{
-				code.erase(code.begin() + i - 1);
+				code.erase(code.begin() + i - (i > 0 ? 1 : 0));
 				i--;
 			}
 		}
-		else if (!in_string && ((at == ' ' && (previous == ' ' || previous == ',' || previous == '+' || i == code.length() - 1)) || at == '\r') || at == '\t')
+		else if (!in_string && (((at == ' ' || at == '\t') && (previous == ' ' || previous == ',' || previous == '+' || previous == '\t' || i == code.length() - 1)) || at == '\r'))
 		{
 			code.erase(code.begin() + i);
 			i--;
 		}
-		else if (at == ' ' && !in_string && first_space)
+		else if ((at == ' ' || at == '\t') && !in_string && previous != ' ' && previous != '\n' && previous != ',')
 		{
 			code[i] = ',';
 			at = ',';
@@ -111,6 +111,7 @@ void Preprocessor::FindLines(vector<Line>& lines, string& formatted_code)
 		if (c == '\n')
 		{
 			line_count++;
+			at++;
 			continue;
 		}
 		lines.push_back(Line(formatted_code, at, line_count++));
@@ -151,6 +152,10 @@ void Preprocessor::ProcessDirectives(vector<Line>& lines, string& formatted_code
 		else if (token == "#define")
 		{
 			AddDefinition(lines[i]);
+		}
+		else
+		{
+			ErrorReporter::AddError(string("Unknown preprocessor directive \'").append(token).append("\'."), lines[i].GetLineNumber(), lines[i].GetFormattedText());
 		}
 	}
 }

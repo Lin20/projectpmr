@@ -44,6 +44,8 @@ void Line::FindTokens(string& code, unsigned int& start)
 		}
 		else if (!in_string && (at == ',' || at == ':'))
 		{
+			if (at == ':')
+				token.insert(token.end(), at);
 			tokens.push_back(token);
 			token.clear();
 		}

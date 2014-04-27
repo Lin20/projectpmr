@@ -25,16 +25,39 @@ bool TokenParser::IsPureString(string& token, string& destination)
 
 bool TokenParser::IsVariable(string& token)
 {
-	if (token.find("\"") != string::npos)
-		return false;
 	if (!((token[0] >= 'A' && token[0] <= 'Z') || (token[0] >= 'a' && token[0] <= 'z')))
 		return false;
+	for (unsigned int i = 1; i < token.length(); i++)
+	{
+		if (!((token[i] >= 'A' && token[i] <= 'Z') || (token[i] >= 'a' && token[i] <= 'z') || (token[i] >= '0' && token[i] <= '9')))
+			return false;
+	}
 	return true;
+}
+
+bool TokenParser::IsLabel(string& token, string& destination)
+{
+	if (token[token.length() - 1] != ':')
+		return false;
+	string s = token.substr(0, token.length() - 1);
+	if (IsVariable(s))
+	{
+		destination = s;
+		return true;
+	}
+	return false;
 }
 
 bool TokenParser::IsString(string& token)
 {
 	return false;
+}
+
+bool TokenParser::IsDirective(string& token)
+{
+	if (token[0] != '#')
+		return false;
+	return true;
 }
 
 string TokenParser::GetDirectory(string& filename)
@@ -47,4 +70,38 @@ string TokenParser::ToLower(string s)
 {
 	transform(s.begin(), s.end(), s.begin(), ::tolower);
 	return s;
+}
+
+bool TokenParser::IsInteger(string& token, unsigned int& out)
+{
+	int base = 10;
+	string n = token;
+	if (token[0] == '$') //hexadecimal $ab123
+	{
+		base = 16;
+		n = n.substr(1);
+	}
+	else if (token[0] == '%') //binary %10110110
+	{
+		base = 2;
+		n = n.substr(1);
+	}
+	else if (token.length() > 2 && token[0] == '0' && token[1] == 'x') //hexadecimal 0xab123
+	{
+		base = 16;
+		n = n.substr(2);
+	}
+	else if (token[0] < '0' || token[0] > '9')
+		return false;
+	if (n.length() == 0)
+		return false;
+	try
+	{
+		out = stoi(n, nullptr, base);
+		return true;
+	}
+	catch (int e)
+	{
+		return false;
+	}
 }

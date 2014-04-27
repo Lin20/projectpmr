@@ -65,6 +65,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CommandParser.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Compiler.cpp" />
     <ClCompile Include="ErrorReporter.cpp" />
@@ -75,10 +76,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
+    <ClInclude Include="CommandParser.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Compiler.h" />
     <ClInclude Include="ErrorReporter.h" />
+    <ClInclude Include="Label.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Preprocessor.h" />
     <ClInclude Include="TokenParser.h" />

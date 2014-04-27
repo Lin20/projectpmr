@@ -13,7 +13,11 @@ public:
 
 	static bool IsPureString(string& token, string& destination);
 	static bool IsVariable(string& token);
+	static bool IsLabel(string& token, string& destination);
 	static bool IsString(string& token);
+	static bool IsDirective(string& token);
+
+	static bool IsInteger(string& token, unsigned int& out);
 
 	static string GetDirectory(string& filename); //gets the directory without the trailing slash
 	static string ToLower(string s);
