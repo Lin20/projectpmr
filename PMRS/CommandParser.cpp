@@ -12,7 +12,7 @@ CommandParser::~CommandParser()
 {
 }
 
-void CommandParser::ProcessCommandStage1(unsigned char* dest, Line& line, unsigned int& offset)
+void CommandParser::ProcessCommandStage1(unsigned char*& dest, Line& line, unsigned int& offset)
 {
 	vector<string>& tokens = line.GetTokens();
 	string name = tokens[0];
@@ -55,7 +55,7 @@ void CommandParser::ProcessCommandStage1(unsigned char* dest, Line& line, unsign
 		ProcessToken(line, dest, tokens[i], command->params[i - 1], offset);
 }
 
-void CommandParser::ProcessCommandStage2(unsigned char* dest)
+void CommandParser::ProcessCommandStage2(unsigned char*& dest)
 {
 	for (unsigned int i = 0; i < fillin_labels.size(); i++)
 	{
@@ -72,7 +72,7 @@ void CommandParser::ProcessCommandStage2(unsigned char* dest)
 	}
 }
 
-void CommandParser::ProcessToken(Line& line, unsigned char* dest, string& token, string& param, unsigned int& offset)
+void CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token, string& param, unsigned int& offset)
 {
 	if (ParamIsNumber(param)) //#
 	{
@@ -148,7 +148,7 @@ void CommandParser::ProcessToken(Line& line, unsigned char* dest, string& token,
 	}
 }
 
-bool CommandParser::ParseAsInteger(Line& line, unsigned char* dest, string& token, string& param, unsigned int& offset, bool report_errors)
+bool CommandParser::ParseAsInteger(Line& line, unsigned char*& dest, string& token, string& param, unsigned int& offset, bool report_errors)
 {
 	unsigned int value;
 	if (!TokenParser::IsInteger(token, value))
@@ -181,6 +181,7 @@ bool CommandParser::ParseAsInteger(Line& line, unsigned char* dest, string& toke
 		ErrorReporter::AddWarning(string("Truncation of argument value ").append(to_string(value)).append(" to ").append(to_string(value & max)).append(" (max ").append(to_string(max)).append(")."), line.GetLineNumber(), line.GetFormattedText());
 	value &= max;
 	*dest++ = 0; //0 means it's a raw value
+	offset++;
 	while (max > 0) //write the value in little-endian
 	{
 		*dest++ = (value & 0xFF);
@@ -192,7 +193,7 @@ bool CommandParser::ParseAsInteger(Line& line, unsigned char* dest, string& toke
 	return true;
 }
 
-bool CommandParser::ParseAsString(Line& line, unsigned char* dest, string& token, string& param, unsigned int& offset, bool report_errors)
+bool CommandParser::ParseAsString(Line& line, unsigned char*& dest, string& token, string& param, unsigned int& offset, bool report_errors)
 {
 	string value;
 	if (!TokenParser::IsPureString(token, value))

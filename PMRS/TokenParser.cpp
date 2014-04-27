@@ -25,11 +25,11 @@ bool TokenParser::IsPureString(string& token, string& destination)
 
 bool TokenParser::IsVariable(string& token)
 {
-	if (!((token[0] >= 'A' && token[0] <= 'Z') || (token[0] >= 'a' && token[0] <= 'z')))
+	if (!((token[0] >= 'A' && token[0] <= 'Z') || (token[0] >= 'a' && token[0] <= 'z') || token[0] == '_'))
 		return false;
 	for (unsigned int i = 1; i < token.length(); i++)
 	{
-		if (!((token[i] >= 'A' && token[i] <= 'Z') || (token[i] >= 'a' && token[i] <= 'z') || (token[i] >= '0' && token[i] <= '9')))
+		if (!((token[i] >= 'A' && token[i] <= 'Z') || (token[i] >= 'a' && token[i] <= 'z') || (token[i] >= '0' && token[i] <= '9') || token[i] == '_'))
 			return false;
 	}
 	return true;

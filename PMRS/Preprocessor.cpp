@@ -25,7 +25,7 @@ void Preprocessor::RemoveComments(string& code)
 		char at = code[i];
 		if (at == ';' && !in_string)
 		{
-			in_comment = !in_comment;
+			in_comment = true;
 			code[i] = ' ';
 		}
 		else if (at == '\n')

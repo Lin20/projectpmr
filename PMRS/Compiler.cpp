@@ -16,11 +16,17 @@ Compiler::Compiler(ostream& out, const char* filename)
 		Preprocessor::ProcessDirectives(lines, str, string(filename));
 		unsigned int offset = 0;
 		unsigned char buffer[1024];
+		unsigned char* _buffer = &buffer[0];
 		for (unsigned int i = 0; i < lines.size(); i++)
 		{
-			CommandParser::ProcessCommandStage1(buffer, lines[i], offset);
+			//unsigned int p_off = offset;
+			CommandParser::ProcessCommandStage1(_buffer, lines[i], offset);
+			//out << lines[i].GetFormattedText() << " = ";
+			//for (unsigned int i = p_off; i < offset; i++)
+			//	out << (buffer[i] < 16 ? "0" : "") << hex << (int)buffer[i] << " ";
+			//out << "\n";
 		}
-		CommandParser::ProcessCommandStage2(buffer);
+		CommandParser::ProcessCommandStage2(_buffer);
 
 		if (ErrorReporter::GetErrorCount())
 		{
@@ -33,7 +39,11 @@ Compiler::Compiler(ostream& out, const char* filename)
 			out << "Build succeeded with 0 errors and " << (ErrorReporter::GetMessageCount() - ErrorReporter::GetErrorCount()) << " warnings.\n\n";
 		}
 
-		out << "\nToken Printout:\n\n";
+		out << "\nBinary Printout:\n\n";
+		for (unsigned int i = 0; i < offset; i++)
+			out << (buffer[i] < 16 ? "0" : "") << hex << (int)buffer[i] << " ";
+
+		out << "\n\n\nToken Printout:\n\n";
 		for (unsigned int i = 0; i < lines.size(); i++)
 		{
 			out << "Line " << lines[i].GetLineNumber() << " (" << lines[i].GetTokens().size() << "): ";
