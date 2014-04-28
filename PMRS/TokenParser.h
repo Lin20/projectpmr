@@ -20,6 +20,7 @@ public:
 	static bool IsInteger(string& token, unsigned int& out);
 
 	static string GetDirectory(string& filename); //gets the directory without the trailing slash
+	static string GetFilename(string& filename);
 	static string ToLower(string s);
 
 private:

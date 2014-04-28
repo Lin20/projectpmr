@@ -66,6 +66,16 @@ string TokenParser::GetDirectory(string& filename)
 	return filename.substr(0, found);
 }
 
+string TokenParser::GetFilename(string& filename)
+{
+	unsigned int found = filename.find_last_of("/\\");
+	string file = filename.substr(found + 1);
+	unsigned int dot = file.find_last_of(".");
+	if (dot != string::npos)
+		return file.substr(0, dot);
+	return file;
+}
+
 string TokenParser::ToLower(string s)
 {
 	transform(s.begin(), s.end(), s.begin(), ::tolower);

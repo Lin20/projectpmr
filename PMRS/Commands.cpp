@@ -57,6 +57,9 @@ void Commands::ProcessLine(string src)
 			break;
 		default: //parameters
 			c.params.push_back(string(token));
+			unsigned int v;
+			if (!TokenParser::IsInteger(string(token), v))
+				c.args_count++;
 			break;
 		}
 		token_index++;

@@ -11,8 +11,9 @@
 #include <string>
 #include <fstream>
 #include "Command.h"
+#include "TokenParser.h"
 
-#define COMMANDS_LOCATION	"C:/scripting/commands.txt"
+#define COMMANDS_LOCATION	"commands.txt"
 
 class Commands
 {

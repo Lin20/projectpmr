@@ -43,16 +43,20 @@ void CommandParser::ProcessCommandStage1(unsigned char*& dest, Line& line, unsig
 		ErrorReporter::AddError(string("Unknown command \'").append(name).append("\'."), line.GetLineNumber(), line.GetFormattedText());
 		return;
 	}
-	if (command->params.size() != tokens.size() - 1)
+	if (command->args_count != tokens.size() - 1)
 	{
-		ErrorReporter::AddError(string("Wrong number of arguments. Expected ").append(to_string(command->params.size())).append(" but got ").append(to_string(tokens.size() - 1)).append("."), line.GetLineNumber(), line.GetFormattedText());
+		ErrorReporter::AddError(string("Wrong number of arguments. Expected ").append(to_string(command->args_count)).append(" but got ").append(to_string(tokens.size() - 1)).append("."), line.GetLineNumber(), line.GetFormattedText());
 		return;
 	}
 
 	*dest++ = command->opcode;
 	offset++;
-	for (unsigned int i = 1; i < tokens.size(); i++)
-		ProcessToken(line, dest, tokens[i], command->params[i - 1], offset);
+	unsigned int token_index = 1;
+	for (unsigned int i = 0; i < command->params.size(); i++)
+	{
+		if (ProcessToken(line, dest, (token_index < tokens.size() ? tokens[token_index] : ""), command->params[i], offset))
+			token_index++;
+	}
 }
 
 void CommandParser::ProcessCommandStage2(unsigned char*& dest)
@@ -72,9 +76,17 @@ void CommandParser::ProcessCommandStage2(unsigned char*& dest)
 	}
 }
 
-void CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token, string& param, unsigned int& offset)
+bool CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token, string& param, unsigned int& offset)
 {
-	if (ParamIsNumber(param)) //#
+	unsigned int value;
+	if (TokenParser::IsInteger(param, value))
+	{
+		*dest++ = 0; //0 means raw value
+		*dest++ = value & 0xFF;
+		offset += 2;
+		return false;
+	}
+	else if (ParamIsNumber(param)) //#
 	{
 		ParseAsInteger(line, dest, token, param, offset, true);
 	}
@@ -94,7 +106,7 @@ void CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token
 		if (!TokenParser::IsVariable(token))
 		{
 			ErrorReporter::AddError(string("Cannot convert \'").append(token).append("\' to label."), line.GetLineNumber(), line.GetFormattedText());
-			return;
+			return true;
 		}
 		fillin_labels.push_back(Label(offset, token, &line));
 		*dest++ = 0;
@@ -106,7 +118,7 @@ void CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token
 		if (!TokenParser::IsVariable(token))
 		{
 			ErrorReporter::AddError(string("Cannot convert \'").append(token).append("\' to variable name."), line.GetLineNumber(), line.GetFormattedText());
-			return;
+			return true;
 		}
 		map<string, unsigned int>::iterator it = variables.find(token);
 		if (it != variables.end())
@@ -127,7 +139,7 @@ void CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token
 		if (!TokenParser::IsVariable(token))
 		{
 			ErrorReporter::AddError(string("Cannot convert \'").append(token).append("\' to variable name."), line.GetLineNumber(), line.GetFormattedText());
-			return;
+			return true;
 		}
 		map<string, unsigned int>::iterator it = variables.find(token);
 		if (it == variables.end())
@@ -142,10 +154,12 @@ void CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token
 			offset += 2;
 		}
 	}
+	
 	else
 	{
 		ErrorReporter::AddWarning(string("Unknown command parameter \'").append(param).append("\'. Skipping token \'").append(token).append("\'."), line.GetLineNumber(), line.GetFormattedText());
 	}
+	return true;
 }
 
 bool CommandParser::ParseAsInteger(Line& line, unsigned char*& dest, string& token, string& param, unsigned int& offset, bool report_errors)
