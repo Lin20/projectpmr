@@ -24,7 +24,7 @@ int main(int count, char** args)
 	ParseArgs(count, args);
 	if (compile_dir.empty())
 		return 1;
-	//compile_dir = "C:\\red dumps\\test.txt";
+	//compile_dir = "C:\\red dumps\\scripts\\src\\0_2.txt";
 	//bin_dir = "C:\\red dumps\\";
 	//bin_name = "test.dat";
 	Compiler c(cout, compile_dir.c_str(), bin_dir.append(bin_name), silent, debug);

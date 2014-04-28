@@ -1,0 +1,9 @@
+00	end	Forces the script to end.
+01	var	Declares a variable with the name as [0].	d
+02	set	Sets variable [0] to the value [1].	v	e
+03	jump	Jumps the script to label [0].	l
+04	add	Adds [1] onto [0].	##	##
+05	app	Appends string variable [0] with string [1].	v	s
+06	appi	Appends string variable [0] with integer [1].	v	##
+07	text	Shows a textbox with the text as [s].	s
+08	move	Moves entity [0] in direction [1] for [2] steps.	#	#	#

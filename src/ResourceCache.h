@@ -16,7 +16,6 @@ using namespace std;
 
 #define RESOURCE_DIR "C:/red dumps/"
 
-
 class ResourceCache
 {
 public:

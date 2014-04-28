@@ -83,7 +83,8 @@ bool CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token
 	{
 		*dest++ = 0; //0 means raw value
 		*dest++ = value & 0xFF;
-		offset += 2;
+		*dest++ = (value >> 8) & 0xFF;
+		offset += 3;
 		return false;
 	}
 	else if (ParamIsNumber(param)) //#
@@ -154,7 +155,7 @@ bool CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token
 			offset += 2;
 		}
 	}
-	
+
 	else
 	{
 		ErrorReporter::AddWarning(string("Unknown command parameter \'").append(param).append("\'. Skipping token \'").append(token).append("\'."), line.GetLineNumber(), line.GetFormattedText());
@@ -195,14 +196,9 @@ bool CommandParser::ParseAsInteger(Line& line, unsigned char*& dest, string& tok
 		ErrorReporter::AddWarning(string("Truncation of argument value ").append(to_string(value)).append(" to ").append(to_string(value & max)).append(" (max ").append(to_string(max)).append(")."), line.GetLineNumber(), line.GetFormattedText());
 	value &= max;
 	*dest++ = 0; //0 means it's a raw value
-	offset++;
-	while (max > 0) //write the value in little-endian
-	{
-		*dest++ = (value & 0xFF);
-		value >>= 8;
-		max >>= 8;
-		offset++;
-	}
+	*dest++ = (value & 0xFF);
+	*dest++ = (value >> 8) & 0xFF;
+	offset += 3;
 
 	return true;
 }
@@ -241,6 +237,45 @@ bool CommandParser::ParseAsString(Line& line, unsigned char*& dest, string& toke
 		*dest++ = (value.length() >> 8) & 0xFF;
 		for (unsigned int i = 0; i < value.length() && i < 65536; i++)
 		{
+			//escape sequences
+			if (value[i] == '\\' && i + 1 < value.length())
+			{
+				char c = '\\';
+				switch (value[i + 1])
+				{
+				case '\'':
+					c = 0x27;
+					break;
+				case '\"':
+					c = 0x22;
+					break;
+				case '?':
+					c = 0x3F;
+					break;
+				case '\\':
+					c = 0x5c;
+					break;
+				case 'n':
+					c = 0xA;
+					break;
+				case 'r':
+					c = 0xd;
+					break;
+				case 't':
+					c = 0x9;
+					break;
+				case 'v':
+					c = 0xb;
+					break;
+				case 'f':
+					c = 0xc;
+					break;
+				}
+				*dest++ = (unsigned char)c;
+				offset++;
+				i++;
+				continue;
+			}
 			*dest++ = (unsigned char)value[i];
 			offset++;
 		}

@@ -1,7 +1,7 @@
 #include "NPC.h"
 
 
-NPC::NPC(Map* on_map, Entity data) : OverworldEntity(on_map, data.sprite, data.x, data.y, ENTITY_DOWN, true)
+NPC::NPC(Map* on_map, Entity data, Script* script) : OverworldEntity(on_map, data.sprite, data.x, data.y, ENTITY_DOWN, true, script)
 {
 	this->data = data;
 	occupation = 0;
@@ -20,6 +20,8 @@ void NPC::Update()
 
 void NPC::PerformAI(bool force)
 {
+	if (script_enabled && script && !script->Done())
+		return;
 	if (occupation)
 	{
 		if (occupation->SetToClose())

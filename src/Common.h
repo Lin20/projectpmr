@@ -28,4 +28,7 @@ struct Warp;
 struct Sign;
 struct Entity;
 
+class Script;
+struct Variable;
+
 //enum States;

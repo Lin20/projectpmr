@@ -5,11 +5,12 @@
 #include "TileMap.h"
 #include "ResourceCache.h"
 #include "Map.h"
+#include "Script.h"
 
 class OverworldEntity : public TileMap
 {
 public:
-	OverworldEntity(Map* on_map, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc = true);
+	OverworldEntity(Map* on_map, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc = true, Script* _script = 0);
 	virtual ~OverworldEntity();
 
 	virtual void Update();
@@ -24,6 +25,8 @@ public:
 	inline bool Moving() { return step_timer > 0; }
 	inline unsigned char GetDirection() { return direction; }
 	inline unsigned char GetMovementDirection() { return movement_direction; }
+	inline Script* GetScript() { return script; }
+	inline void SetScriptState(bool enabled) { script_enabled = enabled; }
 
 	void SetMap(Map* m)
 	{
@@ -60,6 +63,9 @@ protected:
 	unsigned char jump_index; //the index of the jump sequence stored in ResourceCache::jump_coordinates
 	int jump_x;
 	int jump_y;
+	
+	Script* script;
+	bool script_enabled;
 
 	sf::Sprite shadow8x8;
 };

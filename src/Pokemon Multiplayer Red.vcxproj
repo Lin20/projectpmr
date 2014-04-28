@@ -86,6 +86,7 @@
     <ClCompile Include="PaletteTexture.cpp" />
     <ClCompile Include="Players.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Script.cpp" />
     <ClCompile Include="Startup.cpp" />
     <ClCompile Include="ResourceCache.cpp" />
     <ClCompile Include="StringConverter.cpp" />
@@ -106,8 +107,10 @@
     <ClInclude Include="ItemStorage.h" />
     <ClInclude Include="MenuCache.h" />
     <ClInclude Include="NPC.h" />
+    <ClInclude Include="Opcodes.h" />
     <ClInclude Include="PlayerProperties.h" />
     <ClInclude Include="Players.h" />
+    <ClInclude Include="Script.h" />
     <ClInclude Include="TextboxParent.h" />
     <ClInclude Include="TextItem.h" />
     <ClInclude Include="LoopableMusic.h" />
@@ -123,6 +126,7 @@
     <ClInclude Include="TileMap.h" />
     <ClInclude Include="Tileset.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="Variable.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

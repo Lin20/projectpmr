@@ -55,7 +55,7 @@ void Compiler::Compile()
 		else
 		{
 			string name = filename;
-			ofstream file_out(output_directory, ofstream::trunc);
+			ofstream file_out(output_directory, ofstream::trunc | ofstream::binary);
 			if (!file_out)
 			{
 				ErrorReporter::AddError(string("Cannot write to file \'").append(output_directory).append("\'."), 0, name);

@@ -172,7 +172,8 @@ void MapScene::SwitchMap(unsigned char index)
 	for (unsigned int i = 0; i < active_map->entities.size(); i++)
 	{
 		Entity e = active_map->entities[i];
-		NPC* o = new NPC(active_map, e);
+		NPC* o = new NPC(active_map, e, Script::TryLoad(this, active_map->index, active_map->entities[i].text));
+			
 		entities.push_back(o);
 	}
 
@@ -367,7 +368,15 @@ bool MapScene::Interact()
 				}
 			}
 			else
+			{
 				s = pokestring(string("This is a person\nwith index ").append(itos((int)(i - 1)).append(".")));
+				if (entities[i]->GetScript() != 0)
+				{
+					entities[i]->Face((1 - (focus_entity->GetDirection() % 2) + (focus_entity->GetDirection() / 2 * 2)));
+					entities[i]->SetScriptState(true);
+					return true;
+				}
+			}
 
 			t->SetText(new TextItem(t, nullptr, s, i));
 			textboxes.push_back(t);

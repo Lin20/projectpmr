@@ -25,6 +25,13 @@ struct DataBlock
 			delete[] data_start;
 	}
 
+	inline unsigned char getc()
+	{
+		if (data + 1 < data_start + size)
+			return *data++;
+		return 0;
+	}
+
 	unsigned char* data;
 	unsigned char* data_start; //used to delete[] data when data is modified for reading
 	unsigned int size;

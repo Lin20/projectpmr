@@ -28,7 +28,7 @@ void Line::FindTokens(string& code, unsigned int& start)
 			in_string = !in_string;
 			token.insert(token.end(), at);
 		}
-		else if (at == '\n')
+		else if (at == '\n' && !in_string)
 		{
 			if (!token.empty())
 				tokens.push_back(token);
@@ -36,11 +36,6 @@ void Line::FindTokens(string& code, unsigned int& start)
 				ErrorReporter::AddWarning("Unclosed string literal.", line_number, formatted_text);
 			start++;
 			return;
-		}
-		else if (in_string && at == '\\')
-		{
-			start++;
-			token.insert(token.end(), at);
 		}
 		else if (!in_string && (at == ',' || at == ':'))
 		{

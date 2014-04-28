@@ -40,10 +40,6 @@ void Preprocessor::RemoveComments(string& code)
 		{
 			in_string = !in_string;
 		}
-		else if (at == '\\')
-		{
-			i++;
-		}
 	}
 }
 
@@ -64,10 +60,6 @@ void Preprocessor::RemoveWhitespace(string& code)
 		if (at == '\"')
 		{
 			in_string = !in_string;
-		}
-		else if (at == '\\')
-		{
-			i++;
 		}
 		else if (at == '\n')
 		{

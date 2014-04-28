@@ -7,7 +7,7 @@
 class NPC : public OverworldEntity
 {
 public:
-	NPC(Map* on_map, Entity data);
+	NPC(Map* on_map, Entity data, Script* script = 0);
 	~NPC();
 
 	void Update() override;
@@ -19,4 +19,3 @@ private:
 	void PerformAI(bool force = false);
 	unsigned char GetNextDirection();
 };
-
