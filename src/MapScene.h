@@ -32,10 +32,13 @@ public:
 	bool Interact();
 
 	vector<OverworldEntity*>& GetEntities() { return entities; }
+	bool GetFlag(unsigned int index) { if (index < 4096) return flags[index]; return 0; }
+	void SetFlag(unsigned int index, bool b) { if (index < 4096) flags[index] = b; }
 
 private:
 	Map* active_map;
 	sf::View viewport; //this is declared here because the maps are only places where the camera scrolls
+	bool flags[16 * 256]; //16 flags per map
 
 	vector<OverworldEntity*> entities;
 	OverworldEntity* focus_entity;

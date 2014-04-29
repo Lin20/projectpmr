@@ -28,11 +28,20 @@ public:
 	void Reset();
 	void Update();
 
+	inline Textbox* GetBuiltMenu() { return built_menu; }
+	inline void SetMenuResult(unsigned char index) { variables[menu_variable ].int_value = index; }
+	inline void ClearBuiltMenu() { built_menu = 0; }
+
 private:
 	MapScene* on_scene;
 
 	DataBlock* buffer;
 	Variable variables[MAX_VARS];
+	vector<unsigned char> watch_entities; //stop if any exist that aren't snapped
+	Textbox* built_menu;
+	unsigned int menu_variable;
+	unsigned char menu_result;
+	bool entity_wait;
 
 	void ResetVariables();
 	bool CheckSpace(unsigned char amount);

@@ -187,7 +187,7 @@ unsigned char Map::GetCornerTile(int x, int y, unsigned char corner)
 	return tileset->GetTile8x8(tiles[x / 2 + y / 2 * width], corner);
 }
 
-bool Map::IsPassable(int x, int y, OverworldEntity* ignore)
+bool Map::IsPassable(int x, int y, OverworldEntity* ignore, bool entity_clipping)
 {
 	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
 	if (!tileset)
@@ -198,7 +198,7 @@ bool Map::IsPassable(int x, int y, OverworldEntity* ignore)
 	if (!collision)
 		return true;
 
-	if (scene_entities)
+	if (scene_entities && entity_clipping)
 	{
 		for (unsigned int i = 0; i < scene_entities->size(); i++)
 		{

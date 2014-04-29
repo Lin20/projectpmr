@@ -2,8 +2,26 @@
 01	var	Declares a variable with the name as [0].	d
 02	set	Sets variable [0] to the value [1].	v	e
 03	jump	Jumps the script to label [0].	l
-04	add	Adds [1] onto [0].	##	##
+04	add	Adds [1] onto [0].	v	##
 05	app	Appends string variable [0] with string [1].	v	s
 06	appi	Appends string variable [0] with integer [1].	v	##
-07	text	Shows a textbox with the text as [s].	s
+07	text	Shows a textbox with the text as [0].	s
 08	move	Moves entity [0] in direction [1] for [2] steps.	#	#	#
+09	jeq	Jumps to [0] if variable [1] is equal to [2].	l	v	e
+10	jne	Jumps to [0] if variable [1] is not equal to [2].	l	v	e
+11	jgt	Jumps to [0] if variable [1] is greater than [2].	l	v	e
+12	jlt	Jumps to [0] if variable [1] is less than [2].	l	v	e
+13	checkflag	Checks the flag [1] on map [0] and stores it into [2].	#	#	v
+13	checkgflag	Checks flag [0] and stores it into [1].	0	#	v
+14	setflag	Sets the flag [1] on map [0] to [2].	#	#	#
+14	setgflag	Sets the flag [1] on map [0] to [2].	0	#	#
+15	clearmenu	Clears the built menu.
+16	addmenu	Adds a menu item with the text [0].	s
+17	showmenu	Shows the built menu and stores the selected item in [0].	v
+18	initmenu	Initializes the menu at position [0], [1] with size [2]x[3].	#	#	#	#
+19	getx	Gets the x coordinate of entity [0] and stores it into [1].	#	v
+20	gety	Gets the y coordinate of entity [0] and stores it into [1].	#	v
+21	turn	Turns entity [0] to [1].	#	#
+22	textmenu	Shows a textbox with the text as [0], followed by showing the built menu and storing the result in [1].	s	v
+23	wait	Forces the script to wait until all entities moving have stopped.
+255	getmoney	Stores the money of player [0] into [1].	#	v

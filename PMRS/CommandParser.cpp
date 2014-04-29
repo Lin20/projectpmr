@@ -114,7 +114,7 @@ bool CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token
 		*dest++ = 0;
 		offset += 2;
 	}
-	else if (param == "d") //specify variable
+	else if (param == "d") //declare variable
 	{
 		if (!TokenParser::IsVariable(token))
 		{
@@ -135,7 +135,7 @@ bool CommandParser::ProcessToken(Line& line, unsigned char*& dest, string& token
 			offset += 2;
 		}
 	}
-	else if (param == "v") //declare variable
+	else if (param == "v") //specify variable
 	{
 		if (!TokenParser::IsVariable(token))
 		{
@@ -192,9 +192,9 @@ bool CommandParser::ParseAsInteger(Line& line, unsigned char*& dest, string& tok
 	}
 
 	unsigned int max = (unsigned int)pow(256, param.length()) - 1;
-	if (value > max)
-		ErrorReporter::AddWarning(string("Truncation of argument value ").append(to_string(value)).append(" to ").append(to_string(value & max)).append(" (max ").append(to_string(max)).append(")."), line.GetLineNumber(), line.GetFormattedText());
-	value &= max;
+	//if (value > max)
+	//	ErrorReporter::AddWarning(string("Truncation of argument value ").append(to_string(value)).append(" to ").append(to_string(value & max)).append(" (max ").append(to_string(max)).append(")."), line.GetLineNumber(), line.GetFormattedText());
+	//value &= max;
 	*dest++ = 0; //0 means it's a raw value
 	*dest++ = (value & 0xFF);
 	*dest++ = (value >> 8) & 0xFF;
@@ -233,8 +233,9 @@ bool CommandParser::ParseAsString(Line& line, unsigned char*& dest, string& toke
 	else
 	{
 		*dest++ = 3; //3 means its a string value
-		*dest++ = value.length() & 0xFF;
-		*dest++ = (value.length() >> 8) & 0xFF;
+		unsigned char* len_dest = dest;
+		unsigned int length = value.length();
+		dest += 2;
 		for (unsigned int i = 0; i < value.length() && i < 65536; i++)
 		{
 			//escape sequences
@@ -274,12 +275,15 @@ bool CommandParser::ParseAsString(Line& line, unsigned char*& dest, string& toke
 				*dest++ = (unsigned char)c;
 				offset++;
 				i++;
+				length--;
 				continue;
 			}
 			*dest++ = (unsigned char)value[i];
 			offset++;
 		}
 		offset += 3;
+		*len_dest++ = length & 0xFF;
+		*len_dest = (length >> 8) & 0xFF;
 	}
 	return true;
 }

@@ -54,6 +54,7 @@ private:
 	bool close;
 	bool delete_on_close;
 	bool cancel_switch;
+	bool close_when_no_children; //make the textbox close when its children have been closed
 
 	//menu-related stuff
 	bool is_menu; //is this textbox a menu?

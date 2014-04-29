@@ -43,8 +43,9 @@ void Compiler::Compile()
 				out << "\n";
 			}
 		}
-		buffer[offset++] = 0;
+		_buffer = &buffer[0];
 		CommandParser::ProcessCommandStage2(_buffer);
+		buffer[offset++] = 0;
 
 		if (ErrorReporter::GetErrorCount())
 		{

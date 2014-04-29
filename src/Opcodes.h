@@ -4,5 +4,23 @@
 #define OPCODE_VAR		1
 #define OPCODE_SET		2
 #define OPCODE_JUMP		3
-
+#define OPCODE_ADD		4
+#define OPCODE_APP		5
+#define OPCODE_APPI		6
 #define OPCODE_TEXT		7
+#define OPCODE_MOVE		8
+#define OPCODE_JEQ		9
+#define OPCODE_JNE		10
+#define OPCODE_JGT		11
+#define OPCODE_JLT		12
+#define OPCODE_CHECKFLAG	13
+#define OPCODE_SETFLAG	14
+#define OPCODE_CLEARMENU	15
+#define OPCODE_ADDMENU	16
+#define OPCODE_SHOWMENU	17
+#define OPCODE_INITMENU	18
+#define OPCODE_GETX		19
+#define OPCODE_GETY		20
+#define OPCODE_TURN		21
+#define OPCODE_TEXTMENU	22
+#define OPCODE_WAIT		23

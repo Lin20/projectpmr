@@ -7,11 +7,11 @@ using namespace std;
 
 struct Label
 {
-	unsigned char offset;
+	unsigned int offset;
 	string name;
 	Line* line;
 
-	Label(unsigned char off, string n, Line* l)
+	Label(unsigned int off, string n, Line* l)
 	{
 		offset = off;
 		name = n;

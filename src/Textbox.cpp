@@ -6,6 +6,7 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 	delete_on_close = d;
 	close = false;
 	cancel_switch = false;
+	close_when_no_children = false;
 
 	is_menu = false;
 	display_count = 0;
@@ -52,6 +53,8 @@ void Textbox::Update()
 {
 	if (UpdateTextboxes())
 		return;
+	if (close_when_no_children)
+		close = true;
 	if (arrow_timer > 0)
 		arrow_timer--;
 	if (cursor_visibility_timer > 0)
@@ -399,8 +402,9 @@ void Textbox::ProcessNextCharacter()
 	case MESSAGE_END: //end
 		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
 		{
-			text->Action();
 			Close();
+			close_when_no_children = true;
+			text->Action();
 		}
 		return;
 
@@ -437,6 +441,7 @@ void Textbox::ProcessNextCharacter()
 		{
 			Close();
 			text->Action();
+			close_when_no_children = true;
 			return;
 		}
 		else if (arrow_timer == 0)

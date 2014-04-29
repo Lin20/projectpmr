@@ -23,10 +23,12 @@ public:
 	
 	inline bool Snapped() { return x % 16 == 0 && y % 16 == 0; }
 	inline bool Moving() { return step_timer > 0; }
+	inline unsigned char GetStepsRemaining() { return steps_remaining; }
 	inline unsigned char GetDirection() { return direction; }
 	inline unsigned char GetMovementDirection() { return movement_direction; }
 	inline Script* GetScript() { return script; }
 	inline void SetScriptState(bool enabled) { script_enabled = enabled; }
+	inline void SetEntityGhosting(bool b) { allow_entity_ghosting = b; }
 
 	void SetMap(Map* m)
 	{
@@ -59,6 +61,7 @@ protected:
 	unsigned char step_frame;
 	unsigned char movement_direction; //what direction are we making the entity move in?
 	unsigned char movement_type; //used for normal walking or hopping down a ledge
+	bool allow_entity_ghosting;
 
 	unsigned char jump_index; //the index of the jump sequence stored in ResourceCache::jump_coordinates
 	int jump_x;

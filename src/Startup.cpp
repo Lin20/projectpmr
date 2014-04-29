@@ -25,7 +25,7 @@ using namespace std;
 
 int main()
 {
-	//_crtBreakAlloc = 5861;
+	//_crtBreakAlloc = 11375;
 	Engine engine;
 
 	sf::RenderWindow window(sf::VideoMode(VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16), "SFML works!");

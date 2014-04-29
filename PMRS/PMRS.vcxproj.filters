@@ -73,6 +73,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="commands.txt" />
+    <Text Include="commands.txt" />
   </ItemGroup>
 </Project>

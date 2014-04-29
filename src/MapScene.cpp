@@ -5,6 +5,7 @@ MapScene::MapScene() : Scene()
 {
 	active_map = 0;
 	previous_map = 13;
+	memset(flags, 0, sizeof(bool)* 16 * 256);
 
 	//Initialize the player
 	entities.push_back(new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false));
@@ -28,6 +29,9 @@ void MapScene::Update()
 {
 	current_fade.Update();
 	CheckWarp();
+
+	if (InputController::KeyDownOnce(sf::Keyboard::F1))
+		memset(flags, 0, sizeof(bool)* 4096);
 	if (!UpdateTextboxes() && current_fade.Done() && input_enabled)
 	{
 		if (!Interact())

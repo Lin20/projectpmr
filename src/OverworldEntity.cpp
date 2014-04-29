@@ -22,6 +22,7 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	steps_remaining = 0;
 	movement_type = 0;
 	forced_steps = false;
+	allow_entity_ghosting = false;
 
 	//is this entity a moving npc or a static image (eg. pokeball)
 	direction = (direction > 3 ? 0 : index <= ENTITY_LIMIT ? direction : 0);
@@ -63,7 +64,7 @@ void OverworldEntity::Update()
 		{
 			if (step_timer < 1)
 			{
-				if (!Snapped() || on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction), this))
+				if (!Snapped() || on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction), this, !allow_entity_ghosting))
 				{
 					x += DELTAX(direction);
 					y += DELTAY(direction);
@@ -83,7 +84,7 @@ void OverworldEntity::Update()
 					step_timer = STEP_TIMER * 2;
 					forced_steps = false;
 				}
-				else if (is_npc && steps_remaining > 0)
+				else if ((is_npc || allow_entity_ghosting) && steps_remaining > 0)
 				{
 					step_timer = STEP_TIMER * 2.0f;
 				}
@@ -135,7 +136,7 @@ void OverworldEntity::Update()
 	if ((int)animation_timer == 0)
 		step_frame = 0;
 
-	if (script && script_enabled)
+	if (script && script_enabled && Snapped() && steps_remaining == 0)
 	{
 		script->Update();
 		if (script->Done())

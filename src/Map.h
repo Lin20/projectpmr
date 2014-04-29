@@ -37,7 +37,7 @@ public:
 	inline sf::Color* GetPalette() { return palette; }
 	unsigned char Get8x8Tile(int x, int y);
 	unsigned char GetCornerTile(int x, int y, unsigned char corner);
-	bool IsPassable(int x, int y, OverworldEntity* ignore = 0);
+	bool IsPassable(int x, int y, OverworldEntity* ignore = 0, bool entity_clipping = true);
 	bool CanJump(int x, int y, unsigned char direction); //can jump from the current position facing the specified direction
 	bool InGrass(int x, int y);
 	bool CanWarp(int x, int y, unsigned char direction, Warp* check_warp);
@@ -63,6 +63,7 @@ public:
 
 private:
 	unsigned char connection_mask;
+	bool flags[256];
 	bool ParseHeader(DataBlock* data, bool only_load_tiles = false);
 	sf::Color* palette;
 	vector<OverworldEntity*>* scene_entities;
