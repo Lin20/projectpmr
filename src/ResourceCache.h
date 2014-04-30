@@ -12,9 +12,14 @@
 #include <iostream>
 #endif
 
-using namespace std;
-
+#ifdef _WIN32
 #define RESOURCE_DIR "C:/red dumps/"
+#else
+#define RESOURCE_DIR "resources/"
+#endif
+
+
+using namespace std;
 
 class ResourceCache
 {
