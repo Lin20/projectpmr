@@ -343,7 +343,7 @@ bool MapScene::Interact()
 		if (active_map->signs[i].x == x && active_map->signs[i].y == y)
 		{
 			Textbox* t = new Textbox();
-			t->SetText(new TextItem(t, nullptr, pokestring(string("This is a sign\nwith index ").append(itos((int)i).append(".")))));
+			t->SetText(new TextItem(t, nullptr, pokestring(string("This is a sign\nwith index ").append(itos((int)i).append(".")).c_str())));
 			textboxes.push_back(t);
 			return true;
 		}
@@ -364,7 +364,7 @@ bool MapScene::Interact()
 					s = pokestring("No more room for\nitems!");
 				else
 				{
-					s = pokestring(string("Lin found\n")).append(ResourceCache::GetItemName(active_map->entities[i - 1].item)).append(pokestring("!"));
+					s = pokestring(string("Lin found\n").c_str()).append(ResourceCache::GetItemName(active_map->entities[i - 1].item)).append(pokestring("!"));
 					entities.erase(entities.begin() + i--);
 					t->SetText(new TextItem(t, nullptr, s, i));
 					textboxes.push_back(t);

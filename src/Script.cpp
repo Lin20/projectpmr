@@ -150,7 +150,7 @@ void Script::Update()
 			if (on_scene)
 			{
 				Textbox* t = new Textbox();
-				t->SetText(new TextItem(t, nullptr, pokestring(GetVariable().string_value)));
+				t->SetText(new TextItem(t, nullptr, pokestring(GetVariable().string_value.c_str())));
 				on_scene->ShowTextbox(t);
 			}
 			break;
@@ -235,7 +235,7 @@ void Script::Update()
 			break;
 
 		case OPCODE_ADDMENU: //adds an item to the built menu
-			s = pokestring(GetVariable().string_value);
+			s = pokestring(GetVariable().string_value.c_str());
 			if (s.length() != 0)
 			{
 				built_menu->GetItems().push_back(new TextItem(built_menu, [this](TextItem* i) { this->SetMenuResult(i->index + 1); this->GetBuiltMenu()->Close(); this->ClearBuiltMenu(); }, s, built_menu->GetItems().size()));
@@ -297,7 +297,7 @@ void Script::Update()
 						src->GetParent()->CancelClose();
 					}
 				};
-				s = pokestring(GetVariable().string_value);
+				s = pokestring(GetVariable().string_value.c_str());
 				menu_variable = buffer->getc() + (buffer->getc() << 8);
 				Textbox* t = new Textbox();
 				t->SetText(new TextItem(t, showmenu, s));

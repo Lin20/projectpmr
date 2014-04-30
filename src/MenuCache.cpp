@@ -31,9 +31,8 @@ Textbox* MenuCache::StartMenu(std::vector<Textbox*>* owner)
 
 	auto doe = [](TextItem* source)->void
 	{
-
 		Textbox* message = new Textbox();
-		message->SetText(new TextItem(start_menu, [](TextItem* source)->void { start_menu->SetArrowState(ArrowStates::ACTIVE); }, pokestring(string("Sorry! That\nfeature has not\vbeen implemented\vyet."))));
+		message->SetText(new TextItem(start_menu, [](TextItem* source)->void { start_menu->SetArrowState(ArrowStates::ACTIVE); }, pokestring(string("Sorry! That\nfeature has not\vbeen implemented\vyet.").c_str())));
 		start_menu->SetArrowState(ArrowStates::INACTIVE);
 		start_menu->ShowTextbox(message);
 	};

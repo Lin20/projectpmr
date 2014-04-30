@@ -19,7 +19,7 @@ ItemStorage::ItemStorage()
 		}
 	};
 
-	menu = new Textbox(4, 2, 16, 11, true);
+	menu = new Textbox(4, 2, 16, 11, false);
 	menu->SetMenu(true, 4, sf::Vector2i(1, 1), sf::Vector2u(0, 2), [](TextItem* source) { MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE); }, MenuFlags::FOCUSABLE | MenuFlags::HOLD_INPUT | MenuFlags::SWITCHABLE, 2, switch_items, false);
 	menu->SetArrowState(ArrowStates::ACTIVE);
 

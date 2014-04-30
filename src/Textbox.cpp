@@ -403,8 +403,9 @@ void Textbox::ProcessNextCharacter()
 		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
 		{
 			Close();
-			close_when_no_children = true;
 			text->Action();
+			if (textboxes.size() > 0)
+				close_when_no_children = true;
 		}
 		return;
 
@@ -441,7 +442,8 @@ void Textbox::ProcessNextCharacter()
 		{
 			Close();
 			text->Action();
-			close_when_no_children = true;
+			if (textboxes.size() > 0)
+				close_when_no_children = true;
 			return;
 		}
 		else if (arrow_timer == 0)

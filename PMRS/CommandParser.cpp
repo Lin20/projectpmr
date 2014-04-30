@@ -54,7 +54,8 @@ void CommandParser::ProcessCommandStage1(unsigned char*& dest, Line& line, unsig
 	unsigned int token_index = 1;
 	for (unsigned int i = 0; i < command->params.size(); i++)
 	{
-		if (ProcessToken(line, dest, (token_index < tokens.size() ? tokens[token_index] : ""), command->params[i], offset))
+		string t = (token_index < tokens.size() ? tokens[token_index] : "");
+		if (ProcessToken(line, dest, t, command->params[i], offset))
 			token_index++;
 	}
 }
