@@ -8,7 +8,8 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH} $
 find_package(SFML REQUIRED COMPONENTS graphics window system)
 include_directories(${SFML_INCLUDE_DIR})
 
-set(CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -Wall")
+set(CMAKE_CXX_FLAGS "-std=c++11")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -std=c++11 -Wall")
 
 add_subdirectory(src)
+add_subdirectory(PMRS)
