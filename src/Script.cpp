@@ -7,6 +7,9 @@ Script::Script(MapScene* on_scene)
 	this->buffer = 0;
 	this->built_menu = 0;
 	this->entity_wait = false;
+	this->watch_entities.clear();
+	this->menu_variable = 0;
+	this->menu_result = 0;
 }
 
 Script::~Script()

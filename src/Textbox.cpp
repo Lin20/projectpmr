@@ -468,7 +468,7 @@ void Textbox::ProcessNextCharacter()
 void Textbox::Close(bool ignore_callback)
 {
 	close = true;
-	if (!ignore_callback && this->close_callback != nullptr && !this->close_callback._Empty())
+	if (!ignore_callback && this->close_callback != nullptr)
 		close_callback(0);
 	if (close && (arrow_state & ArrowStates::ACTIVE) && (arrow_state & ArrowStates::INACTIVE))
 	{
