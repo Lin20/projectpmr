@@ -1,13 +1,16 @@
 set ( PMR_SRCS
         Engine.cpp
+        ItemStorage.cpp
         Map.cpp
         MapScene.cpp
         MenuCache.cpp
+        NPC.cpp
         OverworldEntity.cpp
         PaletteTexture.cpp
-        Player.cpp
+        Players.cpp
         ResourceCache.cpp
         Scene.cpp
+        Script.cpp
         Startup.cpp
         StringConverter.cpp
         Textbox.cpp
