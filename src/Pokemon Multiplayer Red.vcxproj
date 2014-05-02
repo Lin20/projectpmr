@@ -83,6 +83,7 @@
     <ClCompile Include="MapScene.cpp" />
     <ClCompile Include="MenuCache.cpp" />
     <ClCompile Include="NPC.cpp" />
+    <ClCompile Include="Options.cpp" />
     <ClCompile Include="OverworldEntity.cpp" />
     <ClCompile Include="PaletteTexture.cpp" />
     <ClCompile Include="Players.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="MenuCache.h" />
     <ClInclude Include="NPC.h" />
     <ClInclude Include="Opcodes.h" />
+    <ClInclude Include="Options.h" />
     <ClInclude Include="PlayerProperties.h" />
     <ClInclude Include="Players.h" />
     <ClInclude Include="Pokemon.h" />

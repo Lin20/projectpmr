@@ -50,6 +50,7 @@ Textbox::~Textbox()
 		delete tiles;
 }
 
+//TODO: Clean up a bit. Split into functions.
 void Textbox::Update()
 {
 	if (UpdateTextboxes())
@@ -168,11 +169,39 @@ void Textbox::Update()
 	}
 	else if (!is_menu && !is_counter) //it's a regular textbox
 	{
-		if (text_timer > 0)
-			text_timer--;
-		if (!text_timer)
+		if (auto_close_timer > 0)
 		{
-			ProcessNextCharacter();
+			auto_close_timer++;
+			if (auto_close_timer >= TEXT_AUTOCLOSE_MAX)
+			{
+				auto_close_timer = 0;
+				Close();
+				text->Action();
+			}
+		}
+		else
+		{
+			if (text_timer > 0)
+				text_timer--;
+			if (!text_timer)
+			{
+				if (scroll_timer > 0)
+				{
+					if (scroll_timer / 4 > 0 && scroll_timer % 4 == 0)
+					{
+						memcpy(tiles, tiles + size.x - 2, (size.x - 2) * 3);
+						memset(tiles + (size.x - 2) * 3, MENU_BLANK, (size.x - 2));
+					}
+					scroll_timer--;
+					if (scroll_timer == 0)
+						text_tile_pos = (size.x - 2) * 3;
+				}
+				else
+				{
+					for (int i = 0; i < text_speed && scroll_timer == 0 && text_timer < TEXT_TIMER_BLANK; i++)
+						ProcessNextCharacter();
+				}
+			}
 		}
 	}
 }
@@ -198,7 +227,7 @@ void Textbox::SetText(TextItem* text)
 	this->text = text;
 	this->text_tile_pos = size.x - 2;
 	this->text_pos = 0;
-	this->text_timer = 0;
+	this->text_timer = TEXT_TIMER_BLANK; //there's usually a delay before the textbox starts
 }
 
 void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void(TextItem* source)> callback, unsigned int flags, unsigned int scroll_start, std::function<void()> switch_callback, bool can_switch_last)
@@ -380,30 +409,6 @@ void Textbox::DrawArrow(sf::RenderWindow* window, bool active)
 
 void Textbox::ProcessNextCharacter()
 {
-	if (scroll_timer > 0)
-	{
-		if (scroll_timer / 4 > 0 && scroll_timer % 4 == 0)
-		{
-			memcpy(tiles, tiles + size.x - 2, (size.x - 2) * 3);
-			memset(tiles + (size.x - 2) * 3, MENU_BLANK, (size.x - 2));
-		}
-		scroll_timer--;
-		if (scroll_timer == 0)
-			text_tile_pos = (size.x - 2) * 3;
-		return;
-	}
-	if (auto_close_timer > 0)
-	{
-		auto_close_timer++;
-		if (auto_close_timer >= TEXT_AUTOCLOSE_MAX)
-		{
-			auto_close_timer = 0;
-			Close();
-			text->Action();
-		}
-		return;
-	}
-
 	//if (text_pos >= text->GetText().length())
 	//	return;
 
@@ -430,6 +435,7 @@ void Textbox::ProcessNextCharacter()
 		{
 			memset(tiles, MENU_BLANK, (size.x - 2) * (size.y - 2));
 			text_tile_pos = size.x - 2;
+			text_timer = TEXT_TIMER_BLANK;
 			//text_speed = 3;
 			break;
 		}
@@ -464,6 +470,7 @@ void Textbox::ProcessNextCharacter()
 
 	case MESSAGE_AUTOCLOSE: //autoclose the message
 		auto_close_timer = 1;
+		//text_pos--;
 		break;
 
 	default: //regular char
@@ -471,13 +478,36 @@ void Textbox::ProcessNextCharacter()
 		break;
 	}
 
+	//according to padz, the game prints out one character every frame
+	//which means at 60fps with a full-screen update, the text looks too smooth.
+	//however, the game updates the screen in thirds, which means 3 characters/
+	//will appear every three frames. that's what we must do.
 	if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
+	{
+		if (text_timer == 0)
+			text_timer = TEXT_TIMER_FAST;
 		text_speed = TEXT_SPEED_FAST;
+	}
 	else if (!InputController::KeyDown(INPUT_A) && !InputController::KeyDown(INPUT_B))
-		text_speed = TEXT_SPEED_SLOW;
+	{
+		text_speed = Players::GetPlayer1()->GetOptions().text_speed;
+		if (text_timer == 0)
+		{
+			if (text_speed == TEXT_SPEED_SLOW)
+				text_timer = TEXT_TIMER_SLOW;
+			else
+				text_timer = TEXT_TIMER_FAST;
+		}
+	}
+	else
+	{
+		if (text_timer == 0)
+			text_timer = TEXT_TIMER_FAST;
+		text_speed = TEXT_SPEED_FAST;
+	}
 
 	arrow_timer = 0;
-	text_timer = text_speed;
+	//text_timer = text_speed;
 	text_pos++;
 }
 

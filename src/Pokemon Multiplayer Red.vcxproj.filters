@@ -78,6 +78,9 @@
     <ClCompile Include="PokemonInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Options.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Map.h">
@@ -174,6 +177,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PokemonInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Options.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

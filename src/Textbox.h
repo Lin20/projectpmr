@@ -11,6 +11,7 @@
 #include "TextItem.h"
 #include "StringConverter.h"
 #include "InputController.h"
+#include "Players.h"
 
 class Textbox : public TextboxParent
 {

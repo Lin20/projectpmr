@@ -16,6 +16,7 @@ class OverworldEntity;
 class NPC;
 class PlayerProperties;
 class Players;
+struct Options;
 
 class TextboxParent;
 class Textbox;
