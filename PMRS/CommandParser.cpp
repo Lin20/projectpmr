@@ -257,6 +257,15 @@ bool CommandParser::ParseAsString(Line& line, unsigned char*& dest, string& toke
 				case '\\':
 					c = 0x5c;
 					break;
+				case 'a':
+					c = 0x7;
+					break;
+				case 'b':
+					c = 0x9;
+					break;
+				case 'f':
+					c = 0xc;
+					break;
 				case 'n':
 					c = 0xA;
 					break;
@@ -268,9 +277,6 @@ bool CommandParser::ParseAsString(Line& line, unsigned char*& dest, string& toke
 					break;
 				case 'v':
 					c = 0xb;
-					break;
-				case 'f':
-					c = 0xc;
 					break;
 				}
 				*dest++ = (unsigned char)c;

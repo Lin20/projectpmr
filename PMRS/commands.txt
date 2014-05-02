@@ -24,4 +24,9 @@
 21	turn	Turns entity [0] to [1].	#	#
 22	textmenu	Shows a textbox with the text as [0], followed by showing the built menu and storing the result in [1].	s	v
 23	wait	Forces the script to wait until all entities moving have stopped.
+24	setpos	Sets entity [0]'s position to [1],[2].	#	#	#
+25	delay	Delays the script for [0] frames.	#
+26	emote	Shows emote [1] on entity [0].	#	#
+27	frozen	Sets entity [0]'s frozen state to [1].	#	#
+28	movefast	Moves entity [0] in direction [1] for [2] steps but quickly.	#	#	#
 255	getmoney	Stores the money of player [0] into [1].	#	v

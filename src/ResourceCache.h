@@ -32,6 +32,7 @@ public:
 	static void LoadEntities();
 	static void LoadPalettes();
 	static void LoadMisc();
+	static void LoadPokemon();
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 	static void ReleaseResources();
 
@@ -47,6 +48,11 @@ public:
 		if (index >= 73)
 			return 0;
 		return entity_textures[index];
+	}
+
+	inline static PaletteTexture* GetEmotionBubbles()
+	{
+		return emotion_bubbles;
 	}
 
 	inline static PaletteTexture* GetFlowerTexture() { return flower_texture; }
@@ -75,11 +81,14 @@ public:
 	inline static string& GetItemName(unsigned char index) { return item_names[index]; }
 	inline static bool IsKeyItem(unsigned char index) { return key_items[index]; }
 
+	inline static DataBlock* GetPokemonStats(unsigned char index) { return pokemon_stats[index]; }
+
 private:
 	//tilesets
 	static Tileset* tilesets[24];
 	static PaletteTexture* entity_textures[73];
 	static PaletteTexture* flower_texture;
+	static PaletteTexture* emotion_bubbles;
 
 	//map palettes
 	static sf::Color overworld_palettes[768];
@@ -96,4 +105,7 @@ private:
 	static DataBlock* ascii_table;
 	static string item_names[256];
 	static bool key_items[256];
+
+	//pokemon stuff
+	static DataBlock* pokemon_stats[256];
 };

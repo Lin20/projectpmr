@@ -29,6 +29,12 @@ Script* Script::TryLoad(MapScene* on_scene, unsigned char map, unsigned char scr
 	return s;
 }
 
+/// <summary>
+/// Checks the exists.
+/// </summary>
+/// <param name="map">The map.</param>
+/// <param name="script_index">The script_index.</param>
+/// <returns></returns>
 bool Script::CheckExists(unsigned char map, unsigned char script_index)
 {
 	string filename = ResourceCache::GetResourceLocation(string("scripts/bin/").append(itos(map)).append("_").append(itos(script_index)).append(".dat"));
@@ -72,11 +78,23 @@ void Script::Update()
 	//a textbox. the textbox would be severely delayed
 	while (true)
 	{
+		if (delay > 0)
+		{
+			delay--;
+			return;
+		}
 		if (!buffer)
 			return;
 		if (on_scene && on_scene->GetTextboxes().size() > 0)
-			return;
-		if (buffer->data - buffer->data_start >= buffer->size) //if the script is done
+		{
+			for (unsigned int i = 0; i < on_scene->GetTextboxes().size(); i++)
+			{
+				if (on_scene->GetTextboxes()[i]->IsDone())
+					continue;
+				return;
+			}
+		}
+		if ((unsigned int)(buffer->data - buffer->data_start) >= buffer->size) //if the script is done
 			return;
 
 		if (on_scene && watch_entities.size() > 0)
@@ -94,6 +112,8 @@ void Script::Update()
 			else if (entity_wait)
 				entity_wait = false;
 		}
+		else
+			entity_wait = false;
 
 		unsigned char opcode = *buffer->data++;
 		unsigned int index = 0;
@@ -310,6 +330,55 @@ void Script::Update()
 
 		case OPCODE_WAIT: //wait
 			entity_wait = true;
+			return;
+			break;
+
+		case OPCODE_SETPOS: //set entity pos
+			index = GetVariable().int_value;
+			a = GetVariable().int_value;
+			b = GetVariable().int_value;
+			if (index < on_scene->GetEntities().size())
+			{
+				on_scene->GetEntities()[index]->x = a * 16;
+				on_scene->GetEntities()[index]->y = b * 16;
+			}
+			break;
+
+		case OPCODE_DELAY: //delay
+			delay = GetVariable().int_value;
+			break;
+
+		case OPCODE_EMOTE: //show emote
+			index = GetVariable().int_value;
+			value = GetVariable().int_value;
+			if (index < on_scene->GetEntities().size())
+			{
+				on_scene->GetEntities()[index]->SetEmote(value);
+			}
+			break;
+
+		case OPCODE_FROZEN: //freeze/unfreeze entity
+			index = GetVariable().int_value;
+			value = GetVariable().int_value;
+			if (index < on_scene->GetEntities().size())
+			{
+				on_scene->GetEntities()[index]->SetFrozen(value > 0 ? true : false);
+			}
+			break;
+
+		case OPCODE_MOVEFAST: //move fast
+			if (on_scene)
+			{
+				index = GetVariable().int_value;
+				if (index < on_scene->GetEntities().size())
+				{
+					unsigned char dir = GetVariable().int_value;
+					unsigned char steps = GetVariable().int_value;
+					on_scene->GetEntities()[index]->Move(dir, steps, true);
+					on_scene->GetEntities()[index]->SetEntityGhosting(true);
+					watch_entities.push_back(index);
+				}
+			}
 			break;
 		}
 	}

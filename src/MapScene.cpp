@@ -6,6 +6,7 @@ MapScene::MapScene() : Scene()
 	active_map = 0;
 	previous_map = 13;
 	memset(flags, 0, sizeof(bool)* 16 * 256);
+	active_script = 0;
 
 	//Initialize the player
 	entities.push_back(new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false));
@@ -19,6 +20,11 @@ MapScene::~MapScene()
 {
 	if (active_map)
 		delete active_map;
+	if (active_script)
+	{
+		delete active_script;
+		active_script = 0;
+	}
 	ClearEntities(true);
 }
 
@@ -29,10 +35,12 @@ void MapScene::Update()
 {
 	current_fade.Update();
 	CheckWarp();
+	if (active_script && (focus_entity ? focus_entity->Snapped() : true))
+		active_script->Update();
 
 	if (InputController::KeyDownOnce(sf::Keyboard::F1))
 		memset(flags, 0, sizeof(bool)* 4096);
-	if (!UpdateTextboxes() && current_fade.Done() && input_enabled)
+	if (!UpdateTextboxes() && current_fade.Done() && input_enabled && !focus_entity->Frozen())
 	{
 		if (!Interact())
 		{
@@ -154,6 +162,13 @@ void MapScene::SwitchMap(unsigned char index)
 	unsigned char previous_palette = 0;
 	if (index <= OUTSIDE_MAP)
 		previous_map = index;
+
+	if (active_script)
+	{
+		delete active_script;
+		active_script = 0;
+	}
+	active_script = Script::TryLoad(this, index, 255);
 
 	if (!active_map)
 	{

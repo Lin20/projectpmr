@@ -35,6 +35,11 @@ string& pokestring(std::string& src)
 				src[i] = (char)0xBD;
 				src.erase(src.begin() + i + 1, src.begin() + i + 2);
 			}
+			if (next == 't')
+			{
+				src[i] = (char)0xBE;
+				src.erase(src.begin() + i + 1, src.begin() + i + 2);
+			}
 			else if (next == '\'')
 			{
 				src[i] = (char)0xE0;

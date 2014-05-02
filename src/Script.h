@@ -42,6 +42,7 @@ private:
 	unsigned int menu_variable;
 	unsigned char menu_result;
 	bool entity_wait;
+	unsigned int delay;
 
 	void ResetVariables();
 	bool CheckSpace(unsigned char amount);

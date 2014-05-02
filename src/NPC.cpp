@@ -20,6 +20,8 @@ void NPC::Update()
 
 void NPC::PerformAI(bool force)
 {
+	if (frozen)
+		return;
 	if (script_enabled && script && !script->Done())
 		return;
 	if (occupation)

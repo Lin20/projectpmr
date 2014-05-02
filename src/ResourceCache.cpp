@@ -3,6 +3,7 @@
 Tileset* ResourceCache::tilesets[24];
 PaletteTexture* ResourceCache::entity_textures[73];
 PaletteTexture* ResourceCache::flower_texture = 0;
+PaletteTexture* ResourceCache::emotion_bubbles = 0;
 
 sf::Color ResourceCache::overworld_palettes[768];
 DataBlock* ResourceCache::map_palette_indexes = 0;
@@ -16,6 +17,8 @@ PaletteTexture* ResourceCache::font_texture = 0;
 DataBlock* ResourceCache::ascii_table = 0;
 string ResourceCache::item_names[256];
 bool ResourceCache::key_items[256];
+
+DataBlock* ResourceCache::pokemon_stats[256];
 
 ResourceCache::ResourceCache()
 {
@@ -41,6 +44,8 @@ void ResourceCache::ReleaseResources()
 	}
 	if (flower_texture)
 		delete flower_texture;
+	if (emotion_bubbles)
+		delete emotion_bubbles;
 	if (map_palette_indexes)
 		delete map_palette_indexes;
 	if (ledges)
@@ -56,6 +61,12 @@ void ResourceCache::ReleaseResources()
 		delete font_texture;
 	if (ascii_table)
 		delete ascii_table;
+
+	for (int i = 0; i < 256; i++)
+	{
+		if (pokemon_stats[i])
+			delete pokemon_stats[i];
+	}
 }
 
 void ResourceCache::LoadAll()
@@ -68,6 +79,7 @@ void ResourceCache::LoadAll()
 	LoadEntities();
 	LoadPalettes();
 	LoadMisc();
+	LoadPokemon();
 
 #ifdef _DEBUG
 	cout << "Done\n";
@@ -100,6 +112,9 @@ void ResourceCache::LoadEntities()
 		entity_textures[i] = new PaletteTexture();
 		entity_textures[i]->loadFromFile(ResourceCache::GetResourceLocation(string("npcs/").append(itos(i)).append(".png")));
 	}
+	emotion_bubbles = new PaletteTexture();
+	emotion_bubbles->loadFromFile(ResourceCache::GetResourceLocation(string("misc/emotionbubbles.png")));
+	
 #ifdef _DEBUG
 	cout << "Done\n";
 #endif
@@ -161,6 +176,22 @@ void ResourceCache::LoadMisc()
 	memcpy(key_items, d->data, 256);
 	delete d;
 
+#ifdef _DEBUG
+	cout << "Done\n";
+#endif
+}
+
+void ResourceCache::LoadPokemon()
+{
+#ifdef _DEBUG
+	cout << "--Loading Pokemon...";
+#endif
+	for (int i = 0; i < 256; i++)
+	{
+		DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("pokemon/stats/").append(itos(i)).append(".dat")));
+		if (d)
+			pokemon_stats[i] = d;
+	}
 #ifdef _DEBUG
 	cout << "Done\n";
 #endif

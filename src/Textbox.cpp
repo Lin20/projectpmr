@@ -28,6 +28,7 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 	text_speed = TEXT_SPEED_SLOW;
 	scroll_timer = 0;
 	cursor_visibility_timer = 0;
+	auto_close_timer = 0;
 
 	SetFrame(x, y, width, height);
 }
@@ -391,6 +392,17 @@ void Textbox::ProcessNextCharacter()
 			text_tile_pos = (size.x - 2) * 3;
 		return;
 	}
+	if (auto_close_timer > 0)
+	{
+		auto_close_timer++;
+		if (auto_close_timer >= TEXT_AUTOCLOSE_MAX)
+		{
+			auto_close_timer = 0;
+			Close();
+			text->Action();
+		}
+		return;
+	}
 
 	//if (text_pos >= text->GetText().length())
 	//	return;
@@ -449,6 +461,10 @@ void Textbox::ProcessNextCharacter()
 		else if (arrow_timer == 0)
 			arrow_timer = CURSOR_MORE_TIME;
 		return;
+
+	case MESSAGE_AUTOCLOSE: //autoclose the message
+		auto_close_timer = 1;
+		break;
 
 	default: //regular char
 		tiles[text_tile_pos++] = c;

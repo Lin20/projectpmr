@@ -91,7 +91,9 @@ enum ArrowStates
 #define TEXT_SPEED_SLOW		8
 #define TEXT_SPEED_MEDIUM	5
 #define TEXT_SPEED_FAST		1
+#define TEXT_AUTOCLOSE_MAX	80
 
+#define MESSAGE_AUTOCLOSE	0x40
 #define MESSAGE_LINE		0x4F
 #define MESSAGE_ENDNAME		0x50
 #define MESSAGE_PARA		0x51

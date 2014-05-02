@@ -41,6 +41,7 @@ public:
 	unsigned int GetInactiveIndex() { return inactive_index; }
 	unsigned char GetCounterValue() { return counter_value; }
 	void ResetSelection() { active_index = inactive_index = scroll_pos = 0; }
+	bool IsDone() { return auto_close_timer > 0; }
 
 	int GetScrollIndex() { return active_index - scroll_pos; }
 	bool SetToClose() { return close; }
@@ -86,6 +87,7 @@ private:
 	unsigned char arrow_timer; //if > CURSOR_NEXT_TIME / 2 then show "more" arrow
 	unsigned char text_speed; //speed the text moves at
 	unsigned char scroll_timer; //stage of text scrolling
+	unsigned char auto_close_timer; //if > 0, close when it hits (x)
 
 	//counter stuff
 	bool is_counter; //is the textbox a counter?

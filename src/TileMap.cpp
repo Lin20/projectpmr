@@ -23,7 +23,7 @@ TileMap::~TileMap()
 	}
 }
 
-void TileMap::Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y)
+void TileMap::Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned int tile, unsigned int tile_size_x, unsigned int tile_size_y, int offset_x, int offset_y)
 {
 	if (!tiles_tex)
 		return;
@@ -36,7 +36,7 @@ void TileMap::Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned 
 			src_rect.left = (t % tiles_x) * 8;
 			src_rect.top = (t / tiles_x) * 8;
 			sprite8x8.setTextureRect(src_rect);
-			sprite8x8.setPosition((float)(int)(dest_x * 8 * (int)tile_size_x + x * 8), (float)(int)(dest_y * 8 * (int)tile_size_y + y * 8));
+			sprite8x8.setPosition((float)(int)(dest_x * 8 * (int)tile_size_x + x * 8 + offset_x), (float)(int)(dest_y * 8 * (int)tile_size_y + y * 8 + offset_y));
 			window->draw(sprite8x8);
 		}
 	}

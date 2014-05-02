@@ -86,6 +86,8 @@
     <ClCompile Include="OverworldEntity.cpp" />
     <ClCompile Include="PaletteTexture.cpp" />
     <ClCompile Include="Players.cpp" />
+    <ClCompile Include="Pokemon.cpp" />
+    <ClCompile Include="PokemonInfo.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="Startup.cpp" />
@@ -111,6 +113,8 @@
     <ClInclude Include="Opcodes.h" />
     <ClInclude Include="PlayerProperties.h" />
     <ClInclude Include="Players.h" />
+    <ClInclude Include="Pokemon.h" />
+    <ClInclude Include="PokemonInfo.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="TextboxParent.h" />
     <ClInclude Include="TextItem.h" />

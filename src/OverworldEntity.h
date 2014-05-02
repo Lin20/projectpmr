@@ -19,7 +19,7 @@ public:
 	void StartMoving(unsigned char direction);
 	void StopMoving();
 	void ForceStop();
-	void Move(unsigned char direction, unsigned char steps = 1);
+	void Move(unsigned char direction, unsigned char steps = 1, bool fast = false);
 	
 	inline bool Snapped() { return x % 16 == 0 && y % 16 == 0; }
 	inline bool Moving() { return step_timer > 0; }
@@ -29,6 +29,9 @@ public:
 	inline Script* GetScript() { return script; }
 	inline void SetScriptState(bool enabled) { script_enabled = enabled; }
 	inline void SetEntityGhosting(bool b) { allow_entity_ghosting = b; }
+	inline void SetEmote(unsigned char e) { emotion_bubble = e; }
+	inline bool Frozen() { return frozen; }
+	inline void SetFrozen(bool b) { frozen = b; }
 
 	void SetMap(Map* m)
 	{
@@ -49,7 +52,7 @@ protected:
 	unsigned char index;
 	Map* on_map;
 	bool is_npc;
-	bool can_move;
+	bool frozen;
 
 	//movement stuff
 	unsigned char direction;
@@ -62,6 +65,7 @@ protected:
 	unsigned char movement_direction; //what direction are we making the entity move in?
 	unsigned char movement_type; //used for normal walking or hopping down a ledge
 	bool allow_entity_ghosting;
+	bool force_fast;
 
 	unsigned char jump_index; //the index of the jump sequence stored in ResourceCache::jump_coordinates
 	int jump_x;
@@ -69,6 +73,8 @@ protected:
 	
 	Script* script;
 	bool script_enabled;
+	unsigned char emotion_bubble;
+	TileMap* emotion_texture;
 
 	sf::Sprite shadow8x8;
 };

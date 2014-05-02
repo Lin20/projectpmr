@@ -7,6 +7,7 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	this->x = x * 16;
 	this->y = y * 16;
 	this->is_npc = npc;
+	this->frozen = false;
 	this->delete_texture = false;
 	this->script = _script;
 	this->script_enabled = false;
@@ -23,11 +24,18 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	movement_type = 0;
 	forced_steps = false;
 	allow_entity_ghosting = false;
+	emotion_bubble = 255;
+	force_fast = false;
 
 	//is this entity a moving npc or a static image (eg. pokeball)
 	direction = (direction > 3 ? 0 : index <= ENTITY_LIMIT ? direction : 0);
 	for (int i = 0; i < 4; i++)
 		formation->data[i] = direction * 4 + i;
+
+	DataBlock* emotion_formation = new DataBlock(12);
+	for (int i = 0; i < 12; i++)
+		emotion_formation->data[i] = i;
+	emotion_texture = new TileMap(ResourceCache::GetEmotionBubbles(), emotion_formation, 12);
 
 	if (m)
 	{
@@ -35,6 +43,8 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 		tiles_tex->SetPalette(palette);
 		if (!npc)
 			ResourceCache::GetShadowTexture()->SetPalette(palette);
+
+		emotion_texture->GetTexture()->SetPalette(palette);
 	}
 	sprite8x8.setTexture(*tiles_tex);
 	shadow8x8.setTexture(*ResourceCache::GetShadowTexture());
@@ -46,6 +56,8 @@ OverworldEntity::~OverworldEntity()
 {
 	if (script)
 		delete script;
+	if (emotion_texture)
+		delete emotion_texture;
 }
 
 void OverworldEntity::Update()
@@ -78,13 +90,17 @@ void OverworldEntity::Update()
 						{
 							StartMoving(direction);
 						}
-						else if (is_npc)
-							StopMoving();
+						else
+						{
+							if (is_npc)
+								StopMoving();
+							force_fast = false;
+						}
 					}
 					step_timer = STEP_TIMER * 2;
 					forced_steps = false;
 				}
-				else if ((is_npc || allow_entity_ghosting) && steps_remaining > 0)
+				else if ((is_npc || allow_entity_ghosting) && steps_remaining > 0 && !force_fast)
 				{
 					step_timer = STEP_TIMER * 2.0f;
 				}
@@ -220,6 +236,11 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 		//set the texture back to what it was
 		sprite8x8.setTexture(*tex);
 	}
+
+	if (emotion_bubble < 3)
+	{
+		emotion_texture->Render(window, this->x / 16, this->y / 16 - 1, emotion_bubble, 2, 2, 0, -4);
+	}
 }
 
 void OverworldEntity::Face(unsigned char direction)
@@ -296,10 +317,11 @@ void OverworldEntity::ForceStop()
 	step_frame = 0;
 }
 
-void OverworldEntity::Move(unsigned char direction, unsigned char steps)
+void OverworldEntity::Move(unsigned char direction, unsigned char steps, bool fast)
 {
 	if (direction == MOVEMENT_NONE)
 		return;
+	force_fast = fast;
 	StartMoving(direction);
 	steps_remaining = steps;
 	if (is_npc && steps_remaining == 0)

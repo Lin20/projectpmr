@@ -42,12 +42,13 @@ private:
 
 	vector<OverworldEntity*> entities;
 	OverworldEntity* focus_entity;
-	//OverworldEntity* test_entity;
 
 	bool can_warp;
 	unsigned char previous_palette;
 	unsigned char previous_map; //previous overworld map
 	unsigned char elevator_map; //where to go when an elevator is exited
+
+	Script* active_script;
 
 	void CheckWarp();
 	void TryResetWarp();
