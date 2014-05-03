@@ -38,7 +38,9 @@ public:
 	unsigned short ot;
 	unsigned char level;
 	unsigned int xp;
-	unsigned char xp_rate;
+	unsigned char growth_rate;
+	unsigned char catch_rate;
+	unsigned char xp_yield;
 
 	string original_name;
 	string nickname;

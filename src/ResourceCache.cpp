@@ -19,6 +19,8 @@ string ResourceCache::item_names[256];
 bool ResourceCache::key_items[256];
 
 DataBlock* ResourceCache::pokemon_stats[256];
+DataBlock* ResourceCache::pokemon_indexes = 0;
+string ResourceCache::pokemon_names[256];
 
 ResourceCache::ResourceCache()
 {
@@ -67,10 +69,14 @@ void ResourceCache::ReleaseResources()
 		if (pokemon_stats[i])
 			delete pokemon_stats[i];
 	}
+	if (pokemon_indexes)
+		delete pokemon_indexes;
 }
 
 void ResourceCache::LoadAll()
 {
+	srand((unsigned int)time(0));
+
 #ifdef _DEBUG
 	cout << "Loading resources...\n";
 #endif
@@ -192,6 +198,24 @@ void ResourceCache::LoadPokemon()
 		if (d)
 			pokemon_stats[i] = d;
 	}
+
+	pokemon_indexes = ReadFile(ResourceCache::GetResourceLocation(string("pokemon/dex_indexes.dat")).c_str());
+
+	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("pokemon/names.dat")).c_str());
+	unsigned char* p = d->data;
+	for (int i = 0; i < 256; i++)
+	{
+		string s;
+		while ((unsigned int)(p - d->data_start) < d->size && *p != MESSAGE_ENDNAME)
+			s.insert(s.begin() + s.length(), (char)*p++);
+		p++;
+		pokemon_names[i] = s;
+		//these pokemon names get reported as a memory leak
+		//however since theyre static not manually allocated, they will be deleted when the program terminates
+		//the leak reportings are false
+	}
+	delete d;
+
 #ifdef _DEBUG
 	cout << "Done\n";
 #endif

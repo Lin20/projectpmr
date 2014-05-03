@@ -65,7 +65,7 @@ enum ArrowStates
 //movement types
 #define MTYPE_DIRECTIONAL	255
 #define MTYPE_WALK			254
-#define RANDOM_WALK			3
+#define RANDOM_WALK			2
 #define MDIR_ANY			0
 #define MDIR_NONE			255
 #define MDIR_DOWN			208
@@ -82,7 +82,7 @@ enum ArrowStates
 #define MENU_V				28
 #define MENU_CORNER_DL		29
 #define MENU_CORNER_DR		30
-#define MENU_AMOUNT			
+#define MENU_DELAY_TIME		20
 #define CURSOR_ACTIVE		109
 #define CURSOR_INACTIVE 	108
 #define CURSOR_MORE			110
@@ -94,7 +94,7 @@ enum ArrowStates
 #define TEXT_TIMER_SLOW		6
 #define TEXT_TIMER_MEDIUM	3
 #define	TEXT_TIMER_FAST		3
-#define TEXT_TIMER_BLANK	12
+#define TEXT_TIMER_BLANK	20
 #define TEXT_AUTOCLOSE_MAX	80
 
 #define MESSAGE_AUTOCLOSE	0x40

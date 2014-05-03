@@ -226,4 +226,5 @@ unsigned char ItemStorage::GetItemCount()
 		if (items[i].id == 0 || items[i].quantity == 0)
 			return i;
 	}
+	return 0;
 }

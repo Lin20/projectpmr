@@ -1,12 +1,13 @@
 #include "Textbox.h"
 
-Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned char height, bool d)
+Textbox::Textbox(char x, char y, unsigned char width, unsigned char height, bool d, bool hidden_frame)
 {
 	tiles = 0;
 	delete_on_close = d;
 	close = false;
 	cancel_switch = false;
 	close_when_no_children = false;
+	hide_frame = hidden_frame;
 
 	is_menu = false;
 	display_count = 0;
@@ -18,6 +19,7 @@ Textbox::Textbox(unsigned char x, unsigned char y, unsigned char width, unsigned
 	inactive_index = 0;
 	menu_flags = 0;
 	arrow_state = 0;
+	menu_open_delay = 0;
 
 	text = 0;
 	text_tile_pos = 0;
@@ -47,7 +49,10 @@ Textbox::~Textbox()
 		}
 	}
 	if (tiles)
-		delete tiles;
+	{
+		delete[] tiles;
+		tiles = 0;
+	}
 }
 
 //TODO: Clean up a bit. Split into functions.
@@ -61,6 +66,8 @@ void Textbox::Update()
 		arrow_timer--;
 	if (cursor_visibility_timer > 0)
 		cursor_visibility_timer--;
+	if (menu_open_delay > 0)
+		return;
 	//try to move the cursor
 	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE) && (arrow_state & ArrowStates::ACTIVE))
 	{
@@ -208,10 +215,13 @@ void Textbox::Update()
 
 void Textbox::Render(sf::RenderWindow* window)
 {
+	//we have to move this here because only the last textbox in a list gets updated
+	if (menu_open_delay > 0)
+		menu_open_delay--;
 	DrawFrame(window);
 }
 
-void Textbox::SetFrame(unsigned char x, unsigned char y, unsigned char width, unsigned char height)
+void Textbox::SetFrame(char x, char y, unsigned char width, unsigned char height)
 {
 	pos = sf::Vector2i(x, y);
 	size = sf::Vector2u(width, height);
@@ -230,15 +240,17 @@ void Textbox::SetText(TextItem* text)
 	this->text_timer = TEXT_TIMER_BLANK; //there's usually a delay before the textbox starts
 }
 
-void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void(TextItem* source)> callback, unsigned int flags, unsigned int scroll_start, std::function<void()> switch_callback, bool can_switch_last)
+void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void(TextItem* source)> callback, unsigned int flags, unsigned int scroll_start, std::function<void()> switch_callback, bool can_switch_last, sf::Vector2i arrow_off)
 {
 	this->is_menu = menu;
 	this->display_count = display_count;
 	this->item_start = start;
 	this->item_spacing = spacing;
+	this->arrow_offset = arrow_off;
 	this->menu_flags = flags;
 	this->scroll_start = scroll_start;
 	this->switch_last_item = can_switch_last;
+	this->menu_open_delay = MENU_DELAY_TIME;
 
 	//for assigning close_callback, you'd think if we passed nullptr to callback and assigned close_callback to callback, close_callback would be assigned nullptr
 	//but no, for some stupid reason the gcc doesn't like that. >:(
@@ -306,17 +318,17 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 			sprite8x8.setTexture(*frame);
 			unsigned char tile = MENU_BLANK;
 			if (x == pos.x && y == pos.y)
-				tile = MENU_CORNER_UL;
+				tile = (hide_frame ? MENU_BLANK : MENU_CORNER_UL);
 			else if (x == pos.x + size.x - 1 && y == pos.y)
-				tile = MENU_CORNER_UR;
+				tile = (hide_frame ? MENU_BLANK : MENU_CORNER_UR);
 			else if (x == pos.x && y == pos.y + size.y - 1)
-				tile = MENU_CORNER_DL;
+				tile = (hide_frame ? MENU_BLANK : MENU_CORNER_DL);
 			else if (x == pos.x + size.x - 1 && y == pos.y + size.y - 1)
-				tile = MENU_CORNER_DR;
+				tile = (hide_frame ? MENU_BLANK : MENU_CORNER_DR);
 			else if (y == pos.y || y == pos.y + size.y - 1)
-				tile = MENU_H;
+				tile = (hide_frame ? MENU_BLANK : MENU_H);
 			else if (x == pos.x || x == pos.x + size.x - 1)
-				tile = MENU_V;
+				tile = (hide_frame ? MENU_BLANK : MENU_V);
 			else
 			{
 				if (x == pos.x + size.x - 2 && y == pos.y + size.y - 2 && arrow_timer > CURSOR_MORE_TIME / 2)
@@ -324,13 +336,15 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 					tile = CURSOR_MORE;
 					sprite8x8.setTexture(*ResourceCache::GetFontTexture());
 				}
-				else
+				else if (menu_open_delay == 0)
 				{
 					tile = (unsigned char)tiles[(x - pos.x - 1) + (y - pos.y - 1) * (size.x - 2)];
 					if (tile >= 0x80) //use the font texture
 						sprite8x8.setTexture(*ResourceCache::GetFontTexture());
 					tile &= 0x7F;
 				}
+				else
+					tile = MENU_BLANK; //has intentionally making something seem like it's lagging ever been done before?
 			}
 
 			src_rect.left = (tile % 16) * 8;
@@ -344,7 +358,7 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 
 	//This code to draw arrows must be here instead of in the Render function where it was before.
 	//They get drawn on top of children otherwise.
-	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE))
+	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE) && menu_open_delay == 0)
 	{
 		if (arrow_state & ArrowStates::INACTIVE)
 			DrawArrow(window, false);
@@ -367,7 +381,7 @@ void Textbox::UpdateMenu()
 			continue;
 		unsigned int x = item_start.x;
 		unsigned int y = item_start.y + (i - scroll_pos) * item_spacing.y;
-		for (unsigned int c = 0; c < item->text.length(); c++)
+		for (unsigned int c = 0; c < item->text.length() && x + y * (size.x - 2) < (size.x - 2) * (size.y - 2); c++)
 		{
 			unsigned char at = item->text[c];
 			if (at == MESSAGE_LINE)
@@ -402,7 +416,7 @@ void Textbox::DrawArrow(sf::RenderWindow* window, bool active)
 	int index = (int)((active ? active_index : inactive_index) - scroll_pos);
 	if (index < 0 || index >= display_count)
 		return;
-	sprite8x8.setPosition((float)(pos.x * 8 + item_start.x * 8), (float)(pos.y * 8 + item_start.y * 8 + 8 + index * 8 * item_spacing.y));
+	sprite8x8.setPosition((float)(pos.x * 8 + item_start.x * 8 + arrow_offset.x * 8), (float)(pos.y * 8 + item_start.y * 8 + 8 + index * 8 * item_spacing.y + arrow_offset.y * 8));
 	sprite8x8.setTextureRect(src_rect);
 	window->draw(sprite8x8);
 }

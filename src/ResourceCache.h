@@ -82,6 +82,8 @@ public:
 	inline static bool IsKeyItem(unsigned char index) { return key_items[index]; }
 
 	inline static DataBlock* GetPokemonStats(unsigned char index) { return pokemon_stats[index]; }
+	inline static char GetPokedexIndex(unsigned char created_index) { if (pokemon_indexes) return pokemon_indexes->data[created_index]; return 0; }
+	inline static string& GetPokemonName(unsigned char created_index) { return pokemon_names[created_index]; }
 
 private:
 	//tilesets
@@ -108,4 +110,6 @@ private:
 
 	//pokemon stuff
 	static DataBlock* pokemon_stats[256];
+	static DataBlock* pokemon_indexes;
+	static string pokemon_names[256];
 };

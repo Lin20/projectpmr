@@ -9,6 +9,7 @@ TextboxParent::~TextboxParent() {};
 void TextboxParent::ShowTextbox(Textbox* t)
 {
 	textboxes.push_back(t);
+	t->SetJustOpened(); //sets the delay
 }
 
 bool TextboxParent::UpdateTextboxes()

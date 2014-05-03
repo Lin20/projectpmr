@@ -1,8 +1,50 @@
 #include "Pokemon.h"
 
 
-Pokemon::Pokemon(unsigned char index, unsigned char level)
+Pokemon::Pokemon(unsigned char index, unsigned char l)
 {
+ 	id = index;
+	level = l;
+	pokedex_index = ResourceCache::GetPokedexIndex(index);
+	ot = 0;
+	xp = 0;
+	original_name = ResourceCache::GetPokemonName(index);
+	nickname = original_name;
+	type1 = 0;
+	type2 = 0;
+
+	DataBlock* data = ResourceCache::GetPokemonStats(index);
+	if (data)
+	{
+		base_hp = data->getc();
+		base_attack = data->getc();
+		base_defense = data->getc();
+		base_speed = data->getc();
+		base_special = data->getc();
+
+		type1 = data->getc();
+		type2 = data->getc();
+
+		catch_rate = data->getc();
+		xp_yield = data->getc();
+
+		//moves
+		data->getc(); data->getc(); data->getc(); data->getc();
+		growth_rate = data->getc();
+	}
+	ev_hp = 0;
+	ev_attack = 0;
+	ev_defense = 0;
+	ev_speed = 0;
+	ev_special = 0;
+
+	dv_hp = 0;
+	dv_attack = 0;
+	dv_defense = 0;
+	dv_speed = 0;
+	dv_special = 0;
+
+	RecalculateStats();
 }
 
 Pokemon::~Pokemon()

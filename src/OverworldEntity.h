@@ -14,7 +14,7 @@ public:
 	virtual ~OverworldEntity();
 
 	virtual void Update();
-	virtual void Render(sf::RenderWindow* window);
+	virtual void Render(sf::RenderWindow* window, int offset_x = 0, int offset_y = 0);
 	void Face(unsigned char direction);
 	void StartMoving(unsigned char direction);
 	void StopMoving();

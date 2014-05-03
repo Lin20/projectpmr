@@ -16,6 +16,7 @@ class OverworldEntity;
 class NPC;
 class PlayerProperties;
 class Players;
+class PokemonInfo;
 struct Options;
 
 class TextboxParent;

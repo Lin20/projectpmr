@@ -25,14 +25,13 @@ using namespace std;
 
 int main()
 {
-	//_crtBreakAlloc = 5876;
+	//_crtBreakAlloc = 6132;
 	Engine engine;
 
 	sf::RenderWindow window(sf::VideoMode(VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16), "SFML works!");
 
 	window.setFramerateLimit(60);
 
-	srand((unsigned int)time(0));
 
 	while (window.isOpen())
 	{

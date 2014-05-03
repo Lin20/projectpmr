@@ -2,6 +2,7 @@
 
 Textbox* MenuCache::start_menu = 0;
 Textbox* MenuCache::debug_menu = 0;
+PokemonInfo* MenuCache::pokemon_menu = 0;
 
 MenuCache::MenuCache()
 {
@@ -13,6 +14,8 @@ MenuCache::~MenuCache()
 
 void MenuCache::ReleaseResources()
 {
+	if (pokemon_menu)
+		delete pokemon_menu;
 	if (start_menu)
 		delete start_menu;
 	if (debug_menu)
@@ -37,7 +40,7 @@ Textbox* MenuCache::StartMenu(std::vector<Textbox*>* owner)
 		start_menu->ShowTextbox(message);
 	};
 	start_menu->GetItems().push_back(new TextItem(start_menu, doe, pokestring("POKéDEX"), 0));
-	start_menu->GetItems().push_back(new TextItem(start_menu, doe, pokestring("POKéMON"), 1));
+	start_menu->GetItems().push_back(new TextItem(start_menu, [](TextItem* source){PokemonMenu()->UpdatePokemon(Players::GetPlayer1()->GetParty()); PokemonMenu()->Show(start_menu); }, pokestring("POKéMON"), 1));
 	start_menu->GetItems().push_back(new TextItem(start_menu, [](TextItem* source)->void
 	{
 		start_menu->SetArrowState(ArrowStates::INACTIVE);
@@ -66,4 +69,13 @@ Textbox* MenuCache::DebugMenu(std::vector<Textbox*>* owner)
 
 	debug_menu->UpdateMenu();
 	return debug_menu;
+}
+
+PokemonInfo* MenuCache::PokemonMenu()
+{
+	if (pokemon_menu)
+		return pokemon_menu;
+
+	pokemon_menu = new PokemonInfo();
+	return pokemon_menu;
 }

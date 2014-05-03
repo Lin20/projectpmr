@@ -16,15 +16,15 @@
 class Textbox : public TextboxParent
 {
 public:
-	Textbox(unsigned char x = 0, unsigned char y = 12, unsigned char width = 20, unsigned char height = 6, bool delete_on_close = true);
+	Textbox(char x = 0, char y = 12, unsigned char width = 20, unsigned char height = 6, bool delete_on_close = true, bool hidden_frame = false);
 	~Textbox();
 
 	void Update();
 	void Render(sf::RenderWindow* window);
 
-	void SetFrame(unsigned char x, unsigned char y, unsigned char width, unsigned char height);
+	void SetFrame(char x, char y, unsigned char width, unsigned char height);
 	void SetText(TextItem* text);
-	void SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void(TextItem* source)> = nullptr, unsigned int flags = MenuFlags::NONE, unsigned int scroll_start = INT_MAX, std::function<void()> switch_callback = nullptr, bool can_switch_last = true);
+	void SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void(TextItem* source)> = nullptr, unsigned int flags = MenuFlags::NONE, unsigned int scroll_start = INT_MAX, std::function<void()> switch_callback = nullptr, bool can_switch_last = true, sf::Vector2i arrow_offset = sf::Vector2i());
 	void ClearItems();
 	void SetCounter(bool is_counter, unsigned char min, unsigned char max, std::function<void()> action_callback = nullptr, std::function<void(TextItem* source)> close_callback = nullptr);
 
@@ -43,6 +43,7 @@ public:
 	unsigned char GetCounterValue() { return counter_value; }
 	void ResetSelection() { active_index = inactive_index = scroll_pos = 0; }
 	bool IsDone() { return auto_close_timer > 0; }
+	void SetJustOpened() { menu_open_delay = MENU_DELAY_TIME; }
 
 	int GetScrollIndex() { return active_index - scroll_pos; }
 	bool SetToClose() { return close; }
@@ -58,6 +59,7 @@ private:
 	bool delete_on_close;
 	bool cancel_switch;
 	bool close_when_no_children; //make the textbox close when its children have been closed
+	bool hide_frame;
 
 	//menu-related stuff
 	bool is_menu; //is this textbox a menu?
@@ -67,7 +69,9 @@ private:
 	vector<TextItem*> items; //the items get displayed
 	sf::Vector2i item_start; //where the items start drawing (relative to pos)
 	sf::Vector2u item_spacing; //the space between the items
+	sf::Vector2i arrow_offset; //offset for the selection arrow (relative to default pos)
 	std::function<void(TextItem* source)> close_callback; //the function that's called when the menu is closed; source will never be used but is there to match TextItem callbacks
+	unsigned char menu_open_delay; //used to emulate lag when opening the menu
 
 	//menu selection stuff
 	unsigned int active_index; //where the active arrow is

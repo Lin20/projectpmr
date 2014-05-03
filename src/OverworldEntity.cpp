@@ -163,7 +163,7 @@ void OverworldEntity::Update()
 	}
 }
 
-void OverworldEntity::Render(sf::RenderWindow* window)
+void OverworldEntity::Render(sf::RenderWindow* window, int offset_x, int offset_y)
 {
 	if (!tiles_tex)
 		return;
@@ -215,7 +215,7 @@ void OverworldEntity::Render(sf::RenderWindow* window)
 				int offset = (ResourceCache::GetJumpCoordinates()->data[min(JUMP_STEPS - 3, max(0, (int)(signed char)jump_index))] - 0x3C) - (jump_y - this->y) - 2;
 				dest_y = (int)(this->jump_y + y * 8) + offset;
 			}
-			sprite8x8.setPosition((float)dest_x, (float)dest_y);
+			sprite8x8.setPosition((float)(dest_x + offset_x), (float)(dest_y + offset_y));
 			window->draw(sprite8x8);
 		}
 	}
