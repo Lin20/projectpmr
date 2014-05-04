@@ -227,8 +227,8 @@ void Textbox::SetFrame(char x, char y, unsigned char width, unsigned char height
 	size = sf::Vector2u(width, height);
 	if (tiles)
 		delete[] tiles;
-	tiles = new unsigned char[(width - 2) * (height - 2)];
-	for (int i = 0; i < (width - 2) * (height - 2); i++)
+	tiles = new unsigned char[(width - 2) * (height - 1)];
+	for (int i = 0; i < (width - 2) * (height - 1); i++)
 		tiles[i] = MENU_BLANK;
 }
 
@@ -321,11 +321,11 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 				tile = (hide_frame ? MENU_BLANK : MENU_CORNER_UL);
 			else if (x == pos.x + size.x - 1 && y == pos.y)
 				tile = (hide_frame ? MENU_BLANK : MENU_CORNER_UR);
-			else if (x == pos.x && y == pos.y + size.y - 1)
+			else if (!hide_frame && x == pos.x && y == pos.y + size.y - 1)
 				tile = (hide_frame ? MENU_BLANK : MENU_CORNER_DL);
-			else if (x == pos.x + size.x - 1 && y == pos.y + size.y - 1)
+			else if (!hide_frame && x == pos.x + size.x - 1 && y == pos.y + size.y - 1)
 				tile = (hide_frame ? MENU_BLANK : MENU_CORNER_DR);
-			else if (y == pos.y || y == pos.y + size.y - 1)
+			else if (y == pos.y || (!hide_frame && y == pos.y + size.y - 1))
 				tile = (hide_frame ? MENU_BLANK : MENU_H);
 			else if (x == pos.x || x == pos.x + size.x - 1)
 				tile = (hide_frame ? MENU_BLANK : MENU_V);
@@ -341,6 +341,11 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 					tile = (unsigned char)tiles[(x - pos.x - 1) + (y - pos.y - 1) * (size.x - 2)];
 					if (tile >= 0x80) //use the font texture
 						sprite8x8.setTexture(*ResourceCache::GetFontTexture());
+					else if (tile >= 0x20 && tile < 0x40)
+					{
+						sprite8x8.setTexture(*ResourceCache::GetStatusesTexture());
+						tile -= 0x20;
+					}
 					tile &= 0x7F;
 				}
 				else
@@ -366,13 +371,16 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 			DrawArrow(window, true);
 	}
 
+	if (render_callback != nullptr)
+		render_callback(window);
+
 	for (unsigned int i = 0; i < textboxes.size(); i++)
 		textboxes[i]->Render(window);
 }
 
 void Textbox::UpdateMenu()
 {
-	memset(tiles, MENU_BLANK, (size.x - 2) * (size.y - 2));
+	memset(tiles, MENU_BLANK, (size.x - 2) * (size.y - 1));
 	//this function creates "tiles" for display
 	for (unsigned int i = scroll_pos; i < scroll_pos + display_count && i < items.size(); i++)
 	{
@@ -381,7 +389,7 @@ void Textbox::UpdateMenu()
 			continue;
 		unsigned int x = item_start.x;
 		unsigned int y = item_start.y + (i - scroll_pos) * item_spacing.y;
-		for (unsigned int c = 0; c < item->text.length() && x + y * (size.x - 2) < (size.x - 2) * (size.y - 2); c++)
+		for (unsigned int c = 0; c < item->text.length() && x + y * (size.x - 2) < (size.x - 2) * (size.y - 1); c++)
 		{
 			unsigned char at = item->text[c];
 			if (at == MESSAGE_LINE)

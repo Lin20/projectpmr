@@ -21,6 +21,9 @@ bool ResourceCache::key_items[256];
 DataBlock* ResourceCache::pokemon_stats[256];
 DataBlock* ResourceCache::pokemon_indexes = 0;
 string ResourceCache::pokemon_names[256];
+PaletteTexture* ResourceCache::statuses_texture = 0;
+PaletteTexture* ResourceCache::pokemon_icons = 0;
+DataBlock* ResourceCache::icon_indexes = 0;
 
 ResourceCache::ResourceCache()
 {
@@ -71,6 +74,12 @@ void ResourceCache::ReleaseResources()
 	}
 	if (pokemon_indexes)
 		delete pokemon_indexes;
+	if (statuses_texture)
+		delete statuses_texture;
+	if (pokemon_icons)
+		delete pokemon_icons;
+	if (icon_indexes)
+		delete icon_indexes;
 }
 
 void ResourceCache::LoadAll()
@@ -215,6 +224,12 @@ void ResourceCache::LoadPokemon()
 		//the leak reportings are false
 	}
 	delete d;
+
+	statuses_texture = new PaletteTexture();
+	statuses_texture->loadFromFile(ResourceCache::GetResourceLocation(string("gui/hp_statuses.png")));
+	pokemon_icons = new PaletteTexture();
+	pokemon_icons->loadFromFile(ResourceCache::GetResourceLocation(string("pokemon/icons.png")));
+	icon_indexes = ReadFile(ResourceCache::GetResourceLocation(string("pokemon/icon_indexes.dat")).c_str());
 
 #ifdef _DEBUG
 	cout << "Done\n";

@@ -15,18 +15,21 @@ public:
 		//generate some pokemon for testing
 		for (int i = 0; i < 6; i++)
 		{
-			party[i] = Pokemon(rand() % 190, rand() % 99 + 2);
+			party[i] = new Pokemon(rand() % 190, rand() % 99 + 2);
 		}
 	}
 	~PlayerProperties()
 	{
 		//we can't delete the inventory here because of circular inclusion
+		for (int i = 0; i < 6; i++)
+			if (party[i])
+				delete party[i];
 	}
 
 	ItemStorage* GetInventory() { return inventory; }
 	OverworldEntity* GetCorrespondingEntity() { return corresponding_entity; }
 	Options& GetOptions(){ return options; }
-	Pokemon* GetParty() { return party; }
+	Pokemon** GetParty() { return party; }
 
 	void SetInventory(ItemStorage* i) { inventory = i; }
 
@@ -34,6 +37,6 @@ private:
 	ItemStorage* inventory;
 	OverworldEntity* corresponding_entity;
 	Options options;
-	Pokemon party[6];
+	Pokemon* party[6];
 	unsigned char pokemon_count;
 };

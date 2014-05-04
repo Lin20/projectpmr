@@ -41,6 +41,7 @@ public:
 	unsigned char growth_rate;
 	unsigned char catch_rate;
 	unsigned char xp_yield;
+	unsigned int hp;
 
 	string original_name;
 	string nickname;
@@ -74,6 +75,8 @@ public:
 	void RecalculateStats();
 
 	static unsigned int CalculateStat(unsigned char base, unsigned char dv, unsigned int xp, unsigned char level);
+
+	static unsigned int CalculateStatXP(unsigned int xp, unsigned char level);
 
 private:
 };

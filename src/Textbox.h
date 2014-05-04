@@ -44,6 +44,7 @@ public:
 	void ResetSelection() { active_index = inactive_index = scroll_pos = 0; }
 	bool IsDone() { return auto_close_timer > 0; }
 	void SetJustOpened() { menu_open_delay = MENU_DELAY_TIME; }
+	unsigned char* GetTiles() { return tiles; } //allows for external tile editing
 
 	int GetScrollIndex() { return active_index - scroll_pos; }
 	bool SetToClose() { return close; }
@@ -51,6 +52,14 @@ public:
 	void CancelClose() { close = false; }
 	bool DeleteOnClose() { return delete_on_close; }
 	void CancelSwitch() { cancel_switch = true; }
+
+	void SetRenderCallback(std::function<void(sf::RenderWindow* w)> f)
+	{
+		if (f)
+			this->render_callback = f;
+		else
+			this->render_callback = nullptr;
+	}
 
 private:
 	sf::Vector2i pos;
@@ -60,6 +69,7 @@ private:
 	bool cancel_switch;
 	bool close_when_no_children; //make the textbox close when its children have been closed
 	bool hide_frame;
+	std::function<void(sf::RenderWindow* t)> render_callback; //function called when update loop finishes
 
 	//menu-related stuff
 	bool is_menu; //is this textbox a menu?

@@ -337,6 +337,8 @@ void MapScene::SetPalette(sf::Color* pal)
 
 	ResourceCache::GetMenuTexture()->SetPalette(pal);
 	ResourceCache::GetFontTexture()->SetPalette(pal);
+	ResourceCache::GetStatusesTexture()->SetPalette(pal);
+	ResourceCache::GetPokemonIcons()->SetPalette(pal);
 
 	for (unsigned int i = 0; i < entities.size(); i++)
 	{

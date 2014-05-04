@@ -23,16 +23,21 @@ bool TextboxParent::UpdateTextboxes()
 	active->Update();
 	if (index != textboxes.size() - 1)
 		return true;
-	if (active->SetToClose())
+	for (unsigned int i = 0; i < textboxes.size(); i++)
 	{
-		if (active->DeleteOnClose())
+		if (!textboxes[i])
+			continue;
+		if (textboxes[i]->SetToClose())
 		{
-			delete active;
-			textboxes[textboxes.size() - 1] = 0;
+			if (textboxes[i]->DeleteOnClose())
+			{
+				delete textboxes[i];
+				textboxes[i] = 0;
+			}
+			else
+				textboxes[i]->CancelClose();
+			textboxes.erase(textboxes.begin() + i--);
 		}
-		else
-			active->CancelClose();
-		textboxes.pop_back();
 	}
 	return true;
 }
