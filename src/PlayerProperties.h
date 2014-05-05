@@ -15,7 +15,10 @@ public:
 		//generate some pokemon for testing
 		for (int i = 0; i < 6; i++)
 		{
-			party[i] = new Pokemon(rand() % 190, rand() % 99 + 2);
+			int ind = rand() % 190;
+			while (ResourceCache::GetPokedexIndex(ind) > 151)
+				ind = rand() % 190;
+			party[i] = new Pokemon(ind, rand() % 99 + 2);
 		}
 	}
 	~PlayerProperties()

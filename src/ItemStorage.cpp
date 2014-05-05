@@ -50,7 +50,7 @@ void ItemStorage::GenerateItems()
 			{
 				Textbox* t = new Textbox();
 				t->SetText(new TextItem(t, [this](TextItem*){this->GetMenu()->SetArrowState(ArrowStates::ACTIVE); this->GetMenu()->CloseAll(); }, pokestring("That's too impor-\ntant to toss!\f")));
-				this->GetMenu()->ShowTextbox(t);
+				this->GetMenu()->ShowTextbox(t, false);
 			}
 			else
 			{
@@ -71,7 +71,7 @@ void ItemStorage::GenerateItems()
 							threwaway->SetText(new TextItem(threwaway, [this](TextItem* src) {
 								this->RemoveItemFromSlot(this->GetMenu()->GetInactiveIndex(), this->GetMenu()->GetTextboxes()[1]->GetCounterValue()); this->GetMenu()->ResetSelection(); this->GetMenu()->SetArrowState(ArrowStates::ACTIVE); this->GetMenu()->CloseAll();
 							}, pokestring("Threw away\n").append(ResourceCache::GetItemName(this->GetItems()[this->GetMenu()->GetInactiveIndex()].id)).append(pokestring(".\f"))));
-							this->GetMenu()->ShowTextbox(threwaway);
+							this->GetMenu()->ShowTextbox(threwaway, false);
 						};
 
 						from->GetParent()->CancelClose();
@@ -81,11 +81,11 @@ void ItemStorage::GenerateItems()
 						yesno->GetItems().push_back(new TextItem(yesno, toss_final, pokestring("YES")));
 						yesno->GetItems().push_back(new TextItem(yesno, close_all, pokestring("NO")));
 						yesno->UpdateMenu();
-						from->GetParent()->ShowTextbox(yesno);
+						from->GetParent()->ShowTextbox(yesno, false);
 					};
 					Textbox* tb = new Textbox();
 					tb->SetText(new TextItem(tb, confirm_toss_b, pokestring("Is it OK to toss\n").append(ResourceCache::GetItemName(this->GetItems()[this->GetMenu()->GetInactiveIndex()].id)).append(pokestring("?\f"))));
-					this->GetMenu()->ShowTextbox(tb);
+					this->GetMenu()->ShowTextbox(tb, false);
 				};
 				auto close_all = [this](TextItem* yesnosrc)
 				{
@@ -96,7 +96,7 @@ void ItemStorage::GenerateItems()
 
 				Textbox* t = new Textbox(15, 9, 5, 3);
 				t->SetCounter(true, 1, this->GetItems()[item->index].quantity, confirm, close_all);
-				this->GetMenu()->ShowTextbox(t);
+				this->GetMenu()->ShowTextbox(t, false);
 				this->GetMenu()->GetTextboxes()[0]->SetArrowState(ArrowStates::INACTIVE);
 			}
 		};
@@ -108,7 +108,7 @@ void ItemStorage::GenerateItems()
 			{
 				this->GetMenu()->GetTextboxes()[0]->Close();
 			}, pokestring("You just used\n").append(ResourceCache::GetItemName(item->value)).append(pokestring("."))));
-			item->GetParent()->ShowTextbox(t);
+			item->GetParent()->ShowTextbox(t, false);
 			item->GetParent()->SetArrowState(ArrowStates::INACTIVE);
 		};
 
@@ -121,7 +121,7 @@ void ItemStorage::GenerateItems()
 		usetoss->GetItems().push_back(new TextItem(usetoss, toss, pokestring("TOSS"), this->GetMenu()->GetInactiveIndex(), this->GetItems()[this->GetMenu()->GetInactiveIndex()].id));
 		usetoss->UpdateMenu();
 		usetoss->SetArrowState(ArrowStates::ACTIVE);
-		menu->ShowTextbox(usetoss);
+		menu->ShowTextbox(usetoss, false);
 	};
 
 	menu->ClearItems();

@@ -3,15 +3,16 @@
 
 Pokemon::Pokemon(unsigned char index, unsigned char l)
 {
- 	id = index;
+	id = index;
 	level = l;
-	pokedex_index = ResourceCache::GetPokedexIndex(index);
-	ot = 0;
+	pokedex_index = ResourceCache::GetPokedexIndex(index - 1);
+	ot = rand() % 100000;
 	xp = 0;
-	original_name = ResourceCache::GetPokemonName(index);
+	original_name = ResourceCache::GetPokemonName(index - 1);
 	nickname = original_name;
 	type1 = 0;
 	type2 = 0;
+	ot_name = pokestring("Lin");
 
 	DataBlock* data = ResourceCache::GetPokemonStats(pokedex_index - 1);
 	if (data)
@@ -40,14 +41,15 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 	ev_speed = 0;
 	ev_special = 0;
 
-	dv_hp = rand() % 16;
-	dv_attack = 0;
-	dv_defense = 0;
-	dv_speed = 0;
-	dv_special = 0;
+	dv_attack = rand() % 16;
+	dv_defense = rand() % 16;
+	dv_speed = rand() % 16;
+	dv_special =  rand() % 16;
+	dv_hp = ((attack & 1) << 3) | ((defense & 1) << 2) | ((speed & 1) << 1) | (special & 1);
 
 	RecalculateStats();
-	hp = max_hp / (rand() % 10 + 1);
+	int by = rand() % 6 + 1;
+	hp = max_hp / (by)* (rand() % by + 1);
 }
 
 Pokemon::~Pokemon()
@@ -56,7 +58,7 @@ Pokemon::~Pokemon()
 
 void Pokemon::RecalculateStats()
 {
-	max_hp = (base_hp + dv_hp + 50) * level / 50 + 10 + CalculateStatXP(ev_hp, level);
+	max_hp = (unsigned int)((float)(base_hp + dv_hp + 50) * (float)level / 50.0f + 10.0f + (float)CalculateStatXP(ev_hp, level));
 	attack = CalculateStat(base_attack, dv_attack, ev_attack, level);
 	defense = CalculateStat(base_defense, dv_defense, ev_defense, level);
 	speed = CalculateStat(base_speed, dv_speed, ev_speed, level);
@@ -65,10 +67,66 @@ void Pokemon::RecalculateStats()
 
 unsigned int Pokemon::CalculateStat(unsigned char base, unsigned char dv, unsigned int ev, unsigned char level)
 {
-	return (base + dv + 50) * level / 50 + 5 + CalculateStatXP(ev, level);
+	return (unsigned int)((float)(base + dv + 50) * (float)level / 50.0f + 5.0f + CalculateStatXP(ev, level));
 }
 
-unsigned int Pokemon::CalculateStatXP(unsigned int xp, unsigned char level)
+float Pokemon::CalculateStatXP(unsigned int xp, unsigned char level)
 {
-	return (unsigned int)((sqrt(xp - 1.0) + 1.0) * (double)level / 400.0);
+	if (xp == 0)
+		return 0;
+	float f = (float)((sqrt((double)xp - 1.0) + 1.0) * (double)level / 400.0);
+	return f;
+}
+
+const char* Pokemon::GetTypeName(unsigned char type)
+{
+	switch (type)
+	{
+	case 0x00:
+		return "NORMAL";
+		break;
+	case 0x01:
+		return "FIGHTING";
+		break;
+	case 0x02:
+		return "FLYING";
+		break;
+	case 0x03:
+		return "POISON";
+		break;
+	case 0x04:
+		return "GROUND";
+		break;
+	case 0x05:
+		return "ROCK";
+		break;
+	case 0x07:
+		return "BUG";
+		break;
+	case 0x08:
+		return "GHOST";
+		break;
+	case 0x14:
+		return "FIRE";
+		break;
+	case 0x15:
+		return "WATER";
+		break;
+	case 0x16:
+		return "GRASS";
+		break;
+	case 0x17:
+		return "ELECTRIC";
+		break;
+	case 0x18:
+		return "PSYCHIC";
+		break;
+	case 0x19:
+		return "ICE";
+		break;
+	case 0x1A:
+		return "DRAGON";
+		break;
+	}
+	return "UNKNOWN";
 }

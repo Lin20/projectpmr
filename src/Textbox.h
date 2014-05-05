@@ -34,6 +34,7 @@ public:
 
 	void UpdateMenu();
 	void UpdateCounter();
+	void InitializeSwitch();
 
 	sf::Vector2i GetPosition() { return pos; }
 	sf::Vector2u GetSize() { return size; }
@@ -41,6 +42,7 @@ public:
 	unsigned int GetActiveIndex() { return active_index; }
 	unsigned int GetInactiveIndex() { return inactive_index; }
 	unsigned char GetCounterValue() { return counter_value; }
+	unsigned char GetArrowState() { return arrow_state; }
 	void ResetSelection() { active_index = inactive_index = scroll_pos = 0; }
 	bool IsDone() { return auto_close_timer > 0; }
 	void SetJustOpened() { menu_open_delay = MENU_DELAY_TIME; }
@@ -52,6 +54,7 @@ public:
 	void CancelClose() { close = false; }
 	bool DeleteOnClose() { return delete_on_close; }
 	void CancelSwitch() { cancel_switch = true; }
+	bool IsSwitchCanceled() { return cancel_switch; }
 
 	void SetRenderCallback(std::function<void(sf::RenderWindow* w)> f)
 	{

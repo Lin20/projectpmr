@@ -1,6 +1,7 @@
 #pragma once
 
 #include "StringConverter.h"
+#include <math.h>
 
 //this is never going to be used without the inclusion of Pokemon.h
 //so why not just declare it here
@@ -42,6 +43,7 @@ public:
 	unsigned char catch_rate;
 	unsigned char xp_yield;
 	unsigned int hp;
+	string ot_name;
 
 	string original_name;
 	string nickname;
@@ -76,7 +78,8 @@ public:
 
 	static unsigned int CalculateStat(unsigned char base, unsigned char dv, unsigned int xp, unsigned char level);
 
-	static unsigned int CalculateStatXP(unsigned int xp, unsigned char level);
+	static float CalculateStatXP(unsigned int xp, unsigned char level);
+	static const char* GetTypeName(unsigned char type);
 
 private:
 };

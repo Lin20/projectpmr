@@ -135,11 +135,32 @@ void Textbox::Update()
 		}
 		else if (InputController::KeyDownOnce(INPUT_A)) //press a
 		{
-			items[active_index]->Action();
+			if ((menu_flags & MenuFlags::SWITCHABLE) && (menu_flags & MenuFlags::A_TO_SWITCH) && (arrow_state & ArrowStates::ACTIVE) && (arrow_state & ArrowStates::INACTIVE) && switch_callback != nullptr)
+			{
+				switch_callback();
+				if (!cancel_switch)
+				{
+					TextItem* t = items[active_index];
+					items[active_index] = items[inactive_index];
+					items[inactive_index] = t;
+					SetArrowState(ArrowStates::ACTIVE);
+					UpdateMenu();
+				}
+				cancel_switch = false;
+			}
+			else
+				items[active_index]->Action();
 		}
 		else if (InputController::KeyDownOnce(INPUT_B)) //press b
 		{
-			Close();
+			if ((menu_flags & MenuFlags::SWITCHABLE) && (menu_flags & MenuFlags::A_TO_SWITCH) && (arrow_state & ArrowStates::ACTIVE) && (arrow_state & ArrowStates::INACTIVE) && switch_callback != nullptr)
+			{
+				CancelSwitch();
+				SetArrowState(ArrowStates::ACTIVE);
+				switch_callback();
+			}
+			else
+				Close();
 		}
 		else
 			scroll_timer = 0;
@@ -250,7 +271,7 @@ void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start
 	this->menu_flags = flags;
 	this->scroll_start = scroll_start;
 	this->switch_last_item = can_switch_last;
-	this->menu_open_delay = MENU_DELAY_TIME;
+	//this->menu_open_delay = MENU_DELAY_TIME;
 
 	//for assigning close_callback, you'd think if we passed nullptr to callback and assigned close_callback to callback, close_callback would be assigned nullptr
 	//but no, for some stupid reason the gcc doesn't like that. >:(
@@ -315,7 +336,10 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 		for (int y = pos.y; y < (int)(pos.y + size.y); y++)
 		{
 			//determine which frame tile to draw
-			sprite8x8.setTexture(*frame);
+			if (!hide_frame || menu_open_delay != 0)
+				sprite8x8.setTexture(*frame);
+			else
+				sprite8x8.setTexture(*ResourceCache::GetStatusesTexture(0));
 			unsigned char tile = MENU_BLANK;
 			if (x == pos.x && y == pos.y)
 				tile = (hide_frame ? MENU_BLANK : MENU_CORNER_UL);
@@ -341,16 +365,20 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 					tile = (unsigned char)tiles[(x - pos.x - 1) + (y - pos.y - 1) * (size.x - 2)];
 					if (tile >= 0x80) //use the font texture
 						sprite8x8.setTexture(*ResourceCache::GetFontTexture());
-					else if (tile >= 0x20 && tile < 0x40)
+					else if (tile == MENU_BLANK)
+						sprite8x8.setTexture(*frame);
+					/*else if (tile >= 0x10 && tile < 0x40)
 					{
-						sprite8x8.setTexture(*ResourceCache::GetStatusesTexture());
-						tile -= 0x20;
-					}
+						sprite8x8.setTexture(*ResourceCache::GetStatusesTexture(0));
+						tile -= 0x10;
+					}*/
 					tile &= 0x7F;
 				}
 				else
 					tile = MENU_BLANK; //has intentionally making something seem like it's lagging ever been done before?
 			}
+			if (tile == MENU_BLANK)
+				sprite8x8.setTexture(*frame);
 
 			src_rect.left = (tile % 16) * 8;
 			src_rect.top = (tile / 16) * 8;
@@ -371,7 +399,7 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 			DrawArrow(window, true);
 	}
 
-	if (render_callback != nullptr)
+	if (!menu_open_delay && render_callback != nullptr)
 		render_callback(window);
 
 	for (unsigned int i = 0; i < textboxes.size(); i++)
@@ -587,4 +615,10 @@ void Textbox::Scroll(bool up)
 			active_index = 0;
 		}
 	}
+}
+
+void Textbox::InitializeSwitch()
+{
+	SetArrowState(ArrowStates::ACTIVE | ArrowStates::INACTIVE);
+	inactive_index = active_index;
 }

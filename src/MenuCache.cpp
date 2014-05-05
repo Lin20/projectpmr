@@ -37,7 +37,7 @@ Textbox* MenuCache::StartMenu(std::vector<Textbox*>* owner)
 		Textbox* message = new Textbox();
 		message->SetText(new TextItem(start_menu, [](TextItem* source)->void { start_menu->SetArrowState(ArrowStates::ACTIVE); }, pokestring(string("Sorry! That\nfeature has not\vbeen implemented\vyet.").c_str())));
 		start_menu->SetArrowState(ArrowStates::INACTIVE);
-		start_menu->ShowTextbox(message);
+		start_menu->ShowTextbox(message, false);
 	};
 	start_menu->GetItems().push_back(new TextItem(start_menu, doe, pokestring("POKÈDEX"), 0));
 	start_menu->GetItems().push_back(new TextItem(start_menu, [](TextItem* source){PokemonMenu()->UpdatePokemon(Players::GetPlayer1()->GetParty()); PokemonMenu()->Show(start_menu); }, pokestring("POKÈMON"), 1));

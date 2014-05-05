@@ -13,7 +13,8 @@ enum MenuFlags
 	FOCUSABLE =		1,
 	WRAPS =			2,
 	HOLD_INPUT =	4, //whether or not a button can be held to cycle through items
-	SWITCHABLE =	8
+	SWITCHABLE =	8,
+	A_TO_SWITCH =	16 //whether or not A can be pressed to finish a switch
 };
 
 //the state the cursor is in (flags because of moving items with both visible)
@@ -97,7 +98,7 @@ enum ArrowStates
 #define TEXT_TIMER_BLANK	20
 #define TEXT_AUTOCLOSE_MAX	80
 
-#define MESSAGE_AUTOCLOSE	0x40
+#define MESSAGE_AUTOCLOSE	0x4E
 #define MESSAGE_LINE		0x4F
 #define MESSAGE_ENDNAME		0x50
 #define MESSAGE_PARA		0x51
@@ -117,6 +118,7 @@ enum ArrowStates
 #define PAL_1_RGBA	2829625599
 #define PAL_2_RGBA	1616929023
 #define PAL_3_RGBA	255
+#define POKE_DEFAULT_PAL	16
 
 //temporary input
 #define INPUT_UP		sf::Keyboard::Key::W

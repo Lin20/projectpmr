@@ -337,8 +337,14 @@ void MapScene::SetPalette(sf::Color* pal)
 
 	ResourceCache::GetMenuTexture()->SetPalette(pal);
 	ResourceCache::GetFontTexture()->SetPalette(pal);
-	ResourceCache::GetStatusesTexture()->SetPalette(pal);
-	ResourceCache::GetPokemonIcons()->SetPalette(pal);
+	for (int i = 0; i < 3; i++)
+	{
+		sf::Color hp[4] = { pal[0], ResourceCache::GetPalette(31 + i)[0], ResourceCache::GetPalette(31 + i)[2], ResourceCache::GetPalette(31 + i)[3] };
+		ResourceCache::GetStatusesTexture(i)->SetPalette(hp);
+	}
+
+	sf::Color palette[4] = { pal[0], ResourceCache::GetPalette(POKE_DEFAULT_PAL)[0], ResourceCache::GetPalette(POKE_DEFAULT_PAL)[1], ResourceCache::GetPalette(POKE_DEFAULT_PAL)[3] };
+	ResourceCache::GetPokemonIcons()->SetPalette(palette);
 
 	for (unsigned int i = 0; i < entities.size(); i++)
 	{

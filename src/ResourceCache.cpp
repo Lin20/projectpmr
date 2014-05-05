@@ -21,7 +21,7 @@ bool ResourceCache::key_items[256];
 DataBlock* ResourceCache::pokemon_stats[256];
 DataBlock* ResourceCache::pokemon_indexes = 0;
 string ResourceCache::pokemon_names[256];
-PaletteTexture* ResourceCache::statuses_texture = 0;
+PaletteTexture* ResourceCache::statuses_texture[3];
 PaletteTexture* ResourceCache::pokemon_icons = 0;
 DataBlock* ResourceCache::icon_indexes = 0;
 
@@ -74,8 +74,11 @@ void ResourceCache::ReleaseResources()
 	}
 	if (pokemon_indexes)
 		delete pokemon_indexes;
-	if (statuses_texture)
-		delete statuses_texture;
+	for (int i = 0; i < 3; i++)
+	{
+		if (statuses_texture[i])
+			delete statuses_texture[i];
+	}
 	if (pokemon_icons)
 		delete pokemon_icons;
 	if (icon_indexes)
@@ -225,8 +228,11 @@ void ResourceCache::LoadPokemon()
 	}
 	delete d;
 
-	statuses_texture = new PaletteTexture();
-	statuses_texture->loadFromFile(ResourceCache::GetResourceLocation(string("gui/hp_statuses.png")));
+	for (int i = 0; i < 3; i++)
+	{
+		statuses_texture[i] = new PaletteTexture();
+		statuses_texture[i]->loadFromFile(ResourceCache::GetResourceLocation(string("gui/hp_statuses.png")));
+	}
 	pokemon_icons = new PaletteTexture();
 	pokemon_icons->loadFromFile(ResourceCache::GetResourceLocation(string("pokemon/icons.png")));
 	icon_indexes = ReadFile(ResourceCache::GetResourceLocation(string("pokemon/icon_indexes.dat")).c_str());
