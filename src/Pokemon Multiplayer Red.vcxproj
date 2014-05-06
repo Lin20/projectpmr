@@ -111,6 +111,7 @@
     <ClInclude Include="InputController.h" />
     <ClInclude Include="ItemStorage.h" />
     <ClInclude Include="MenuCache.h" />
+    <ClInclude Include="Move.h" />
     <ClInclude Include="NPC.h" />
     <ClInclude Include="Opcodes.h" />
     <ClInclude Include="Options.h" />

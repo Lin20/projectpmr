@@ -1,6 +1,7 @@
 #pragma once
 
 #include "StringConverter.h"
+#include "Move.h"
 #include <math.h>
 
 //this is never going to be used without the inclusion of Pokemon.h
@@ -73,13 +74,21 @@ public:
 	unsigned char dv_defense;
 	unsigned char dv_speed;
 	unsigned char dv_special;
+	
+	unsigned char size_x;
+	unsigned char size_y;
+
+	Move moves[4];
 
 	void RecalculateStats();
+
+	unsigned int GetXPRemaining() { return GetXPAt(level + 1, growth_rate) - xp; }
 
 	static unsigned int CalculateStat(unsigned char base, unsigned char dv, unsigned int xp, unsigned char level);
 
 	static float CalculateStatXP(unsigned int xp, unsigned char level);
 	static const char* GetTypeName(unsigned char type);
+	static unsigned int GetXPAt(unsigned char level, unsigned char exp_type);
 
 private:
 };

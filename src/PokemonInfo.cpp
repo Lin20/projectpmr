@@ -84,7 +84,7 @@ void PokemonInfo::UpdatePokemon(Pokemon** party)
 		//now append the level
 		if (party[i]->level < 100)
 			s.insert(s.end(), 0xC); //L:
-		s.append(pokestring(itos(party[i]->level)));
+		s.append(pokestring(itos(party[i]->level).c_str()));
 		s.insert(s.end(), MESSAGE_LINE);
 		s.insert(s.end(), MENU_BLANK);
 		s.insert(s.end(), 0xF); //H
@@ -105,7 +105,7 @@ void PokemonInfo::UpdatePokemon(Pokemon** party)
 			s.insert(s.end(), MENU_BLANK);
 		if (party[i]->max_hp < 100)
 			s.insert(s.end(), MENU_BLANK);
-		s.append(pokestring(itos(party[i]->max_hp)));
+		s.append(pokestring(itos(party[i]->max_hp).c_str()));
 
 		menu->GetItems().push_back(new TextItem(menu, select, s, i, party[i]->id));
 	}
@@ -154,12 +154,25 @@ void PokemonInfo::DrawIcons(sf::RenderWindow* window)
 				src_rect.left = (t % 16) * 8 + (mirrored && x == 1 ? 8 : 0);
 				src_rect.top = (t / 16) * 8;
 				src_rect.width = (mirrored && x == 1 ? -8 : 8);
-				sprite8x8.setTextureRect(src_rect);
+				src_rect.height = 8;
 
 				dest_x = (int)(8 + x * 8 + (mirrored && x == 1 ? 1 - x : 0) * 8);
 				dest_y = (int)(i * 16 + y * 8);
 				if (i == last_hover && (c == 1 || c == 2) && selection_delay >= reset_point / 2)
-					dest_y--;
+				{
+					//this used to just move the ball/shell up one pixel
+					//however, some sprites above it will get cut off at the bottom
+					//so we need to keep it positioned in the same place but move the tile src up
+					if (y == 0)
+					{
+						src_rect.top++;
+						src_rect.height--;
+					}
+					else
+						dest_y--;
+				}
+
+				sprite8x8.setTextureRect(src_rect);
 				sprite8x8.setPosition((float)dest_x, (float)dest_y);
 				window->draw(sprite8x8);
 			}
@@ -217,22 +230,37 @@ void PokemonInfo::DrawHPBar(sf::RenderWindow* window, sf::Sprite& sprite8x8, sf:
 		src_rect.left = (c % 16) * 8;
 		src_rect.top = c / 16 * 8;
 		sprite8x8.setTextureRect(src_rect);
-		sprite8x8.setPosition((h + x) * 8, y * 8);
+		sprite8x8.setPosition((float)((h + x) * 8), (float)(y * 8));
 		window->draw(sprite8x8);
 	}
 }
 
 void PokemonInfo::DisplaySummary(Pokemon* p)
 {
-	Textbox* top = new Textbox(-1, 0, 22, 9, true, true);
+	Textbox* top = new Textbox(-1, 0, 22, 11, true, true);
 	top->SetMenu(true, 4, sf::Vector2i(9, 0), sf::Vector2u(0, 0));
-	top->SetRenderCallback([this](sf::RenderWindow* r) { sf::Sprite s; sf::IntRect ir; this->DrawHPBar(r, s, ir, 13, 3, this->GetParty()[this->GetMenu()->GetActiveIndex()]); });
+	top->SetRenderCallback([this](sf::RenderWindow* r) {
+		sf::Sprite s;
+		sf::IntRect ir;
+		if (this->GetMenu()->GetTextboxes().size() > 3)
+		{
+			this->DrawHPBar(r, s, ir, 13, 3, this->GetParty()[this->GetMenu()->GetActiveIndex()]);
+		}
+		s.setTexture(*ResourceCache::GetPokemonFront(this->GetParty()[this->GetMenu()->GetActiveIndex()]->pokedex_index), true);
+		ir.left = this->GetParty()[this->GetMenu()->GetActiveIndex()]->size_x * 8;
+		ir.top = 0;
+		ir.width = -this->GetParty()[this->GetMenu()->GetActiveIndex()]->size_x * 8;
+		ir.height = this->GetParty()[this->GetMenu()->GetActiveIndex()]->size_y * 8;
+		s.setTextureRect(ir);
+		s.setPosition(64 + ir.width, 56 - ir.height);
+		r->draw(s);
+	});
 
 	string s = p->nickname;
 	s.append(pokestring("\n     "));
 	if (p->level < 100)
 		s.insert(s.end(), 0xC);
-	s.append(pokestring(itos(p->level)));
+	s.append(pokestring(itos(p->level).c_str()));
 	s.insert(s.end(), MESSAGE_LINE);
 	s.append(pokestring("  "));
 	s.insert(s.end(), 0xF); //H
@@ -249,13 +277,15 @@ void PokemonInfo::DisplaySummary(Pokemon* p)
 		s.insert(s.end(), MENU_BLANK);
 	if (p->max_hp < 100)
 		s.insert(s.end(), MENU_BLANK);
-	s.append(pokestring(itos(p->max_hp)));
-	s.append(pokestring("\n\nSTATUS/OK"));
+	s.append(pokestring(itos(p->max_hp).c_str()));
+	s.append(pokestring("\n\nSTATUS/OK   "));
+	s.insert(s.end(), 0x12);
+	s.append(pokestring(string(".").append(p->pokedex_index < 100 ? "0" : "").append(p->pokedex_index < 10 ? "0" : "").append(itos(p->pokedex_index)).c_str()));
 
 	top->GetItems().push_back(new TextItem(top, nullptr, s));
 	top->UpdateMenu();
 
-	for (int i = 0; i < 7; i++)
+	for (int i = 1; i < 7; i++)
 		top->GetTiles()[i * 20 - 1] = (i != 3 ? 0x21 : 0x1E);
 	top->GetTiles()[6 * 20 + 8] = 0x20;
 	for (int i = 0; i < 10; i++)
@@ -273,7 +303,7 @@ void PokemonInfo::DisplaySummary(Pokemon* p)
 	s = 0x11;
 	s.insert(s.end(), 0x12);
 	s.append(pokestring("/\n  "));
-	s.append(pokestring(itos(p->ot)));
+	s.append(pokestring(itos(p->ot).c_str()));
 	bottom->GetItems().push_back(new TextItem(bottom, nullptr, s));
 	bottom->GetItems().push_back(new TextItem(bottom, nullptr, string(pokestring("OT/\n  ")).append(p->ot_name)));
 	bottom->UpdateMenu();
@@ -288,32 +318,113 @@ void PokemonInfo::DisplaySummary(Pokemon* p)
 	this->GetMenu()->ShowTextbox(bottom);
 
 
+	auto f = [this](TextItem* src) { this->DisplaySummary2(this->GetParty()[this->GetMenu()->GetActiveIndex()]); };
 	Textbox* stats = new Textbox(0, 8, 10, 10);
-	stats->SetMenu(true, 4, sf::Vector2i(0, 0), sf::Vector2u(0, 2));
+	stats->SetMenu(true, 4, sf::Vector2i(0, 0), sf::Vector2u(0, 2), f, MenuFlags::FOCUSABLE, 2147u, nullptr, true, sf::Vector2i(-1, 0));
 	s = "ATTACK\n";
 	for (int i = 0; i < 5 + (p->attack < 10 ? 2 : p->attack < 100 ? 1 : 0); i++)
 		s.append(" ");
 	s.append(itos(p->attack));
-	stats->GetItems().push_back(new TextItem(stats, nullptr, pokestring(s)));
+	stats->GetItems().push_back(new TextItem(stats, f, pokestring(s)));
 
 	s = "DEFENSE\n";
 	for (int i = 0; i < 5 + (p->defense < 10 ? 2 : p->defense < 100 ? 1 : 0); i++)
 		s.append(" ");
 	s.append(itos(p->defense));
-	stats->GetItems().push_back(new TextItem(stats, nullptr, pokestring(s)));
+	stats->GetItems().push_back(new TextItem(stats, f, pokestring(s)));
 
 	s = "SPEED\n";
 	for (int i = 0; i < 5 + (p->speed < 10 ? 2 : p->speed < 100 ? 1 : 0); i++)
 		s.append(" ");
 	s.append(itos(p->speed));
-	stats->GetItems().push_back(new TextItem(stats, nullptr, pokestring(s)));
+	stats->GetItems().push_back(new TextItem(stats, f, pokestring(s)));
 
 	s = "SPECIAL\n";
 	for (int i = 0; i < 5 + (p->special < 10 ? 2 : p->special < 100 ? 1 : 0); i++)
 		s.append(" ");
 	s.append(itos(p->special));
-	stats->GetItems().push_back(new TextItem(stats, nullptr, pokestring(s)));
+	stats->GetItems().push_back(new TextItem(stats, f, pokestring(s)));
 
 	stats->UpdateMenu();
+	stats->SetArrowState(ArrowStates::ACTIVE);
 	this->GetMenu()->ShowTextbox(stats);
+}
+
+void PokemonInfo::DisplaySummary2(Pokemon* p)
+{
+	this->GetMenu()->GetTextboxes()[this->GetMenu()->GetTextboxes().size() - 1]->Close(true);
+	this->GetMenu()->GetTextboxes()[this->GetMenu()->GetTextboxes().size() - 2]->Close(true);
+
+	Textbox* top = this->GetMenu()->GetTextboxes()[1];
+	top->ClearItems();
+	string s = p->nickname;
+	s.append(pokestring("\n\nEXP POINTS\n   "));
+	unsigned int digits = (p->xp > 0 ? (unsigned int)floor(log10(p->xp) + 1) : 1);
+	for (int i = 0; i < 7 - digits; i++)
+		s.insert(s.end(), MENU_BLANK);
+	s.append(pokestring(itos(p->xp).c_str()));
+	s.append(pokestring("\nLEVEL UP\n"));
+	digits = (p->GetXPRemaining() > 0 ? (unsigned int)floor(log10(p->GetXPRemaining())) : 1);
+	for (int i = 0; i < 4 - digits; i++)
+		s.insert(s.end(), MENU_BLANK);
+	s.append(pokestring(itos(p->GetXPRemaining()).c_str()));
+	s.insert(s.end(), 14); //to
+	s.insert(s.end(), MENU_BLANK);
+	unsigned char l = (p->level < 100 ? p->level + 1 : 100);
+	if (l < 100)
+		s.insert(s.end(), 0xC); //L:
+	s.append(pokestring(itos(l).c_str()));
+	if (l < 10)
+		s.insert(s.end(), MENU_BLANK);
+	s.insert(s.end(), MENU_BLANK);
+	s.insert(s.end(), MENU_BLANK);
+
+	s.insert(s.end(), 0x12);
+	s.append(pokestring(string(".").append(p->pokedex_index < 100 ? "0" : "").append(p->pokedex_index < 10 ? "0" : "").append(itos(p->pokedex_index)).c_str()));
+
+	top->GetItems().push_back(new TextItem(top, nullptr, s));
+	top->UpdateMenu();
+
+	for (int i = 1; i < 7; i++)
+		top->GetTiles()[i * 20 - 1] = 0x21;
+	top->GetTiles()[6 * 20 + 8] = 0x20;
+	for (int i = 0; i < 10; i++)
+		top->GetTiles()[6 * 20 + 9 + i] = 0x24;
+	top->GetTiles()[7 * 20 - 1] = 0x25;
+
+	auto f = [this](TextItem* src)
+	{
+		this->GetMenu()->GetTextboxes()[this->GetMenu()->GetTextboxes().size() - 1]->Close(true);
+		this->GetMenu()->GetTextboxes()[this->GetMenu()->GetTextboxes().size() - 2]->Close(true);
+		this->GetMenu()->GetTextboxes()[this->GetMenu()->GetTextboxes().size() - 3]->Close(true);
+		this->GetMenu()->SetArrowState(ArrowStates::ACTIVE);
+		this->GetMenu()->SetJustOpened();
+		this->GetChooseTextbox()->SetJustOpened();
+	};
+
+	Textbox* moves = new Textbox(0, 8, 20, 10);
+	moves->SetMenu(true, 4, sf::Vector2i(1, 0), sf::Vector2u(0, 2), f, MenuFlags::FOCUSABLE, 2147u, nullptr, true, sf::Vector2i(-2, 0));
+	moves->SetArrowState(ArrowStates::ACTIVE);
+	for (int i = 0; i < 4; i++)
+	{
+		string s = p->moves[i].name;
+		s.append(pokestring("\n         "));
+		if (p->moves[i].index > 0)
+		{
+			s.append(pokestring("PP "));
+			if (p->moves[i].pp < 10)
+				s.insert(s.end(), MENU_BLANK);
+			s.append(pokestring(itos(p->moves[i].pp).c_str()));
+			s.append(pokestring("/"));
+			if (p->moves[i].max_pp < 10)
+				s.insert(s.end(), MENU_BLANK);
+			s.append(pokestring(itos(p->moves[i].max_pp).c_str()));
+		}
+		else
+			s.append(pokestring("--"));
+		moves->GetItems().push_back(new TextItem(moves, f, s));
+	}
+	moves->UpdateMenu();
+
+	this->GetMenu()->ShowTextbox(moves, false);
 }

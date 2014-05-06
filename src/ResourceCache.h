@@ -33,6 +33,8 @@ public:
 	static void LoadPalettes();
 	static void LoadMisc();
 	static void LoadPokemon();
+	static void LoadMoves();
+
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 	static void ReleaseResources();
 
@@ -87,6 +89,13 @@ public:
 	inline static PaletteTexture* GetStatusesTexture(unsigned char color) { return statuses_texture[color % 3]; }
 	inline static PaletteTexture* GetPokemonIcons() { return pokemon_icons; }
 	inline static char GetIconIndex(unsigned char pokedex_index) { if (icon_indexes) return icon_indexes->data[pokedex_index]; return 0; }
+	inline static char GetPokemonPaletteIndex(unsigned char index) { if (mon_palette_indexes) return mon_palette_indexes->data[index]; return 0; }
+	inline static PaletteTexture* GetPokemonFront(unsigned char index) { return pokemon_front[index]; }
+	inline static PaletteTexture* GetPokemonBack(unsigned char index) { return pokemon_back[index]; }
+	inline static DataBlock* GetPokemonLeveling(unsigned char index) { return pokemon_leveling[index]; }
+
+	inline static string& GetMoveName(unsigned char index) { return move_names[index]; }
+	inline static DataBlock* GetMoveData() { return move_data; }
 
 private:
 	//tilesets
@@ -118,4 +127,12 @@ private:
 	static PaletteTexture* statuses_texture[3]; //3 for each hp bar color
 	static PaletteTexture* pokemon_icons;
 	static DataBlock* icon_indexes;
+	static PaletteTexture* pokemon_front[256];
+	static PaletteTexture* pokemon_back[256];
+	static DataBlock* mon_palette_indexes;
+	static DataBlock* pokemon_leveling[256];
+
+	//move stuff
+	static string move_names[256];
+	static DataBlock* move_data;
 };

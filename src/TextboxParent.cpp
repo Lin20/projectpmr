@@ -22,8 +22,6 @@ bool TextboxParent::UpdateTextboxes()
 	if (!active || active->SetToClose())
 		return false;
 	active->Update();
-	if (index != textboxes.size() - 1)
-		return true;
 	for (unsigned int i = 0; i < textboxes.size(); i++)
 	{
 		if (!textboxes[i])

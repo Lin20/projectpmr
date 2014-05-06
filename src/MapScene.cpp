@@ -64,6 +64,10 @@ void MapScene::Update()
 				focus_entity->StartMoving(ENTITY_RIGHT);
 				TryResetWarp();
 			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
+			{
+				Players::GetPlayer1()->RandomParty();
+			}
 			else
 				focus_entity->StopMoving();
 

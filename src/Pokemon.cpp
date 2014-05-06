@@ -7,7 +7,6 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 	level = l;
 	pokedex_index = ResourceCache::GetPokedexIndex(index - 1);
 	ot = rand() % 100000;
-	xp = 0;
 	original_name = ResourceCache::GetPokemonName(index - 1);
 	nickname = original_name;
 	type1 = 0;
@@ -31,10 +30,17 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 		catch_rate = data->getc();
 		xp_yield = data->getc();
 
+		unsigned char size = data->getc();
+		size_x = size & 0xF;
+		size_y = (size >> 4) & 0xF;
+
 		//moves
-		data->getc(); data->getc(); data->getc(); data->getc();
+		for (int i = 0; i < 4; i++)
+			moves[i] = Move(data->getc());
 		growth_rate = data->getc();
 	}
+
+	xp = GetXPAt(l, growth_rate);
 	ev_hp = 0;
 	ev_attack = 0;
 	ev_defense = 0;
@@ -44,7 +50,7 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 	dv_attack = rand() % 16;
 	dv_defense = rand() % 16;
 	dv_speed = rand() % 16;
-	dv_special =  rand() % 16;
+	dv_special = rand() % 16;
 	dv_hp = ((attack & 1) << 3) | ((defense & 1) << 2) | ((speed & 1) << 1) | (special & 1);
 
 	RecalculateStats();
@@ -129,4 +135,23 @@ const char* Pokemon::GetTypeName(unsigned char type)
 		break;
 	}
 	return "UNKNOWN";
+}
+
+unsigned int Pokemon::GetXPAt(unsigned char level, unsigned char exp_type)
+{
+	level = min(100u, (unsigned int)level);
+	switch (exp_type)
+	{
+	default: //case 1 and 2 never actually occur...
+		return level * level * level;
+
+	case 3:
+		return (unsigned int)(((1.2 * pow(level, 3u)) - (15.0 * pow(level, 2u)) + (100.0 * (double)level - 140.0)));
+
+	case 4:
+		return (unsigned int)(pow(level, 3u) * .8);
+
+	case 5:
+		return (unsigned int)(pow(level, 3u) * 1.25);
+	}
 }

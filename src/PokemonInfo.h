@@ -20,6 +20,7 @@ public:
 	unsigned char CalculateHPBars(unsigned int hp, unsigned int max_hp);
 	void SwapPokemon();
 	void DisplaySummary(Pokemon* p);
+	void DisplaySummary2(Pokemon* p);
 
 	void DrawHPBar(sf::RenderWindow* window, sf::Sprite& sprite8x8, sf::IntRect& src_rect, int x, int y, Pokemon* p);
 
