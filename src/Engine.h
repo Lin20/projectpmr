@@ -9,19 +9,20 @@
 class Engine
 {
 public:
-	Engine();
-	~Engine();
+	static void Initialize();
+	static void Update();
+	static void Render(sf::RenderWindow* w);
 
-	void Update();
-	void Render(sf::RenderWindow* w);
+	static void SwitchState(unsigned char state);
 
-	void SwitchState(States state);
+	static void Release();
+
+	static Scene* GetActiveScene() { return active_scene; }
+	static unsigned char GetState() { return game_state; }
 
 private:
-	ResourceCache resources;
+	static Scene* active_scene;
+	static MapScene* map_scene; //the main scene where the player walks around
 
-	Scene* active_scene;
-	MapScene* map_scene; //the main scene where the player walks around
-
-	States game_state;
+	static unsigned char game_state;
 };

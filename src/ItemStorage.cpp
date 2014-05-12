@@ -1,9 +1,10 @@
 #include "ItemStorage.h"
 
-ItemStorage::ItemStorage()
+ItemStorage::ItemStorage(PlayerProperties* owner)
 {
+	this->owner = owner;
 	for (int i = 0; i < MAX_ITEMS; i++)
-		items.push_back(Item((i < 15 ? i + 1 : 0), rand() % 20 + 5));
+		items.push_back(Item(0x14, 2));
 
 	auto switch_items = [this]()
 	{
@@ -103,13 +104,14 @@ void ItemStorage::GenerateItems()
 
 		auto use = [this](TextItem* item)
 		{
-			Textbox* t = new Textbox();
+			item->GetParent()->SetArrowState(ArrowStates::INACTIVE);
+			ItemActions::UseItem(this, item, item->value);
+			/*Textbox* t = new Textbox();
 			t->SetText(new TextItem(t, [this](TextItem* src)
 			{
 				this->GetMenu()->GetTextboxes()[0]->Close();
 			}, pokestring("You just used\n").append(ResourceCache::GetItemName(item->value)).append(pokestring("."))));
-			item->GetParent()->ShowTextbox(t, false);
-			item->GetParent()->SetArrowState(ArrowStates::INACTIVE);
+			item->GetParent()->ShowTextbox(t, false);*/
 		};
 
 		this->GetMenu()->SetArrowState(ArrowStates::INACTIVE);

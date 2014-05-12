@@ -24,6 +24,7 @@ public:
 
 	void SetFrame(char x, char y, unsigned char width, unsigned char height);
 	void SetText(TextItem* text);
+	void SetText(string text);
 	void SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void(TextItem* source)> = nullptr, unsigned int flags = MenuFlags::NONE, unsigned int scroll_start = INT_MAX, std::function<void()> switch_callback = nullptr, bool can_switch_last = true, sf::Vector2i arrow_offset = sf::Vector2i());
 	void ClearItems();
 	void SetCounter(bool is_counter, unsigned char min, unsigned char max, std::function<void()> action_callback = nullptr, std::function<void(TextItem* source)> close_callback = nullptr);
@@ -31,6 +32,13 @@ public:
 	void SetMenuFlags(unsigned int f) { menu_flags = f; }
 	void SetArrowState(unsigned int f) { arrow_state = f; if (f == ArrowStates::INACTIVE) inactive_index = active_index; }
 	void FlashCursor() { if (cursor_visibility_timer == 0) cursor_visibility_timer = CURSOR_VIS_TIME; }
+	void SetCloseCallback(std::function<void(TextItem* source)> close_callback = nullptr)
+	{
+		if (close_callback)
+			this->close_callback = close_callback;
+		else
+			this->close_callback = nullptr;
+	}
 
 	void UpdateMenu();
 	void UpdateCounter();

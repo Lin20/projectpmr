@@ -6,15 +6,17 @@
 #include "Events.h"
 #include "Textbox.h"
 #include "MenuCache.h"
+#include "ItemActions.h"
 
 using namespace std;
 
 class ItemStorage
 {
 public:
-	ItemStorage();
+	ItemStorage(PlayerProperties* owner);
 	~ItemStorage();
 
+	PlayerProperties* GetOwner() { return owner; }
 	vector<Item>& GetItems() { return items; }
 	Textbox* GetMenu() { return menu; }
 	bool AddItem(unsigned char id, unsigned char quantity);
@@ -27,6 +29,8 @@ public:
 	void RemoveItem(Item i) { RemoveItem(i.id, i.quantity); }
 
 private:
+	PlayerProperties* owner;
+
 	vector<Item> items;
 	Textbox* menu;
 

@@ -5,13 +5,16 @@ PokemonInfo::PokemonInfo()
 	menu = 0;
 	choose_textbox = 0;
 	selection_delay = 0;
+	delta_hp = 0;
+	delta_hp_timer = 0;
+	selected_bar_length = 0;
 
 	//although the bottom textbox looks like an ordinary textbox,
 	//the current textbox class doesn't support instant full printout of text.
 	//so we can just fake it by making it a display-only menu
 	choose_textbox = new Textbox(0, 12, 20, 6, false);
-	choose_textbox->SetMenu(true, 1, sf::Vector2i(0, 1), sf::Vector2u(0, 2));
-	choose_textbox->GetItems().push_back(new TextItem(choose_textbox, nullptr, pokestring("Choose a #MON.")));
+	choose_textbox->SetMenu(true, 1, sf::Vector2i(0, 1), sf::Vector2u(0, 2), nullptr, MenuFlags::FOCUSABLE, 2147U, nullptr, true, sf::Vector2i(-10, 0));
+	choose_textbox->GetItems().push_back(new TextItem(choose_textbox, [this](TextItem* src) {this->GetChooseTextbox()->Close(); }, pokestring("Choose a #MON.")));
 	choose_textbox->UpdateMenu();
 
 	//i spent over an hour on this trying to find out why it wouldn't switch properly.
@@ -44,8 +47,41 @@ PokemonInfo::~PokemonInfo()
 
 void PokemonInfo::Show(Textbox* parent)
 {
+	choose_textbox->ClearItems();
+	choose_textbox->GetItems().push_back(new TextItem(choose_textbox, nullptr, pokestring("Choose a #MON.")));
+	choose_textbox->UpdateMenu();
+	menu->SetCloseCallback([this](TextItem* src) { this->GetChooseTextbox()->Close(true); });
+	menu->SetArrowState(ArrowStates::ACTIVE);
 	parent->ShowTextbox(choose_textbox);
 	parent->ShowTextbox(menu);
+}
+
+void PokemonInfo::Show(Textbox* parent, string text, std::function<void(TextItem* src)> select_callback, std::function<void(TextItem* src)> close_callback)
+{
+	this->parent = parent;
+	this->GetChooseTextbox()->ClearItems();
+	this->GetChooseTextbox()->GetItems().push_back(new TextItem(choose_textbox, nullptr, text));
+	this->GetChooseTextbox()->UpdateMenu();
+	this->GetMenu()->SetCloseCallback(close_callback);
+	menu->SetArrowState(ArrowStates::ACTIVE);
+
+	for (unsigned int i = 0; i < this->GetMenu()->GetItems().size(); i++)
+	{
+		if (this->GetMenu()->GetItems()[i])
+			this->GetMenu()->GetItems()[i]->SetAction(select_callback);
+	}
+	parent->ShowTextbox(choose_textbox);
+	parent->ShowTextbox(menu);
+}
+
+void PokemonInfo::FocusChooseTextbox()
+{
+	parent->GetTextboxes().erase(parent->GetTextboxes().begin() + parent->GetTextboxes().size() - 2);
+	parent->GetTextboxes().push_back(choose_textbox);
+	menu->SetArrowState(ArrowStates::HIDDEN);
+	choose_textbox->GetItems()[0]->SetAction([this](TextItem* src) {this->GetChooseTextbox()->Close(); });
+	choose_textbox->SetArrowState(ArrowStates::ACTIVE);
+	choose_textbox->SetCloseCallback([this](TextItem* src) { menu->Close(); });
 }
 
 void PokemonInfo::UpdatePokemon(Pokemon** party)
@@ -85,6 +121,11 @@ void PokemonInfo::UpdatePokemon(Pokemon** party)
 		if (party[i]->level < 100)
 			s.insert(s.end(), 0xC); //L:
 		s.append(pokestring(itos(party[i]->level).c_str()));
+		if (party[i]->level < 10)
+			s.insert(s.end(), MENU_BLANK);
+		s.insert(s.end(), MENU_BLANK);
+		if (party[i]->status != Statuses::OK)
+			s.append(pokestring(party[i]->GetStatusName(party[i]->status)));
 		s.insert(s.end(), MESSAGE_LINE);
 		s.insert(s.end(), MENU_BLANK);
 		s.insert(s.end(), 0xF); //H
@@ -118,7 +159,31 @@ void PokemonInfo::DrawHPBars(sf::RenderWindow* window)
 	sf::Sprite sprite8x8;
 	for (int i = 0; i < 6; i++)
 	{
-		DrawHPBar(window, sprite8x8, src_rect, 6, i * 2 + 1, party[i]);
+		unsigned int pixels = CalculateHPBars(party[i]->hp, party[i]->max_hp);
+		if (i == menu->GetActiveIndex() && delta_hp != 0)
+		{
+			pixels = selected_bar_length;
+			if (delta_hp_timer > 0)
+			{
+				delta_hp_timer--;
+			}
+			else
+			{
+				delta_hp_timer = 1;
+				unsigned int difference = CalculateHPBars(party[i]->hp + (delta_hp > 0 ? 1 : -1), party[i]->max_hp) - pixels;
+				if (!difference)
+				{
+					party[i]->hp += (delta_hp > 0 ? 1 : -1);
+					delta_hp -= (delta_hp > 0 ? 1 : -1);
+				}
+				else
+				{
+					selected_bar_length += (delta_hp > 0 ? 1 : -1);
+					pixels = selected_bar_length;
+				}
+			}
+		}
+		DrawHPBar(window, sprite8x8, src_rect, 6, i * 2 + 1, party[i], pixels);
 	}
 }
 
@@ -204,11 +269,10 @@ void PokemonInfo::SwapPokemon()
 	choose_textbox->UpdateMenu();
 }
 
-void PokemonInfo::DrawHPBar(sf::RenderWindow* window, sf::Sprite& sprite8x8, sf::IntRect& src_rect, int x, int y, Pokemon* p)
+void PokemonInfo::DrawHPBar(sf::RenderWindow* window, sf::Sprite& sprite8x8, sf::IntRect& src_rect, int x, int y, Pokemon* p, unsigned int pixels)
 {
 	src_rect.width = 8;
 	src_rect.height = 8;
-	unsigned char pixels = CalculateHPBars(p->hp, p->max_hp);
 	if (pixels < 10)
 		sprite8x8.setTexture(*ResourceCache::GetStatusesTexture(2));
 	else if (pixels < 27)
@@ -235,6 +299,15 @@ void PokemonInfo::DrawHPBar(sf::RenderWindow* window, sf::Sprite& sprite8x8, sf:
 	}
 }
 
+void PokemonInfo::Heal(int amount)
+{
+	unsigned int index = menu->GetActiveIndex();
+	menu->SetArrowState(ArrowStates::INACTIVE);
+	delta_hp = amount;
+	delta_hp_timer = 2;
+	selected_bar_length = CalculateHPBars(party[menu->GetActiveIndex()]->hp, party[menu->GetActiveIndex()]->max_hp);
+}
+
 void PokemonInfo::DisplaySummary(Pokemon* p)
 {
 	Textbox* top = new Textbox(-1, 0, 22, 11, true, true);
@@ -244,7 +317,7 @@ void PokemonInfo::DisplaySummary(Pokemon* p)
 		sf::IntRect ir;
 		if (this->GetMenu()->GetTextboxes().size() > 3)
 		{
-			this->DrawHPBar(r, s, ir, 13, 3, this->GetParty()[this->GetMenu()->GetActiveIndex()]);
+			this->DrawHPBar(r, s, ir, 13, 3, this->GetParty()[this->GetMenu()->GetActiveIndex()], CalculateHPBars(party[menu->GetActiveIndex()]->hp, party[menu->GetActiveIndex()]->max_hp));
 		}
 		s.setTexture(*ResourceCache::GetPokemonFront(this->GetParty()[this->GetMenu()->GetActiveIndex()]->pokedex_index), true);
 		ir.left = this->GetParty()[this->GetMenu()->GetActiveIndex()]->size_x * 8;
@@ -252,7 +325,7 @@ void PokemonInfo::DisplaySummary(Pokemon* p)
 		ir.width = -this->GetParty()[this->GetMenu()->GetActiveIndex()]->size_x * 8;
 		ir.height = this->GetParty()[this->GetMenu()->GetActiveIndex()]->size_y * 8;
 		s.setTextureRect(ir);
-		s.setPosition(64 + ir.width, 56 - ir.height);
+		s.setPosition((float)(64 + ir.width), (float)(56 - ir.height));
 		r->draw(s);
 	});
 
@@ -278,8 +351,8 @@ void PokemonInfo::DisplaySummary(Pokemon* p)
 	if (p->max_hp < 100)
 		s.insert(s.end(), MENU_BLANK);
 	s.append(pokestring(itos(p->max_hp).c_str()));
-	s.append(pokestring("\n\nSTATUS/OK   "));
-	s.insert(s.end(), 0x12);
+	s.append(pokestring("\n\nSTATUS/").append(pokestring(Pokemon::GetStatusName(p->status))).append(pokestring("  ")));
+	s.insert(s.end(), 0x12); //No
 	s.append(pokestring(string(".").append(p->pokedex_index < 100 ? "0" : "").append(p->pokedex_index < 10 ? "0" : "").append(itos(p->pokedex_index)).c_str()));
 
 	top->GetItems().push_back(new TextItem(top, nullptr, s));
@@ -360,12 +433,12 @@ void PokemonInfo::DisplaySummary2(Pokemon* p)
 	string s = p->nickname;
 	s.append(pokestring("\n\nEXP POINTS\n   "));
 	unsigned int digits = (p->xp > 0 ? (unsigned int)floor(log10(p->xp) + 1) : 1);
-	for (int i = 0; i < 7 - digits; i++)
+	for (unsigned int i = 0; i < 7 - digits; i++)
 		s.insert(s.end(), MENU_BLANK);
 	s.append(pokestring(itos(p->xp).c_str()));
 	s.append(pokestring("\nLEVEL UP\n"));
 	digits = (p->GetXPRemaining() > 0 ? (unsigned int)floor(log10(p->GetXPRemaining())) : 1);
-	for (int i = 0; i < 4 - digits; i++)
+	for (unsigned int i = 0; i < 4 - digits; i++)
 		s.insert(s.end(), MENU_BLANK);
 	s.append(pokestring(itos(p->GetXPRemaining()).c_str()));
 	s.insert(s.end(), 14); //to

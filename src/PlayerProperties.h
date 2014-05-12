@@ -13,6 +13,7 @@ public:
 	{
 		for (int i = 0; i < 6; i++)
 			party[i] = 0;
+		name = pokestring("Lin");
 		RandomParty();
 	}
 	~PlayerProperties()
@@ -27,6 +28,7 @@ public:
 	OverworldEntity* GetCorrespondingEntity() { return corresponding_entity; }
 	Options& GetOptions(){ return options; }
 	Pokemon** GetParty() { return party; }
+	string& GetName() { return name; }
 	void RandomParty()
 	{
 		pokemon_count = 6;
@@ -38,13 +40,14 @@ public:
 			int ind = rand() % 190;
 			while (ResourceCache::GetPokedexIndex(ind) > 151)
 				ind = rand() % 190;
-			party[i] = new Pokemon(ind, rand() % 99 + 2);
+			party[i] = new Pokemon(0x49, 100);
 		}
 	}
 
 	void SetInventory(ItemStorage* i) { inventory = i; }
 
 private:
+	string name;
 	ItemStorage* inventory;
 	OverworldEntity* corresponding_entity;
 	Options options;

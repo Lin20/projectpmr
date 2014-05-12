@@ -258,7 +258,14 @@ void Textbox::SetText(TextItem* text)
 	this->text = text;
 	this->text_tile_pos = size.x - 2;
 	this->text_pos = 0;
-	this->text_timer = TEXT_TIMER_BLANK; //there's usually a delay before the textbox starts
+	this->text_timer = 0; //there's usually a delay before the textbox starts
+}
+
+void Textbox::SetText(string text)
+{
+	ClearItems();
+	SetText(new TextItem(this, nullptr, text));
+	is_menu = false;
 }
 
 void Textbox::SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void(TextItem* source)> callback, unsigned int flags, unsigned int scroll_start, std::function<void()> switch_callback, bool can_switch_last, sf::Vector2i arrow_off)

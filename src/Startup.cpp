@@ -25,8 +25,8 @@ using namespace std;
 
 int main()
 {
-	//_crtBreakAlloc = 6132;
-	Engine engine;
+	//_crtBreakAlloc = 29693;
+	Engine::Initialize();
 
 	sf::RenderWindow window(sf::VideoMode(VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16), "SFML works!");
 
@@ -43,15 +43,15 @@ int main()
 		}
 
 		window.clear();
-		engine.Update();
-		engine.Render(&window);
+		Engine::Update();
+		Engine::Render(&window);
 		window.display();
 	}
 
 	Players::ReleaseResources();
 	MenuCache::ReleaseResources();
 	ResourceCache::ReleaseResources();
-	engine.~Engine(); //this makes memory leak detection easier
+	Engine::Release();
 
 #ifdef _WIN32
 #ifdef _DEBUG

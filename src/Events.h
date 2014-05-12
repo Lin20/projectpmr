@@ -1,4 +1,5 @@
 #pragma once
+#include "DataBlock.h"
 
 struct Warp
 {
@@ -47,4 +48,57 @@ struct Item
 	}
 
 	bool Empty() { return id == 0 || quantity == 0; }
+};
+
+struct Evolution
+{
+	unsigned char trigger;
+	unsigned char item;
+	unsigned char level;
+	unsigned char pokemon;
+
+	Evolution(unsigned char _trigger = 0, unsigned char _item = 0, unsigned char _level = 0, unsigned char _pokemon = 0)
+	{
+		trigger = _trigger;
+		item = _item;
+		level = _level;
+		pokemon = _pokemon;
+	}
+
+	void Load(DataBlock* d)
+	{
+		trigger = d->getc();
+		if (!trigger)
+			return;
+		switch (trigger)
+		{
+		case 2:
+			item = d->getc();
+		case 1:
+		case 3:
+			level = d->getc();
+			pokemon = d->getc();
+			break;
+		}
+	}
+};
+
+struct LearnsetMove
+{
+	unsigned char level;
+	unsigned char move;
+
+	LearnsetMove(unsigned char _level = 0, unsigned char _move = 0)
+	{
+		level = _level;
+		move = _move;
+	}
+
+	void Load(DataBlock* d)
+	{
+		level = d->getc();
+		if (!level)
+			return;
+		move = d->getc();
+	}
 };

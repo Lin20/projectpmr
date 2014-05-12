@@ -2,8 +2,9 @@
 
 enum States
 {
-	OVERWORLD,
-	OVERWORLD_MENU
+	OVERWORLD = 0,
+	BATTLE = 1,
+	SAFARIBATTLE = 2
 };
 
 //how the menu functions

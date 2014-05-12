@@ -1,23 +1,20 @@
 #include "Engine.h"
 
-Engine::Engine()
+Scene* Engine::active_scene = 0;
+MapScene* Engine::map_scene = 0;
+
+unsigned char Engine::game_state = 0;
+
+void Engine::Initialize()
 {
-	resources.LoadAll();
+	ResourceCache::LoadAll();
 	Players::Initialize();
 
 	//Initialize the scenes
 	map_scene = new MapScene();
-	
-	SwitchState(States::OVERWORLD);
-}
 
-Engine::~Engine()
-{
-	if (map_scene)
-	{
-		delete map_scene;
-		map_scene = 0;
-	}
+	SwitchState(States::OVERWORLD);
+
 }
 
 void Engine::Update()
@@ -30,7 +27,7 @@ void Engine::Render(sf::RenderWindow* window)
 	active_scene->Render(window);
 }
 
-void Engine::SwitchState(States s)
+void Engine::SwitchState(unsigned char s)
 {
 	game_state = s;
 	switch (game_state)
@@ -41,4 +38,13 @@ void Engine::SwitchState(States s)
 	}
 
 	active_scene->NotifySwitchedTo();
+}
+
+void Engine::Release()
+{
+	if (map_scene)
+	{
+		delete map_scene;
+		map_scene = 0;
+	}
 }

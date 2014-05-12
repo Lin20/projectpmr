@@ -2,6 +2,7 @@
 
 #include "StringConverter.h"
 #include "Move.h"
+#include "Events.h"
 #include <math.h>
 
 //this is never going to be used without the inclusion of Pokemon.h
@@ -23,6 +24,16 @@ enum Types
 	PSYCHIC = 0x18,
 	ICE = 0x19,
 	DRAGON = 0x1A,
+};
+
+enum Statuses
+{
+	OK = 0,
+	POISONED = 1,
+	SLEEPING = 2,
+	PARALYZED = 3,
+	BURNED = 4,
+	FROZEN = 5
 };
 
 class Pokemon
@@ -79,6 +90,10 @@ public:
 	unsigned char size_y;
 
 	Move moves[4];
+	Evolution evolutions[5];
+	LearnsetMove learnset[16];
+
+	unsigned char status;
 
 	void RecalculateStats();
 
@@ -88,6 +103,7 @@ public:
 
 	static float CalculateStatXP(unsigned int xp, unsigned char level);
 	static const char* GetTypeName(unsigned char type);
+	static const char* GetStatusName(unsigned char s);
 	static unsigned int GetXPAt(unsigned char level, unsigned char exp_type);
 
 private:

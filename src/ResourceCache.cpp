@@ -15,8 +15,10 @@ PaletteTexture* ResourceCache::shadow_texture = 0;
 PaletteTexture* ResourceCache::menu_texture = 0;
 PaletteTexture* ResourceCache::font_texture = 0;
 DataBlock* ResourceCache::ascii_table = 0;
+
 string ResourceCache::item_names[256];
 bool ResourceCache::key_items[256];
+unsigned char ResourceCache::item_uses[256];
 
 DataBlock* ResourceCache::pokemon_stats[256];
 DataBlock* ResourceCache::pokemon_indexes = 0;
@@ -118,6 +120,7 @@ void ResourceCache::LoadAll()
 	LoadEntities();
 	LoadPalettes();
 	LoadMisc();
+	LoadItems();
 	LoadPokemon();
 	LoadMoves();
 
@@ -197,7 +200,17 @@ void ResourceCache::LoadMisc()
 	font_texture->loadFromFile(ResourceCache::GetResourceLocation(string("misc/font.png")));
 	ascii_table = ReadFile(ResourceCache::GetResourceLocation(string("misc/ascii_table.dat")).c_str());
 
-	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("misc/items.dat")).c_str());
+#ifdef _DEBUG
+	cout << "Done\n";
+#endif
+}
+
+void ResourceCache::LoadItems()
+{
+#ifdef _DEBUG
+	cout << "--Loading items...";
+#endif
+	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("items/items.dat")).c_str());
 	unsigned char* p = d->data;
 	for (int i = 1; i < 256; i++)
 	{
@@ -212,8 +225,12 @@ void ResourceCache::LoadMisc()
 	}
 
 	delete d;
-	d = ReadFile(ResourceCache::GetResourceLocation(string("misc/keyitems.dat")).c_str());
+	d = ReadFile(ResourceCache::GetResourceLocation(string("items/keyitems.dat")).c_str());
 	memcpy(key_items, d->data, 256);
+	delete d;
+
+	d = ReadFile(ResourceCache::GetResourceLocation(string("items/uses.dat")).c_str());
+	memcpy(item_uses, d->data, 256);
 	delete d;
 
 #ifdef _DEBUG
@@ -270,7 +287,7 @@ void ResourceCache::LoadPokemon()
 		pokemon_front[i]->SetPalette(GetPalette(mon_palette_indexes->data[i]));
 		pokemon_back[i]->SetPalette(GetPalette(mon_palette_indexes->data[i]));
 
-		pokemon_leveling[i] = ReadFile(ResourceCache::GetResourceLocation(string("pokemon/leveling/").append(itos(i)).append(".png")));
+		pokemon_leveling[i] = ReadFile(ResourceCache::GetResourceLocation(string("pokemon/leveling/").append(itos(i)).append(".dat")));
 	}
 
 #ifdef _DEBUG
@@ -283,7 +300,6 @@ void ResourceCache::LoadMoves()
 #ifdef _DEBUG
 	cout << "--Loading moves...";
 #endif
-
 	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("moves/names.dat")).c_str());
 	unsigned char* p = d->data;
 	for (int i = 0; i < 256; i++)

@@ -78,6 +78,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="ItemActions.cpp" />
     <ClCompile Include="ItemStorage.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapScene.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="Events.h" />
     <ClInclude Include="Fade.h" />
     <ClInclude Include="InputController.h" />
+    <ClInclude Include="ItemActions.h" />
     <ClInclude Include="ItemStorage.h" />
     <ClInclude Include="MenuCache.h" />
     <ClInclude Include="Move.h" />

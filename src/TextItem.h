@@ -38,6 +38,14 @@ public:
 		//pokestring(this->text);
 	}
 
+	void SetAction(std::function<void(TextItem* source)> action_callback = nullptr)
+	{
+		if (action_callback)
+			this->callback = action_callback;
+		else
+			this->callback = nullptr;
+	}
+
 	string& GetText() { return text; }
 	Textbox* GetParent() { return owner_textbox; }
 

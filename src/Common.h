@@ -29,6 +29,8 @@ struct MapConnection;
 struct Warp;
 struct Sign;
 struct Entity;
+struct Evolution;
+struct LearnsetMove;
 
 class Script;
 struct Variable;

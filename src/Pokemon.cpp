@@ -12,6 +12,8 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 	type1 = 0;
 	type2 = 0;
 	ot_name = pokestring("Lin");
+	status = rand() % 5 + 1;
+	unsigned char move_count = 0;
 
 	DataBlock* data = ResourceCache::GetPokemonStats(pokedex_index - 1);
 	if (data)
@@ -36,8 +38,60 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 
 		//moves
 		for (int i = 0; i < 4; i++)
+		{
 			moves[i] = Move(data->getc());
+			if (moves[i].index)
+				move_count++;
+		}
 		growth_rate = data->getc();
+	}
+
+	data = ResourceCache::GetPokemonLeveling(index - 1);
+	if (data)
+	{
+		data->data = data->data_start;
+		for (int i = 0; i < 5; i++)
+		{
+			evolutions[i].Load(data);
+			if (evolutions[i].trigger == 0)
+			{
+				for (int k = i + 1; k < 5; k++)
+					evolutions[i].trigger = 0;
+				break;
+			}
+		}
+
+		for (int i = 0; i < 16; i++)
+		{
+			learnset[i].Load(data);
+			if (!learnset[i].level)
+			{
+				for (int k = i + 1; k < 16; k++)
+					learnset[i].level = 0;
+				break;
+			}
+		}
+	}
+
+	//determine the pokemon's moveset
+	for (int i = 0; i < 16; i++)
+	{
+		if (learnset[i].level && learnset[i].level <= level)
+		{
+			if (move_count < 4)
+			{
+				moves[move_count++] = Move(learnset[i].move);
+			}
+			else
+			{
+				//this was causing problems unfortunately. problem related to padding
+				//memcpy(moves, moves + 1, sizeof(Move)* 3);
+				moves[0] = moves[1];
+				moves[1] = moves[2];
+				moves[2] = moves[3];
+				moves[3] = Move(learnset[i].move);
+			}
+		}
 	}
 
 	xp = GetXPAt(l, growth_rate);
@@ -55,7 +109,7 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 
 	RecalculateStats();
 	int by = rand() % 6 + 1;
-	hp = max_hp / (by)* (rand() % by + 1);
+	hp = 24;// max_hp / (by)* (rand() % by + 1);
 }
 
 Pokemon::~Pokemon()
@@ -135,6 +189,26 @@ const char* Pokemon::GetTypeName(unsigned char type)
 		break;
 	}
 	return "UNKNOWN";
+}
+
+const char* Pokemon::GetStatusName(unsigned char s)
+{
+	switch (s)
+	{
+	case Statuses::OK:
+		return "OK ";
+	case Statuses::POISONED:
+		return "PSN";
+	case Statuses::SLEEPING:
+		return "SLP";
+	case Statuses::PARALYZED:
+		return "PAR";
+	case Statuses::BURNED:
+		return "BRN";
+	case Statuses::FROZEN:
+		return "FRZ";
+	}
+	return "OK ";
 }
 
 unsigned int Pokemon::GetXPAt(unsigned char level, unsigned char exp_type)

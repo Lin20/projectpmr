@@ -32,6 +32,7 @@ public:
 	static void LoadEntities();
 	static void LoadPalettes();
 	static void LoadMisc();
+	static void LoadItems();
 	static void LoadPokemon();
 	static void LoadMoves();
 
@@ -82,6 +83,7 @@ public:
 	inline static DataBlock* GetAsciiTable() { return ascii_table; }
 	inline static string& GetItemName(unsigned char index) { return item_names[index]; }
 	inline static bool IsKeyItem(unsigned char index) { return key_items[index]; }
+	inline static unsigned char GetItemUse(unsigned char index) { return item_uses[index]; }
 
 	inline static DataBlock* GetPokemonStats(unsigned char index) { return pokemon_stats[index]; }
 	inline static char GetPokedexIndex(unsigned char created_index) { if (pokemon_indexes) return pokemon_indexes->data[created_index]; return 0; }
@@ -117,8 +119,11 @@ private:
 	static PaletteTexture* menu_texture;
 	static PaletteTexture* font_texture;
 	static DataBlock* ascii_table;
+
+	//items
 	static string item_names[256];
 	static bool key_items[256];
+	static unsigned char item_uses[256];
 
 	//pokemon stuff
 	static DataBlock* pokemon_stats[256];

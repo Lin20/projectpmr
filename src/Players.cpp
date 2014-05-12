@@ -37,5 +37,5 @@ void Players::ReleaseResources()
 
 void Players::InitPlayer(PlayerProperties* p)
 {
-	p->SetInventory(new ItemStorage());
+	p->SetInventory(new ItemStorage(p));
 }
