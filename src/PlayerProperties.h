@@ -38,9 +38,9 @@ public:
 			if (party[i])
 				delete party[i];
 			int ind = rand() % 190;
-			while (ResourceCache::GetPokedexIndex(ind) > 151)
+			while (ResourceCache::GetPokedexIndex(ind - 1) > 151)
 				ind = rand() % 190;
-			party[i] = new Pokemon(0x49, 100);
+			party[i] = new Pokemon(ind, rand() % 98 + 2);
 		}
 	}
 

@@ -90,6 +90,7 @@
     <ClCompile Include="Players.cpp" />
     <ClCompile Include="Pokemon.cpp" />
     <ClCompile Include="PokemonInfo.cpp" />
+    <ClCompile Include="PokemonUtils.cpp" />
     <ClCompile Include="RenderUtils.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Script.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="Players.h" />
     <ClInclude Include="Pokemon.h" />
     <ClInclude Include="PokemonInfo.h" />
+    <ClInclude Include="PokemonUtils.h" />
     <ClInclude Include="RenderUtils.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="TextboxParent.h" />

@@ -84,7 +84,7 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 			}
 			else
 			{
-				//this was causing problems unfortunately. problem related to padding
+				//this was causing problems unfortunately. probably related to padding
 				//memcpy(moves, moves + 1, sizeof(Move)* 3);
 				moves[0] = moves[1];
 				moves[1] = moves[2];
@@ -105,11 +105,11 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 	dv_defense = rand() % 16;
 	dv_speed = rand() % 16;
 	dv_special = rand() % 16;
-	dv_hp = ((attack & 1) << 3) | ((defense & 1) << 2) | ((speed & 1) << 1) | (special & 1);
+	dv_hp = ((dv_attack & 1) << 3) | ((dv_defense & 1) << 2) | ((dv_speed & 1) << 1) | (dv_special & 1);
 
 	RecalculateStats();
-	int by = rand() % 6 + 1;
-	hp = 24;// max_hp / (by)* (rand() % by + 1);
+	int by = rand() % 10 + 1;
+	hp = max_hp / 3 / (by)* (rand() % by + 1);
 }
 
 Pokemon::~Pokemon()

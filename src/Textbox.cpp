@@ -40,7 +40,7 @@ Textbox::~Textbox()
 	//if (delete_on_close)
 	{
 		if (text)
-			delete text;
+		delete text;
 
 		for (unsigned int i = 0; i < items.size(); i++)
 		{
@@ -71,6 +71,10 @@ void Textbox::Update()
 	//try to move the cursor
 	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE) && (arrow_state & ArrowStates::ACTIVE))
 	{
+		if (text_timer > 1)
+		{
+			text_timer--;
+		}
 		//this menu is active, so try to move the cursor up
 		if (InputController::KeyDownOnce(INPUT_UP))
 		{
@@ -92,8 +96,8 @@ void Textbox::Update()
 		else if (InputController::KeyDownOnce(INPUT_DOWN)) //try down now
 		{
 			if (GetScrollIndex() + 1 > (int)scroll_start)
-				if (cursor_visibility_timer == 0)
-					cursor_visibility_timer = CURSOR_VIS_TIME;
+			if (cursor_visibility_timer == 0)
+				cursor_visibility_timer = CURSOR_VIS_TIME;
 			scroll_timer = 0;
 			Scroll(false);
 		}
@@ -133,8 +137,10 @@ void Textbox::Update()
 				}
 			}
 		}
-		else if (InputController::KeyDownOnce(INPUT_A)) //press a
+		else if (InputController::KeyDownOnce(INPUT_A) && text_timer <= 1) //press a
 		{
+			text_timer = 0;
+			arrow_timer = 0;
 			if ((menu_flags & MenuFlags::SWITCHABLE) && (menu_flags & MenuFlags::A_TO_SWITCH) && (arrow_state & ArrowStates::ACTIVE) && (arrow_state & ArrowStates::INACTIVE) && switch_callback != nullptr)
 			{
 				switch_callback();
@@ -151,8 +157,9 @@ void Textbox::Update()
 			else
 				items[active_index]->Action();
 		}
-		else if (InputController::KeyDownOnce(INPUT_B)) //press b
+		else if (InputController::KeyDownOnce(INPUT_B) && text_timer <= 1) //press b
 		{
+			arrow_timer = 0;
 			if ((menu_flags & MenuFlags::SWITCHABLE) && (menu_flags & MenuFlags::A_TO_SWITCH) && (arrow_state & ArrowStates::ACTIVE) && (arrow_state & ArrowStates::INACTIVE) && switch_callback != nullptr)
 			{
 				CancelSwitch();
@@ -160,11 +167,17 @@ void Textbox::Update()
 				switch_callback();
 			}
 			else
-				Close();
+			{
+				if (text_timer > 0)
+					items[active_index]->Action();
+				else
+					Close();
+			}
+			text_timer = 0;
 		}
 		else
 			scroll_timer = 0;
-		if (scroll_pos + display_count < items.size() && arrow_timer == 0)
+		if ((scroll_pos + display_count < items.size() || text_timer == 1) && arrow_timer == 0)
 			arrow_timer = CURSOR_MORE_TIME;
 	}
 	else if (is_counter) //it's a counter
@@ -251,6 +264,11 @@ void Textbox::SetFrame(char x, char y, unsigned char width, unsigned char height
 	tiles = new unsigned char[(width - 2) * (height - 1)];
 	for (int i = 0; i < (width - 2) * (height - 1); i++)
 		tiles[i] = MENU_BLANK;
+}
+
+void Textbox::SetPosition(char x, char y)
+{
+	pos = sf::Vector2i(x, y);
 }
 
 void Textbox::SetText(TextItem* text)
@@ -376,8 +394,8 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 						sprite8x8.setTexture(*frame);
 					/*else if (tile >= 0x10 && tile < 0x40)
 					{
-						sprite8x8.setTexture(*ResourceCache::GetStatusesTexture(0));
-						tile -= 0x10;
+					sprite8x8.setTexture(*ResourceCache::GetStatusesTexture(0));
+					tile -= 0x10;
 					}*/
 					tile &= 0x7F;
 				}
@@ -415,6 +433,7 @@ void Textbox::DrawFrame(sf::RenderWindow* window)
 
 void Textbox::UpdateMenu()
 {
+	text_timer = 0;
 	memset(tiles, MENU_BLANK, (size.x - 2) * (size.y - 1));
 	//this function creates "tiles" for display
 	for (unsigned int i = scroll_pos; i < scroll_pos + display_count && i < items.size(); i++)
@@ -431,6 +450,11 @@ void Textbox::UpdateMenu()
 			{
 				x = item_start.x;
 				y++;
+				continue;
+			}
+			if (at == MESSAGE_PROMPT)
+			{
+				text_timer = 60;
 				continue;
 			}
 			tiles[x + y * (size.x - 2)] = item->text[c];
@@ -570,6 +594,7 @@ void Textbox::ProcessNextCharacter()
 
 void Textbox::Close(bool ignore_callback)
 {
+	text_timer = 0;
 	close = true;
 	if (!ignore_callback && this->close_callback != nullptr)
 		close_callback(0);

@@ -47,6 +47,11 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 		src->GetParent()->ShowTextbox(t, false);
 		break;
 
+	case 0x08: //vitamin
+		MenuCache::PokemonMenu()->UpdatePokemon(Players::GetPlayer1()->GetParty());
+		MenuCache::PokemonMenu()->Show(src->GetParent(), pokestring("Use item on which\n\n#MON?"), UseVitamin, close_pokemon);
+		break;
+
 	case 0x40: //medicine
 		MenuCache::PokemonMenu()->UpdatePokemon(Players::GetPlayer1()->GetParty());
 		MenuCache::PokemonMenu()->Show(src->GetParent(), pokestring("Use item on which\n\n#MON?"), UseMedicine, close_pokemon);
@@ -68,6 +73,16 @@ void ItemActions::UseMedicine(TextItem* src)
 {
 	Pokemon* p = MenuCache::PokemonMenu()->GetParty()[src->index];
 	ItemStorage* items = last_inventory;
+
+	auto heal_callback = [p](TextItem* src)
+	{
+		MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetText(string(p->nickname).append(pokestring("\n\nrecovered by ").append(pokestring(itos(MenuCache::PokemonMenu()->GetHPAmountChanged()).c_str())).append(pokestring("!"))));
+		MenuCache::PokemonMenu()->UpdateOnePokemon(src->index);
+		MenuCache::PokemonMenu()->GetChooseTextbox()->UpdateMenu();
+		MenuCache::PokemonMenu()->FocusChooseTextbox();
+		last_inventory->RemoveItemFromSlot(last_src->index, 1);
+	};
+
 	switch (last_id)
 	{
 	case 0x0B: //antidote
@@ -129,22 +144,113 @@ void ItemActions::UseMedicine(TextItem* src)
 		if (p->status == Statuses::OK)
 			break;
 		p->status = Statuses::OK;
-		MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetText(string(p->nickname).append(pokestring("'s\n\nheatl returned!")));
+		MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetText(string(p->nickname).append(pokestring("'s\n\nhealth returned!")));
 		MenuCache::PokemonMenu()->UpdatePokemon(MenuCache::PokemonMenu()->GetParty());
 		MenuCache::PokemonMenu()->GetChooseTextbox()->UpdateMenu();
 		MenuCache::PokemonMenu()->FocusChooseTextbox();
 		last_inventory->RemoveItemFromSlot(last_src->index, 1);
 		return;
 
+	case 0x10: //full restore
+		if (p->hp == p->max_hp)
+		{
+			if (p->status == Statuses::OK)
+				break;
+			p->status = Statuses::OK;
+			MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetText(string(p->nickname).append(pokestring("'s\n\nhealth returned!")));
+			MenuCache::PokemonMenu()->UpdatePokemon(MenuCache::PokemonMenu()->GetParty());
+			MenuCache::PokemonMenu()->GetChooseTextbox()->UpdateMenu();
+			MenuCache::PokemonMenu()->FocusChooseTextbox();
+			last_inventory->RemoveItemFromSlot(last_src->index, 1);
+			return;
+		}
+		//we need a slightly different callback to restore the status at the end
+		MenuCache::PokemonMenu()->Heal(p->max_hp - p->hp, [p](TextItem* src)
+		{
+			MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetText(string(p->nickname).append(pokestring("\n\nrecovered by ").append(pokestring(itos(MenuCache::PokemonMenu()->GetHPAmountChanged()).c_str())).append(pokestring("!"))));
+			p->status = Statuses::OK;
+			MenuCache::PokemonMenu()->UpdateOnePokemon(src->index);
+			MenuCache::PokemonMenu()->GetMenu()->UpdateMenu();
+			MenuCache::PokemonMenu()->GetChooseTextbox()->UpdateMenu();
+			MenuCache::PokemonMenu()->FocusChooseTextbox();
+			last_inventory->RemoveItemFromSlot(last_src->index, 1);
+		});
+		return;
+
+	case 0x11: //max potion
+		if (p->hp == p->max_hp)
+			break;
+		MenuCache::PokemonMenu()->Heal(p->max_hp - p->hp, heal_callback);
+		return;
+
+	case 0x12: //hyper potion
+		if (p->hp == p->max_hp)
+			break;
+		MenuCache::PokemonMenu()->Heal(200, heal_callback);
+		return;
+
+	case 0x13: //super potion
+		if (p->hp == p->max_hp)
+			break;
+		MenuCache::PokemonMenu()->Heal(50, heal_callback);
+		return;
+
 	case 0x14: //potion
 		if (p->hp == p->max_hp)
 			break;
-		MenuCache::PokemonMenu()->Heal(20);
+		MenuCache::PokemonMenu()->Heal(20, heal_callback);
+		return;
+
+	case 0x28: //rare candy
+
+		break;
+	}
+
+	Textbox* t = new Textbox();
+	t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, pokestring("It won't have any\n\neffect.")));
+	MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+	src->GetParent()->ShowTextbox(t, false);
+}
+
+void ItemActions::UseVitamin(TextItem* src)
+{
+	Pokemon* p = MenuCache::PokemonMenu()->GetParty()[src->index];
+	ItemStorage* items = last_inventory;
+	auto stats = [p,src](TextItem* s)
+	{
+		Textbox* stats = new Textbox(9, 2, 11, 10);
+		stats->SetMenu(true, 4, sf::Vector2i(0, 0), sf::Vector2u(0, 2), [](TextItem* s) {MenuCache::PokemonMenu()->GetChooseTextbox()->Close(); }, MenuFlags::FOCUSABLE, 2147u, nullptr, true, sf::Vector2i(-100, 0));
+		PokemonUtils::WriteStats(stats, p, 1);
+		for (int i = 0; i < 4; i++)
+			stats->GetItems()[i]->SetAction([stats](TextItem* s) {stats->Close(); MenuCache::PokemonMenu()->GetChooseTextbox()->Close(); });
+
+		//for (unsigned int i = 0; i < stats->GetItems().size(); i++)
+		//	stats->GetItems()[i]->SetAction(f);
+		stats->SetArrowState(ArrowStates::ACTIVE);
+		MenuCache::PokemonMenu()->GetChooseTextbox()->ShowTextbox(stats, false);
+	};
+
+	switch (last_id)
+	{
+	case 0x28:
+		if (p->level == 100)
+			break;
+
+		p->level++;
+		MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetText(string(p->nickname).append(pokestring(" grew\n\nto level ").append(pokestring(itos(p->level).c_str())).append(pokestring("!\f"))));
+		p->status = Statuses::OK;
+		MenuCache::PokemonMenu()->UpdateOnePokemon(src->index);
+		MenuCache::PokemonMenu()->GetMenu()->UpdateMenu();
+		MenuCache::PokemonMenu()->GetChooseTextbox()->UpdateMenu();
+		MenuCache::PokemonMenu()->FocusChooseTextbox();
+		MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetAction(stats);
+		//MenuCache::PokemonMenu()->GetChooseTextbox()->SetCloseCallback(stats);
+		last_inventory->RemoveItemFromSlot(last_src->index, 1);
 		return;
 	}
 
 	Textbox* t = new Textbox();
 	t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, pokestring("It won't have any\n\neffect.")));
-	//t->SetText(pokestring("It won't have any\n\neffect."));
+	MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
 	src->GetParent()->ShowTextbox(t, false);
 }

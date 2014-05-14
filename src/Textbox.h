@@ -23,6 +23,7 @@ public:
 	void Render(sf::RenderWindow* window);
 
 	void SetFrame(char x, char y, unsigned char width, unsigned char height);
+	void SetPosition(char x, char y);
 	void SetText(TextItem* text);
 	void SetText(string text);
 	void SetMenu(bool menu, unsigned char display_count, sf::Vector2i start, sf::Vector2u spacing, std::function<void(TextItem* source)> = nullptr, unsigned int flags = MenuFlags::NONE, unsigned int scroll_start = INT_MAX, std::function<void()> switch_callback = nullptr, bool can_switch_last = true, sf::Vector2i arrow_offset = sf::Vector2i());

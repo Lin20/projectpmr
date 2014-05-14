@@ -3,6 +3,7 @@
 #include "Textbox.h"
 #include "Pokemon.h"
 #include "TileMap.h"
+#include "PokemonUtils.h"
 
 class PokemonInfo
 {
@@ -16,6 +17,7 @@ public:
 	Textbox* GetMenu() { return menu; }
 	void FocusChooseTextbox();
 	void UpdatePokemon(Pokemon** party);
+	void UpdateOnePokemon(unsigned char index);
 	void DrawHPBars(sf::RenderWindow* window);
 	void DrawIcons(sf::RenderWindow* window);
 	Pokemon** GetParty() { return party; }
@@ -26,7 +28,8 @@ public:
 
 	void DrawHPBar(sf::RenderWindow* window, sf::Sprite& sprite8x8, sf::IntRect& src_rect, int x, int y, Pokemon* p, unsigned int pixels);
 
-	void Heal(int amount);
+	void Heal(int amount, std::function<void(TextItem* src)> finished);
+	int GetHPAmountChanged() { return hp_amount_changed; }
 
 private:
 	Textbox* menu;
@@ -38,6 +41,8 @@ private:
 
 	//hp recovery and draining
 	int delta_hp;
+	int hp_amount_changed;
 	unsigned char delta_hp_timer;
 	unsigned int selected_bar_length;
+	std::function<void(TextItem* src)> heal_callback;
 };

@@ -114,43 +114,48 @@ void PokemonInfo::UpdatePokemon(Pokemon** party)
 	menu->ClearItems();
 	for (int i = 0; i < 6; i++)
 	{
-		string s = party[i]->nickname;
-		while (s.length() < 10)
-			s.insert(s.end(), MENU_BLANK);
-		//now append the level
-		if (party[i]->level < 100)
-			s.insert(s.end(), 0xC); //L:
-		s.append(pokestring(itos(party[i]->level).c_str()));
-		if (party[i]->level < 10)
-			s.insert(s.end(), MENU_BLANK);
-		s.insert(s.end(), MENU_BLANK);
-		if (party[i]->status != Statuses::OK)
-			s.append(pokestring(party[i]->GetStatusName(party[i]->status)));
-		s.insert(s.end(), MESSAGE_LINE);
-		s.insert(s.end(), MENU_BLANK);
-		s.insert(s.end(), 0xF); //H
-		s.insert(s.end(), 0x00); //P:
-
-		for (int h = 0; h < 6; h++)
-		{
-			s.insert(s.end(), MENU_BLANK);
-		}
-		s.insert(s.end(), 0x0A);
-		if (party[i]->hp < 10)
-			s.insert(s.end(), MENU_BLANK);
-		if (party[i]->hp < 100)
-			s.insert(s.end(), MENU_BLANK);
-		s.append(pokestring(itos(party[i]->hp).append("/")));
-
-		if (party[i]->max_hp < 10)
-			s.insert(s.end(), MENU_BLANK);
-		if (party[i]->max_hp < 100)
-			s.insert(s.end(), MENU_BLANK);
-		s.append(pokestring(itos(party[i]->max_hp).c_str()));
-
-		menu->GetItems().push_back(new TextItem(menu, select, s, i, party[i]->id));
+		menu->GetItems().push_back(new TextItem(menu, select, "", i, party[i]->id));
+		UpdateOnePokemon((unsigned char)i);
 	}
 	menu->UpdateMenu();
+}
+
+void PokemonInfo::UpdateOnePokemon(unsigned char index)
+{
+	string s = party[index]->nickname;
+	while (s.length() < 10)
+		s.insert(s.end(), MENU_BLANK);
+	//now append the level
+	if (party[index]->level < 100)
+		s.insert(s.end(), 0xC); //L:
+	s.append(pokestring(itos(party[index]->level).c_str()));
+	if (party[index]->level < 10)
+		s.insert(s.end(), MENU_BLANK);
+	s.insert(s.end(), MENU_BLANK);
+	if (party[index]->status != Statuses::OK)
+		s.append(pokestring(party[index]->GetStatusName(party[index]->status)));
+	s.insert(s.end(), MESSAGE_LINE);
+	s.insert(s.end(), MENU_BLANK);
+	s.insert(s.end(), 0xF); //H
+	s.insert(s.end(), 0x00); //P:
+
+	for (int h = 0; h < 6; h++)
+	{
+		s.insert(s.end(), MENU_BLANK);
+	}
+	s.insert(s.end(), 0x0A);
+	if (party[index]->hp < 10)
+		s.insert(s.end(), MENU_BLANK);
+	if (party[index]->hp < 100)
+		s.insert(s.end(), MENU_BLANK);
+	s.append(pokestring(itos(party[index]->hp).append("/")));
+
+	if (party[index]->max_hp < 10)
+		s.insert(s.end(), MENU_BLANK);
+	if (party[index]->max_hp < 100)
+		s.insert(s.end(), MENU_BLANK);
+	s.append(pokestring(itos(party[index]->max_hp).c_str()));
+	menu->GetItems()[index]->SetText(s);
 }
 
 void PokemonInfo::DrawHPBars(sf::RenderWindow* window)
@@ -174,7 +179,16 @@ void PokemonInfo::DrawHPBars(sf::RenderWindow* window)
 				if (!difference)
 				{
 					party[i]->hp += (delta_hp > 0 ? 1 : -1);
+					hp_amount_changed += (delta_hp > 0 ? 1 : -1);
+					UpdateOnePokemon(i);
+					menu->UpdateMenu();
 					delta_hp -= (delta_hp > 0 ? 1 : -1);
+					if (party[i]->hp == 0 || party[i]->hp == party[i]->max_hp || delta_hp == 0)
+					{
+						delta_hp = 0;
+						if (heal_callback != nullptr)
+							heal_callback(menu->GetItems()[menu->GetActiveIndex()]);
+					}
 				}
 				else
 				{
@@ -299,8 +313,13 @@ void PokemonInfo::DrawHPBar(sf::RenderWindow* window, sf::Sprite& sprite8x8, sf:
 	}
 }
 
-void PokemonInfo::Heal(int amount)
+void PokemonInfo::Heal(int amount, std::function<void(TextItem* src)> f)
 {
+	if (f)
+		this->heal_callback = f;
+	else
+		this->heal_callback = nullptr;
+	hp_amount_changed = 0;
 	unsigned int index = menu->GetActiveIndex();
 	menu->SetArrowState(ArrowStates::INACTIVE);
 	delta_hp = amount;
@@ -393,32 +412,11 @@ void PokemonInfo::DisplaySummary(Pokemon* p)
 
 	auto f = [this](TextItem* src) { this->DisplaySummary2(this->GetParty()[this->GetMenu()->GetActiveIndex()]); };
 	Textbox* stats = new Textbox(0, 8, 10, 10);
-	stats->SetMenu(true, 4, sf::Vector2i(0, 0), sf::Vector2u(0, 2), f, MenuFlags::FOCUSABLE, 2147u, nullptr, true, sf::Vector2i(-1, 0));
-	s = "ATTACK\n";
-	for (int i = 0; i < 5 + (p->attack < 10 ? 2 : p->attack < 100 ? 1 : 0); i++)
-		s.append(" ");
-	s.append(itos(p->attack));
-	stats->GetItems().push_back(new TextItem(stats, f, pokestring(s)));
+	stats->SetMenu(true, 4, sf::Vector2i(0, 0), sf::Vector2u(0, 2), f, MenuFlags::FOCUSABLE, 2147u, nullptr, true, sf::Vector2i(-100, 0));
+	PokemonUtils::WriteStats(stats, p, 0);
 
-	s = "DEFENSE\n";
-	for (int i = 0; i < 5 + (p->defense < 10 ? 2 : p->defense < 100 ? 1 : 0); i++)
-		s.append(" ");
-	s.append(itos(p->defense));
-	stats->GetItems().push_back(new TextItem(stats, f, pokestring(s)));
-
-	s = "SPEED\n";
-	for (int i = 0; i < 5 + (p->speed < 10 ? 2 : p->speed < 100 ? 1 : 0); i++)
-		s.append(" ");
-	s.append(itos(p->speed));
-	stats->GetItems().push_back(new TextItem(stats, f, pokestring(s)));
-
-	s = "SPECIAL\n";
-	for (int i = 0; i < 5 + (p->special < 10 ? 2 : p->special < 100 ? 1 : 0); i++)
-		s.append(" ");
-	s.append(itos(p->special));
-	stats->GetItems().push_back(new TextItem(stats, f, pokestring(s)));
-
-	stats->UpdateMenu();
+	for (unsigned int i = 0; i < stats->GetItems().size(); i++)
+		stats->GetItems()[i]->SetAction(f);
 	stats->SetArrowState(ArrowStates::ACTIVE);
 	this->GetMenu()->ShowTextbox(stats);
 }
