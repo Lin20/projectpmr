@@ -71,7 +71,7 @@ void Textbox::Update()
 	//try to move the cursor
 	if (is_menu && (menu_flags & MenuFlags::FOCUSABLE) && (arrow_state & ArrowStates::ACTIVE))
 	{
-		if (text_timer > 1)
+		if (text_timer > 2)
 		{
 			text_timer--;
 		}
@@ -137,7 +137,7 @@ void Textbox::Update()
 				}
 			}
 		}
-		else if (InputController::KeyDownOnce(INPUT_A) && text_timer <= 1) //press a
+		else if (InputController::KeyDownOnce(INPUT_A) && text_timer <= 2) //press a
 		{
 			text_timer = 0;
 			arrow_timer = 0;
@@ -157,7 +157,7 @@ void Textbox::Update()
 			else
 				items[active_index]->Action();
 		}
-		else if (InputController::KeyDownOnce(INPUT_B) && text_timer <= 1) //press b
+		else if (InputController::KeyDownOnce(INPUT_B) && text_timer <= 2) //press b
 		{
 			arrow_timer = 0;
 			if ((menu_flags & MenuFlags::SWITCHABLE) && (menu_flags & MenuFlags::A_TO_SWITCH) && (arrow_state & ArrowStates::ACTIVE) && (arrow_state & ArrowStates::INACTIVE) && switch_callback != nullptr)
@@ -177,7 +177,7 @@ void Textbox::Update()
 		}
 		else
 			scroll_timer = 0;
-		if ((scroll_pos + display_count < items.size() || text_timer == 1) && arrow_timer == 0)
+		if ((scroll_pos + display_count < items.size() || text_timer == 2) && arrow_timer == 0)
 			arrow_timer = CURSOR_MORE_TIME;
 	}
 	else if (is_counter) //it's a counter

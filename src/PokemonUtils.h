@@ -10,5 +10,7 @@ class PokemonUtils
 {
 public:
 	static void WriteStats(Textbox* t, Pokemon* p, char x);
+	static void Levelup(TextItem* t, Pokemon* p, std::function<void(TextItem*)> action_callback);
+	static std::function<void(TextItem* s)> LearnMove(Textbox* src, Pokemon* p, unsigned char move, bool close_src = true);
 };
 

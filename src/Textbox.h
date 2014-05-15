@@ -40,6 +40,7 @@ public:
 		else
 			this->close_callback = nullptr;
 	}
+	void SetTextTimer() { text_timer = 1; }
 
 	void UpdateMenu();
 	void UpdateCounter();

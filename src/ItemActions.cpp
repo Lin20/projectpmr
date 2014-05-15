@@ -200,10 +200,6 @@ void ItemActions::UseMedicine(TextItem* src)
 			break;
 		MenuCache::PokemonMenu()->Heal(20, heal_callback);
 		return;
-
-	case 0x28: //rare candy
-
-		break;
 	}
 
 	Textbox* t = new Textbox();
@@ -216,34 +212,14 @@ void ItemActions::UseVitamin(TextItem* src)
 {
 	Pokemon* p = MenuCache::PokemonMenu()->GetParty()[src->index];
 	ItemStorage* items = last_inventory;
-	auto stats = [p,src](TextItem* s)
-	{
-		Textbox* stats = new Textbox(9, 2, 11, 10);
-		stats->SetMenu(true, 4, sf::Vector2i(0, 0), sf::Vector2u(0, 2), [](TextItem* s) {MenuCache::PokemonMenu()->GetChooseTextbox()->Close(); }, MenuFlags::FOCUSABLE, 2147u, nullptr, true, sf::Vector2i(-100, 0));
-		PokemonUtils::WriteStats(stats, p, 1);
-		for (int i = 0; i < 4; i++)
-			stats->GetItems()[i]->SetAction([stats](TextItem* s) {stats->Close(); MenuCache::PokemonMenu()->GetChooseTextbox()->Close(); });
-
-		//for (unsigned int i = 0; i < stats->GetItems().size(); i++)
-		//	stats->GetItems()[i]->SetAction(f);
-		stats->SetArrowState(ArrowStates::ACTIVE);
-		MenuCache::PokemonMenu()->GetChooseTextbox()->ShowTextbox(stats, false);
-	};
 
 	switch (last_id)
 	{
-	case 0x28:
+	case 0x28: //rare candy
 		if (p->level == 100)
 			break;
 
-		p->level++;
-		MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetText(string(p->nickname).append(pokestring(" grew\n\nto level ").append(pokestring(itos(p->level).c_str())).append(pokestring("!\f"))));
-		p->status = Statuses::OK;
-		MenuCache::PokemonMenu()->UpdateOnePokemon(src->index);
-		MenuCache::PokemonMenu()->GetMenu()->UpdateMenu();
-		MenuCache::PokemonMenu()->GetChooseTextbox()->UpdateMenu();
-		MenuCache::PokemonMenu()->FocusChooseTextbox();
-		MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetAction(stats);
+		PokemonUtils::Levelup(src, p, [](TextItem* s) {MenuCache::PokemonMenu()->GetChooseTextbox()->Close(); });
 		//MenuCache::PokemonMenu()->GetChooseTextbox()->SetCloseCallback(stats);
 		last_inventory->RemoveItemFromSlot(last_src->index, 1);
 		return;
