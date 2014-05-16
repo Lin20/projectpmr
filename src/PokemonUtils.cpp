@@ -102,4 +102,68 @@ std::function<void(TextItem* s)> PokemonUtils::LearnMove(Textbox* src, Pokemon* 
 			return m_f;
 		}
 	}
+
+	auto m_f = [src, p, move, close_src](TextItem* s_t)
+	{
+		Textbox* learned = new Textbox();
+
+		auto yes_no = [learned, src, p, move, close_src](TextItem* s)
+		{
+			Textbox* yn = new Textbox(14, 7, 6, 5);
+			auto no = [learned, yn, src, p, move, close_src](TextItem* s2)
+			{
+				Textbox* abandon = new Textbox();
+
+				auto confirm_abandon = [abandon, learned, src, p, move, close_src, yn](TextItem* s3)
+				{
+					Textbox* yn2 = new Textbox(14, 7, 6, 5);
+					auto reset = [yn2, src, learned, abandon, yn](TextItem* s3) {
+						yn2->Close(true);
+						abandon->Close();
+						learned->Reset();
+						src->GetItems()[0]->Action();
+					};
+
+					auto quit = [yn2, p, move, src, abandon, yn, learned](TextItem* s3)
+					{
+						yn2->Close(true);
+						abandon->Close();
+						Textbox* forgotten = new Textbox();
+						forgotten->SetText(new TextItem(forgotten, [src, learned](TextItem* s4) { src->Close(true); MenuCache::PokemonMenu()->GetMenu()->Close(); }, string(p->nickname).append(pokestring("\ndid not learn\v")).append(Move(move).name).append(pokestring("!\f"))));
+						src->ShowTextbox(forgotten, false);
+					};
+
+					yn2->SetMenu(true, 2, sf::Vector2i(1, 0), sf::Vector2u(0, 2), reset, MenuFlags::FOCUSABLE);
+					yn2->SetArrowState(ArrowStates::ACTIVE);
+					yn2->GetItems().push_back(new TextItem(yn2, quit, pokestring("YES"), 0));
+					yn2->GetItems().push_back(new TextItem(yn2, reset, pokestring("NO"), 1));
+					yn2->UpdateMenu();
+					abandon->CancelClose();
+					abandon->ShowTextbox(yn2, false);
+				};
+
+				yn->Close(true);
+				abandon->SetText(new TextItem(abandon, confirm_abandon, pokestring("Abandon learning\n").append(Move(move).name).append(pokestring("?\a"))));
+				learned->CancelClose();
+				learned->ShowTextbox(abandon, false);
+			};
+			yn->SetMenu(true, 2, sf::Vector2i(1, 0), sf::Vector2u(0, 2), no, MenuFlags::FOCUSABLE);
+			yn->SetArrowState(ArrowStates::ACTIVE);
+			yn->GetItems().push_back(new TextItem(yn, nullptr, pokestring("YES"), 0));
+			yn->GetItems().push_back(new TextItem(yn, no, pokestring("NO"), 1));
+			yn->UpdateMenu();
+			learned->CancelClose();
+			learned->ShowTextbox(yn, false);
+		};
+
+		string text =  string(p->nickname).append(pokestring(" is\ntrying to learn\v").append(Move(move).name).append(pokestring("!\rBut, "))).append(p->nickname).append(pokestring("\ncan't learn more\vthan 4 moves!\rDelete an older\nmove to make room\vfor ")).append(Move(move).name).append(pokestring("?\a"));
+		learned->SetText(new TextItem(src, yes_no, text));
+		if (close_src)
+		{
+			learned->SetCloseCallback([src](TextItem* z){src->Close(); });
+		}
+		src->ShowTextbox(learned, false);
+	};
+
+	return m_f;
 }

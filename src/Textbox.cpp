@@ -273,6 +273,8 @@ void Textbox::SetPosition(char x, char y)
 
 void Textbox::SetText(TextItem* text)
 {
+	if (this->text)
+		delete this->text;
 	this->text = text;
 	this->text_tile_pos = size.x - 2;
 	this->text_pos = 0;
@@ -497,7 +499,6 @@ void Textbox::ProcessNextCharacter()
 	switch (c)
 	{
 	case 0: //end
-	case MESSAGE_END: //end
 		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
 		{
 			Close();
@@ -505,6 +506,18 @@ void Textbox::ProcessNextCharacter()
 			if (textboxes.size() > 0)
 				close_when_no_children = true;
 		}
+		return;
+
+	case MESSAGE_END: //end
+		//we need to set close to true and don't close if the action cancels it because
+		//the close callback might close the parent, so the action won't get executed properly
+		close = true;
+		text->Action();
+		if (close)
+			Close();
+		if (textboxes.size() > 0)
+			close_when_no_children = true;
+		text_pos++;
 		return;
 
 	case MESSAGE_LINE: //new line

@@ -40,7 +40,7 @@ public:
 			int ind = rand() % 190;
 			while (ResourceCache::GetPokedexIndex(ind - 1) > 151)
 				ind = rand() % 190;
-			party[i] = new Pokemon(0x99, 12);
+			party[i] = new Pokemon(0x99, 19);
 		}
 	}
 

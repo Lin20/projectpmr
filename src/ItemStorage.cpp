@@ -147,7 +147,7 @@ void ItemStorage::GenerateItems()
 bool ItemStorage::AddItem(unsigned char id, unsigned char quantity)
 {
 	unsigned char room_for = 0;
-	for (int i = 0; i < MAX_ITEMS && room_for < quantity; i++)
+	for (int i = 0; i < MAX_ITEMS && room_for < quantity && i < items.size(); i++)
 	{
 		if (items[i].Empty())
 			room_for += 99;
@@ -157,7 +157,7 @@ bool ItemStorage::AddItem(unsigned char id, unsigned char quantity)
 	if (room_for < quantity)
 		return false;
 
-	for (int i = 0; i < MAX_ITEMS; i++)
+	for (int i = 0; i < MAX_ITEMS && i < items.size(); i++)
 	{
 		if (items[i].Empty())
 		{
@@ -210,7 +210,7 @@ void ItemStorage::RemoveItemFromSlot(unsigned char slot, unsigned char quantity)
 	if (items[slot].quantity == 0)
 	{
 		items[slot].id = 0;
-		for (int i = slot; i < MAX_ITEMS - 1; i++)
+		for (int i = slot; i < MAX_ITEMS - 1 && i < items.size() - 1; i++)
 		{
 			items[i] = items[i + 1];
 		}
@@ -223,10 +223,10 @@ void ItemStorage::RemoveItemFromSlot(unsigned char slot, unsigned char quantity)
 
 unsigned char ItemStorage::GetItemCount()
 {
-	for (unsigned char i = 0; i < MAX_ITEMS; i++)
+	for (unsigned char i = 0; i < MAX_ITEMS && i < items.size(); i++)
 	{
 		if (items[i].id == 0 || items[i].quantity == 0)
 			return i;
 	}
-	return 0;
+	return items.size();
 }

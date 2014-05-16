@@ -4,7 +4,10 @@
 TextboxParent::TextboxParent()
 {
 }
-TextboxParent::~TextboxParent() {};
+
+TextboxParent::~TextboxParent()
+{
+};
 
 void TextboxParent::ShowTextbox(Textbox* t, bool delay)
 {
@@ -45,7 +48,8 @@ void TextboxParent::CloseAll(bool include_this)
 {
 	for (int i = textboxes.size() - 1; i >= 0; i--)
 	{
-		textboxes[i]->CloseAll();
+		Textbox* t = textboxes[i];
+		t->CloseAll();
 		textboxes[i]->Close(true);
 		if (textboxes[i]->SetToClose())
 		{

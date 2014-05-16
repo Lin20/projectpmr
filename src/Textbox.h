@@ -65,6 +65,8 @@ public:
 	bool DeleteOnClose() { return delete_on_close; }
 	void CancelSwitch() { cancel_switch = true; }
 	bool IsSwitchCanceled() { return cancel_switch; }
+	void Reset() { text_pos = 0; }
+	void PerformCloseCallback() { if (close_callback != nullptr)close_callback(0); }
 
 	void SetRenderCallback(std::function<void(sf::RenderWindow* w)> f)
 	{

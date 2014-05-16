@@ -40,9 +40,15 @@ PokemonInfo::PokemonInfo()
 PokemonInfo::~PokemonInfo()
 {
 	if (menu)
+	{
+		//menu->CloseAll();
 		delete menu;
+	}
 	if (choose_textbox)
+	{
+		//choose_textbox->CloseAll();
 		delete choose_textbox;
+	}
 }
 
 void PokemonInfo::Show(Textbox* parent)
