@@ -567,6 +567,12 @@ void Textbox::ProcessNextCharacter()
 		//text_pos--;
 		break;
 
+	case MESSAGE_PAUSE: //pause the message
+		text_pos++;
+		arrow_timer = 0;
+		text_timer = TEXT_TIMER_PAUSE;
+		return;
+
 	default: //regular char
 		tiles[text_tile_pos++] = c;
 		break;

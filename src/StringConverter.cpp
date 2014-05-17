@@ -12,6 +12,7 @@ $	=	pokedollar
 \f	=	prompt for input to continue event
 \v	=	scroll to next line
 \a	=	done (action)
+\t	=	delay
 -------------------------------------------------
 */
 

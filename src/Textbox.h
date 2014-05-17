@@ -55,7 +55,7 @@ public:
 	unsigned char GetArrowState() { return arrow_state; }
 	void ResetSelection() { active_index = inactive_index = scroll_pos = 0; }
 	bool IsDone() { return auto_close_timer > 0; }
-	void SetJustOpened() { menu_open_delay = MENU_DELAY_TIME; }
+	void SetJustOpened(unsigned char delay = MENU_DELAY_TIME) { menu_open_delay = delay; }
 	unsigned char* GetTiles() { return tiles; } //allows for external tile editing
 
 	int GetScrollIndex() { return active_index - scroll_pos; }

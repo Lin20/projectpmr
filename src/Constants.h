@@ -97,6 +97,7 @@ enum ArrowStates
 #define TEXT_TIMER_MEDIUM	3
 #define	TEXT_TIMER_FAST		3
 #define TEXT_TIMER_BLANK	20
+#define TEXT_TIMER_PAUSE	50
 #define TEXT_AUTOCLOSE_MAX	80
 
 #define MESSAGE_AUTOCLOSE	0x4E
@@ -107,6 +108,7 @@ enum ArrowStates
 #define MESSAGE_SCROLL		0x55
 #define MESSAGE_END			0x57
 #define MESSAGE_PROMPT		0x58
+#define MESSAGE_PAUSE		0x5A
 
 #define MAX_ITEMS			20
 

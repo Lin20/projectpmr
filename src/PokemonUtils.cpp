@@ -5,8 +5,8 @@ void PokemonUtils::WriteStats(Textbox* t, Pokemon* p, char x)
 	string s = "ATTACK\n";
 	for (int i = 0; i < x; i++)
 		s.insert(s.begin(), ' ');
-	for (int i = 0; i < 5 + x + (p->attack < 10 ? 2 : p->attack < 100 ? 1 : 0); i++)
-		s.append(" ");
+	for (int i = 0; i < 5 + (p->attack < 10 ? 2 : p->attack < 100 ? 1 : 0); i++)
+		s.insert(s.end(), ' ');
 	s.append(itos(p->attack));
 
 	t->GetItems().push_back(new TextItem(t, nullptr, pokestring(s)));
@@ -14,24 +14,24 @@ void PokemonUtils::WriteStats(Textbox* t, Pokemon* p, char x)
 	s = "DEFENSE\n";
 	for (int i = 0; i < x; i++)
 		s.insert(s.begin(), ' ');
-	for (int i = 0; i < 5 + x + (p->defense < 10 ? 2 : p->defense < 100 ? 1 : 0); i++)
-		s.append(" ");
+	for (int i = 0; i < 5 + (p->defense < 10 ? 2 : p->defense < 100 ? 1 : 0); i++)
+		s.insert(s.end(), ' ');
 	s.append(itos(p->defense));
 	t->GetItems().push_back(new TextItem(t, nullptr, pokestring(s)));
 
 	s = "SPEED\n";
 	for (int i = 0; i < x; i++)
 		s.insert(s.begin(), ' ');
-	for (int i = 0; i < 5 + x + (p->speed < 10 ? 2 : p->speed < 100 ? 1 : 0); i++)
-		s.append(" ");
+	for (int i = 0; i < 5 + (p->speed < 10 ? 2 : p->speed < 100 ? 1 : 0); i++)
+		s.insert(s.end(), ' ');
 	s.append(itos(p->speed));
 	t->GetItems().push_back(new TextItem(t, nullptr, pokestring(s)));
 
 	s = "SPECIAL\n";
 	for (int i = 0; i < x; i++)
 		s.insert(s.begin(), ' ');
-	for (int i = 0; i < 5 + x + (p->special < 10 ? 2 : p->special < 100 ? 1 : 0); i++)
-		s.append(" ");
+	for (int i = 0; i < 5 + (p->special < 10 ? 2 : p->special < 100 ? 1 : 0); i++)
+		s.insert(s.end(), ' ');
 	s.append(itos(p->special));
 
 	t->GetItems().push_back(new TextItem(t, nullptr, pokestring(s)));
@@ -103,6 +103,8 @@ std::function<void(TextItem* s)> PokemonUtils::LearnMove(Textbox* src, Pokemon* 
 		}
 	}
 
+	//this was really annoying to add because of some changed the Textbox class needed.
+	//i also got sick of having to use a TextItem parameter, so the names increment for simplicity.
 	auto m_f = [src, p, move, close_src](TextItem* s_t)
 	{
 		Textbox* learned = new Textbox();
@@ -147,16 +149,51 @@ std::function<void(TextItem* s)> PokemonUtils::LearnMove(Textbox* src, Pokemon* 
 				learned->CancelClose();
 				learned->ShowTextbox(abandon, false);
 			};
+
+			auto yes = [no, learned, yn, src, p, move, close_src](TextItem* s)
+			{
+				Textbox* which_move = new Textbox();
+
+				auto show_moves = [no, which_move, src, p, move, close_src, learned](TextItem* s2)
+				{
+					Textbox* moves = new Textbox(4, 7, 16, 6);
+
+					auto move_selected = [which_move, moves, src, p, move, learned](TextItem* s3)
+					{
+						moves->Close(true);
+						which_move->Close(true);
+						Textbox* last = new Textbox();
+						last->SetText(new TextItem(last, [src, learned](TextItem* s4) { learned->Close(true); src->Close(true); MenuCache::PokemonMenu()->GetMenu()->Close(); }, pokestring("1, 2 and... \tPoof!\r").append(p->nickname).append(pokestring(" forgot\n")).append(p->moves[moves->GetActiveIndex()].name).append(pokestring("!\rAnd...\r").append(p->nickname).append(pokestring(" learned\n")).append(Move(move).name).append(pokestring("!\f")))));
+						p->moves[moves->GetActiveIndex()] = Move(move);
+						src->ShowTextbox(last, false);
+					};
+
+					moves->SetMenu(true, 4, sf::Vector2i(1, 0), sf::Vector2u(0, 1), [no, learned](TextItem* s4) {learned->Reset(); no(s4); }, MenuFlags::FOCUSABLE);
+					moves->SetArrowState(ArrowStates::ACTIVE);
+					for (unsigned int i = 0; i < 4; i++)
+					{
+						moves->GetItems().push_back(new TextItem(moves, move_selected, p->moves[i].name, i));
+					}
+					moves->UpdateMenu();
+					which_move->CancelClose();
+					which_move->ShowTextbox(moves, false);
+				};
+
+				yn->Close(true);
+				which_move->SetText(new TextItem(which_move, show_moves, pokestring("Which move should\nbe forgotten?\a")));
+				learned->CancelClose();
+				learned->ShowTextbox(which_move, false);
+			};
 			yn->SetMenu(true, 2, sf::Vector2i(1, 0), sf::Vector2u(0, 2), no, MenuFlags::FOCUSABLE);
 			yn->SetArrowState(ArrowStates::ACTIVE);
-			yn->GetItems().push_back(new TextItem(yn, nullptr, pokestring("YES"), 0));
+			yn->GetItems().push_back(new TextItem(yn, yes, pokestring("YES"), 0));
 			yn->GetItems().push_back(new TextItem(yn, no, pokestring("NO"), 1));
 			yn->UpdateMenu();
 			learned->CancelClose();
 			learned->ShowTextbox(yn, false);
 		};
 
-		string text =  string(p->nickname).append(pokestring(" is\ntrying to learn\v").append(Move(move).name).append(pokestring("!\rBut, "))).append(p->nickname).append(pokestring("\ncan't learn more\vthan 4 moves!\rDelete an older\nmove to make room\vfor ")).append(Move(move).name).append(pokestring("?\a"));
+		string text = string(p->nickname).append(pokestring(" is\ntrying to learn\v").append(Move(move).name).append(pokestring("!\rBut, "))).append(p->nickname).append(pokestring("\ncan't learn more\vthan 4 moves!\rDelete an older\nmove to make room\vfor ")).append(Move(move).name).append(pokestring("?\a"));
 		learned->SetText(new TextItem(src, yes_no, text));
 		if (close_src)
 		{
