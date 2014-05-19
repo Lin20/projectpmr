@@ -53,6 +53,7 @@ void PokemonUtils::Levelup(TextItem* src, Pokemon* p, std::function<void(TextIte
 		stats->SetArrowState(ArrowStates::ACTIVE);
 		MenuCache::PokemonMenu()->GetChooseTextbox()->ShowTextbox(stats, false);
 
+		bool learned_move = false;
 		for (int i = 0; i < 16; i++)
 		{
 			if (p->learnset[i].level == 0)
@@ -63,6 +64,28 @@ void PokemonUtils::Levelup(TextItem* src, Pokemon* p, std::function<void(TextIte
 				for (int i = 0; i < 4; i++)
 					stats->GetItems()[i]->SetAction(m_f);
 				stats->SetTextTimer();
+				learned_move = true;
+			}
+		}
+
+		if (!learned_move)
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (p->evolutions[i].trigger != 0)
+				{
+					if (p->evolutions[i].trigger == EVOLUTION_LEVEL && p->evolutions[i].level <= p->level)
+					{
+						auto m_f = Evolve(stats, p, p->evolutions[i].pokemon);
+						for (int i = 0; i < 4; i++)
+							stats->GetItems()[i]->SetAction(m_f);
+						stats->SetTextTimer();
+						learned_move = true;
+						break;
+					}
+				}
+				else
+					break;
 			}
 		}
 	};
@@ -85,16 +108,38 @@ std::function<void(TextItem* s)> PokemonUtils::LearnMove(Textbox* src, Pokemon* 
 {
 	for (int i = 0; i < 4; i++)
 	{
+		if (p->moves[i].index == move)
+			return [src](TextItem* s) { src->Close(); };
 		if (p->moves[i].index == 0)
 		{
 			p->moves[i] = Move(move);
 			auto m_f = [src, p, i, close_src](TextItem* s_t)
 			{
 				Textbox* learned = new Textbox();
-				learned->SetText(new TextItem(src, nullptr, string(p->nickname).append(pokestring(" learned\n").append(p->moves[i].name).append(pokestring("!\f")))));
-				if (close_src)
+
+				std::function<void(TextItem* s)> m_f = nullptr;
+				for (int k = 0; k < 5; k++)
 				{
-					learned->SetCloseCallback([src](TextItem* z){src->Close(); });
+					if (p->evolutions[k].trigger != 0)
+					{
+						if (p->evolutions[k].trigger == EVOLUTION_LEVEL && p->evolutions[k].level <= p->level)
+						{
+							m_f = Evolve(src, p, p->evolutions[k].pokemon);
+							break;
+						}
+					}
+					else
+						break;
+				}
+
+				learned->SetText(new TextItem(src, m_f, string(p->nickname).append(pokestring(" learned\n").append(p->moves[i].name).append(pokestring("!\f")))));
+
+				if (close_src && !m_f)
+				{
+					learned->SetCloseCallback([src](TextItem* z)
+					{
+						src->Close();
+					});
 				}
 				src->ShowTextbox(learned, false);
 			};
@@ -123,7 +168,10 @@ std::function<void(TextItem* s)> PokemonUtils::LearnMove(Textbox* src, Pokemon* 
 						yn2->Close(true);
 						abandon->Close();
 						learned->Reset();
-						src->GetItems()[0]->Action();
+						if (src->GetItems().size() > 0)
+							src->GetItems()[0]->Action();
+						else
+							src->GetText()->Action();
 					};
 
 					auto quit = [yn2, p, move, src, abandon, yn, learned](TextItem* s3)
@@ -131,7 +179,10 @@ std::function<void(TextItem* s)> PokemonUtils::LearnMove(Textbox* src, Pokemon* 
 						yn2->Close(true);
 						abandon->Close();
 						Textbox* forgotten = new Textbox();
-						forgotten->SetText(new TextItem(forgotten, [src, learned](TextItem* s4) { src->Close(true); MenuCache::PokemonMenu()->GetMenu()->Close(); }, string(p->nickname).append(pokestring("\ndid not learn\v")).append(Move(move).name).append(pokestring("!\f"))));
+
+						std::function<void(TextItem* s)> e_f = CheckMove(src, p);
+						
+						forgotten->SetText(new TextItem(forgotten, (!e_f ? [src, learned](TextItem* s4) { src->Close(true); MenuCache::PokemonMenu()->GetMenu()->Close(); } : e_f), string(p->nickname).append(pokestring("\ndid not learn\v")).append(Move(move).name).append(pokestring("!\f"))));
 						src->ShowTextbox(forgotten, false);
 					};
 
@@ -163,7 +214,10 @@ std::function<void(TextItem* s)> PokemonUtils::LearnMove(Textbox* src, Pokemon* 
 						moves->Close(true);
 						which_move->Close(true);
 						Textbox* last = new Textbox();
-						last->SetText(new TextItem(last, [src, learned](TextItem* s4) { learned->Close(true); src->Close(true); MenuCache::PokemonMenu()->GetMenu()->Close(); }, pokestring("1, 2 and... \tPoof!\r").append(p->nickname).append(pokestring(" forgot\n")).append(p->moves[moves->GetActiveIndex()].name).append(pokestring("!\rAnd...\r").append(p->nickname).append(pokestring(" learned\n")).append(Move(move).name).append(pokestring("!\f")))));
+
+						std::function<void(TextItem* s)> e_f = CheckMove(src, p);
+
+						last->SetText(new TextItem(last, (!e_f ? [src, learned](TextItem* s4) { learned->Close(true); src->Close(); MenuCache::PokemonMenu()->GetMenu()->Close(); } : e_f), pokestring("1, 2 and... \tPoof!\r").append(p->nickname).append(pokestring(" forgot\n")).append(p->moves[moves->GetActiveIndex()].name).append(pokestring("!\rAnd...\r").append(p->nickname).append(pokestring(" learned\n")).append(Move(move).name).append(pokestring("!\f")))));
 						p->moves[moves->GetActiveIndex()] = Move(move);
 						src->ShowTextbox(last, false);
 					};
@@ -195,6 +249,9 @@ std::function<void(TextItem* s)> PokemonUtils::LearnMove(Textbox* src, Pokemon* 
 
 		string text = string(p->nickname).append(pokestring(" is\ntrying to learn\v").append(Move(move).name).append(pokestring("!\rBut, "))).append(p->nickname).append(pokestring("\ncan't learn more\vthan 4 moves!\rDelete an older\nmove to make room\vfor ")).append(Move(move).name).append(pokestring("?\a"));
 		learned->SetText(new TextItem(src, yes_no, text));
+
+		
+
 		if (close_src)
 		{
 			learned->SetCloseCallback([src](TextItem* z){src->Close(); });
@@ -203,4 +260,52 @@ std::function<void(TextItem* s)> PokemonUtils::LearnMove(Textbox* src, Pokemon* 
 	};
 
 	return m_f;
+}
+
+std::function<void(TextItem* s)> PokemonUtils::Evolve(Textbox* src, Pokemon* p, unsigned char evolution, bool close_src)
+{
+	auto mf = [src, p, evolution, close_src](TextItem* s)
+	{
+		src->CancelClose();
+		Textbox* what = new Textbox();
+
+		auto start_evolution = [what, p, src, evolution](TextItem* s2)
+		{
+			what->CancelClose();
+			EvolutionScreen* ev = new EvolutionScreen(p, evolution);
+			ev->Show(what);
+			what->SetCloseCallback([src, what, ev](TextItem* s3)
+			{
+				delete ev;
+				what->Close(true);
+				src->Close(true);
+				MenuCache::PokemonMenu()->GetMenu()->Close();
+			});
+		};
+
+		what->SetText(new TextItem(what, start_evolution, pokestring("What? ").append(p->nickname).append(pokestring("\nis evolving!\t\t\a"))));
+		what->SetArrowState(ArrowStates::INACTIVE);
+		src->ShowTextbox(what, false);
+	};
+
+	return mf;
+}
+
+std::function<void(TextItem* s)> PokemonUtils::CheckMove(Textbox* src, Pokemon* p)
+{
+	for (int k = 0; k < 5; k++)
+	{
+		if (p->evolutions[k].trigger != 0)
+		{
+			if (p->evolutions[k].trigger == EVOLUTION_LEVEL &&p->evolutions[k].level <= p->level)
+			{
+				return Evolve(src, p, p->evolutions[k].pokemon);
+				break;
+			}
+		}
+		else
+			break;
+	}
+
+	return nullptr;
 }

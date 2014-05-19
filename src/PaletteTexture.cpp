@@ -52,7 +52,7 @@ void PaletteTexture::Copy(PaletteTexture* src)
 	pixels = new unsigned char[size.x * size.y * 4];
 	original_pixels = new unsigned char[size.x * size.y * 4];
 	memcpy(pixels, src->GetPixels(), size.x * size.y * 4);
-	memcpy(original_pixels, src->GetPixels(), size.x * size.y * 4);
+	memcpy(original_pixels, src->GetOriginalPixels(), size.x * size.y * 4);
 	memcpy(palette, src->GetPalette(), sizeof(sf::Color) * 4);
 	underlying_texture.update(pixels);
 }

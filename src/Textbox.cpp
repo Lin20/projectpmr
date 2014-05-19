@@ -61,7 +61,7 @@ void Textbox::Update()
 	if (UpdateTextboxes())
 		return;
 	if (close_when_no_children)
-		close = true;
+		Close();
 	if (arrow_timer > 0)
 		arrow_timer--;
 	if (cursor_visibility_timer > 0)
@@ -154,7 +154,7 @@ void Textbox::Update()
 				}
 				cancel_switch = false;
 			}
-			else
+			else if (active_index < items.size())
 				items[active_index]->Action();
 		}
 		else if (InputController::KeyDownOnce(INPUT_B) && text_timer <= 2) //press b
@@ -494,6 +494,8 @@ void Textbox::ProcessNextCharacter()
 {
 	//if (text_pos >= text->GetText().length())
 	//	return;
+	if (textboxes.size() > 0)
+		return;
 
 	unsigned char c = text->GetText()[text_pos];
 	switch (c)
@@ -552,8 +554,10 @@ void Textbox::ProcessNextCharacter()
 	case MESSAGE_PROMPT: //prompt for continue
 		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
 		{
-			Close();
+			close = true;
 			text->Action();
+			if (close)
+				Close();
 			if (textboxes.size() > 0)
 				close_when_no_children = true;
 			return;

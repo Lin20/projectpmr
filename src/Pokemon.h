@@ -56,6 +56,7 @@ public:
 	unsigned char xp_yield;
 	unsigned int hp;
 	string ot_name;
+	bool has_nickname;
 
 	string original_name;
 	string nickname;
@@ -95,6 +96,7 @@ public:
 
 	unsigned char status;
 
+	void LoadStats(bool default_moves = false, unsigned char* move_count = 0);
 	void RecalculateStats();
 
 	unsigned int GetXPRemaining() { return GetXPAt(level + 1, growth_rate) - xp; }

@@ -7,71 +7,14 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 	level = l;
 	pokedex_index = ResourceCache::GetPokedexIndex(index - 1);
 	ot = rand() % 100000;
-	original_name = ResourceCache::GetPokemonName(index - 1);
-	nickname = original_name;
 	type1 = 0;
 	type2 = 0;
 	ot_name = pokestring("Lin");
-	status = rand() % 5 + 1;
+	status = rand() % 6;
+	has_nickname = false;
 	unsigned char move_count = 0;
 
-	DataBlock* data = ResourceCache::GetPokemonStats(pokedex_index - 1);
-	if (data)
-	{
-		data->data = data->data_start;
-		data->getc(); //pokedex index; we don't use it because according to padz it's a leftover value
-		base_hp = data->getc();
-		base_attack = data->getc();
-		base_defense = data->getc();
-		base_speed = data->getc();
-		base_special = data->getc();
-
-		type1 = data->getc();
-		type2 = data->getc();
-
-		catch_rate = data->getc();
-		xp_yield = data->getc();
-
-		unsigned char size = data->getc();
-		size_x = size & 0xF;
-		size_y = (size >> 4) & 0xF;
-
-		//moves
-		for (int i = 0; i < 4; i++)
-		{
-			moves[i] = Move(data->getc());
-			if (moves[i].index)
-				move_count++;
-		}
-		growth_rate = data->getc();
-	}
-
-	data = ResourceCache::GetPokemonLeveling(index - 1);
-	if (data)
-	{
-		data->data = data->data_start;
-		for (int i = 0; i < 5; i++)
-		{
-			evolutions[i].Load(data);
-			if (evolutions[i].trigger == 0)
-			{
-				for (int k = i + 1; k < 5; k++)
-					evolutions[i].trigger = 0;
-				break;
-			}
-		}
-
-		for (int i = 0; i < 16; i++)
-		{
-			learnset[i].Load(data);
-			if (!learnset[i].level)
-			{
-				for (int k = i + 1; k < 16; k++)
-					learnset[i].level = 0;
-				break;
-			}
-		}
-	}
+	LoadStats(true, &move_count);
 
 	//determine the pokemon's moveset
 	for (int i = 0; i < 16; i++)
@@ -114,6 +57,73 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 
 Pokemon::~Pokemon()
 {
+}
+
+void Pokemon::LoadStats(bool default_moves, unsigned char* move_count)
+{
+	original_name = ResourceCache::GetPokemonName(id - 1);
+	if (!has_nickname)
+		nickname = original_name;
+	DataBlock* data = ResourceCache::GetPokemonStats(pokedex_index - 1);
+	if (data)
+	{
+		data->data = data->data_start;
+		data->getc(); //pokedex index; we don't use it because according to padz it's a leftover value
+		base_hp = data->getc();
+		base_attack = data->getc();
+		base_defense = data->getc();
+		base_speed = data->getc();
+		base_special = data->getc();
+
+		type1 = data->getc();
+		type2 = data->getc();
+
+		catch_rate = data->getc();
+		xp_yield = data->getc();
+
+		unsigned char size = data->getc();
+		size_x = size & 0xF;
+		size_y = (size >> 4) & 0xF;
+
+		//moves
+		if (default_moves)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				moves[i] = Move(data->getc());
+				if (moves[i].index && move_count)
+					*move_count++;
+			}
+		}
+		growth_rate = data->getc();
+	}
+
+	data = ResourceCache::GetPokemonLeveling(id - 1);
+	if (data)
+	{
+		data->data = data->data_start;
+		for (int i = 0; i < 5; i++)
+		{
+			evolutions[i].Load(data);
+			if (evolutions[i].trigger == 0)
+			{
+				for (int k = i + 1; k < 5; k++)
+					evolutions[i].trigger = 0;
+				break;
+			}
+		}
+
+		for (int i = 0; i < 16; i++)
+		{
+			learnset[i].Load(data);
+			if (!learnset[i].level)
+			{
+				for (int k = i + 1; k < 16; k++)
+					learnset[i].level = 0;
+				break;
+			}
+		}
+	}
 }
 
 void Pokemon::RecalculateStats()

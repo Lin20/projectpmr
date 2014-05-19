@@ -17,6 +17,7 @@ class NPC;
 class PlayerProperties;
 class Players;
 class PokemonInfo;
+class EvolutionScreen;
 struct Options;
 
 class TextboxParent;

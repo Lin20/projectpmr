@@ -434,7 +434,7 @@ void PokemonInfo::DisplaySummary2(Pokemon* p)
 
 	Textbox* top = this->GetMenu()->GetTextboxes()[1];
 	top->ClearItems();
-	string s = p->nickname;
+	string s = p->original_name;
 	s.append(pokestring("\n\nEXP POINTS\n   "));
 	unsigned int digits = (p->xp > 0 ? (unsigned int)floor(log10(p->xp) + 1) : 1);
 	for (unsigned int i = 0; i < 7 - digits; i++)

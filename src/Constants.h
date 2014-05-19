@@ -97,7 +97,7 @@ enum ArrowStates
 #define TEXT_TIMER_MEDIUM	3
 #define	TEXT_TIMER_FAST		3
 #define TEXT_TIMER_BLANK	20
-#define TEXT_TIMER_PAUSE	50
+#define TEXT_TIMER_PAUSE	35
 #define TEXT_AUTOCLOSE_MAX	80
 
 #define MESSAGE_AUTOCLOSE	0x4E
@@ -132,3 +132,9 @@ enum ArrowStates
 #define INPUT_B			sf::Keyboard::Key::X
 #define INPUT_START		sf::Keyboard::Key::Return
 #define INPUT_SELECT	sf::Keyboard::Key::BackSpace
+
+//evolutions
+#define EVOLUTION_NONE		0
+#define EVOLUTION_LEVEL		1
+#define EVOLUTION_ITEM		2
+#define EVOLUTION_TRADE		3

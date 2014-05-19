@@ -20,6 +20,7 @@ public:
 
 	sf::Texture* GetTexture() { return &underlying_texture; }
 	sf::Uint8* GetPixels() { return pixels; }
+	sf::Uint8* GetOriginalPixels() { return original_pixels; }
 	sf::Color* GetPalette() { return palette; }
 
 private:

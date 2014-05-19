@@ -3,7 +3,7 @@
 ItemStorage::ItemStorage(PlayerProperties* owner)
 {
 	this->owner = owner;
-	for (int i = 0; i < MAX_ITEMS / 2; i++)
+	for (int i = 0; i < MAX_ITEMS; i++)
 		items.push_back(Item(0x28, 99));
 
 	auto switch_items = [this]()
@@ -185,7 +185,7 @@ bool ItemStorage::AddItem(unsigned char id, unsigned char quantity)
 
 void ItemStorage::RemoveItem(unsigned char id, unsigned char quantity)
 {
-	for (int i = MAX_ITEMS - 1; i >= 0 && quantity > 0; i--)
+	for (int i = items.size() - 1; i >= 0 && quantity > 0; i--)
 	{
 		if (items[i].id != id)
 			continue;
@@ -195,6 +195,8 @@ void ItemStorage::RemoveItem(unsigned char id, unsigned char quantity)
 		if (items[i].quantity == 0)
 		{
 			items[i].id = 0;
+			items.erase(items.begin());
+			items.push_back(Item());
 		}
 	}
 
@@ -203,7 +205,7 @@ void ItemStorage::RemoveItem(unsigned char id, unsigned char quantity)
 
 void ItemStorage::RemoveItemFromSlot(unsigned char slot, unsigned char quantity)
 {
-	if (slot >= MAX_ITEMS)
+	if (slot >= MAX_ITEMS || slot >= items.size())
 		return;
 	quantity = min(items[slot].quantity, quantity);
 	items[slot].quantity -= quantity;

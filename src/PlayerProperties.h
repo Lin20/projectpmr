@@ -33,15 +33,22 @@ public:
 	{
 		pokemon_count = 6;
 		//generate some pokemon for testing
-		for (int i = 0; i < 6; i++)
+		for (int i = 4; i < 6; i++)
 		{
 			if (party[i])
 				delete party[i];
 			int ind = rand() % 190;
 			while (ResourceCache::GetPokedexIndex(ind - 1) > 151)
 				ind = rand() % 190;
-			party[i] = new Pokemon(0x99, 19);
+			party[i] = new Pokemon(ind, rand() % 98 + 2);
 		}
+		party[0] = new Pokemon(0x47, 24);
+		party[1] = new Pokemon(0x47, 24);
+		party[2] = new Pokemon(0x47, 25);
+		party[3] = new Pokemon(0x24, 17);
+
+		party[0]->moves[2] = Move(20);
+		party[0]->moves[3] = Move(21);
 	}
 
 	void SetInventory(ItemStorage* i) { inventory = i; }

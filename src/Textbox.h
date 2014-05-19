@@ -57,6 +57,7 @@ public:
 	bool IsDone() { return auto_close_timer > 0; }
 	void SetJustOpened(unsigned char delay = MENU_DELAY_TIME) { menu_open_delay = delay; }
 	unsigned char* GetTiles() { return tiles; } //allows for external tile editing
+	TextItem* GetText() { return text; }
 
 	int GetScrollIndex() { return active_index - scroll_pos; }
 	bool SetToClose() { return close; }

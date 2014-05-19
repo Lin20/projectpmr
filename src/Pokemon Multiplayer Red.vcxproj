@@ -78,6 +78,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="EvolutionScreen.cpp" />
     <ClCompile Include="ItemActions.cpp" />
     <ClCompile Include="ItemStorage.cpp" />
     <ClCompile Include="Map.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Events.h" />
+    <ClInclude Include="EvolutionScreen.h" />
     <ClInclude Include="Fade.h" />
     <ClInclude Include="InputController.h" />
     <ClInclude Include="ItemActions.h" />
