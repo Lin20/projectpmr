@@ -212,14 +212,14 @@ std::function<void(TextItem* s)> PokemonUtils::LearnMove(Textbox* src, Pokemon* 
 					auto move_selected = [which_move, moves, src, p, move, learned](TextItem* s3)
 					{
 						moves->Close(true);
-						which_move->Close(true);
 						Textbox* last = new Textbox();
 
 						std::function<void(TextItem* s)> e_f = CheckMove(src, p);
+						std::function<void(TextItem* s)> real_ef = [src, learned, which_move, e_f](TextItem* s4) {learned->Close(true); which_move->Close(true); e_f(s4); };
 
-						last->SetText(new TextItem(last, (!e_f ? [src, learned](TextItem* s4) { learned->Close(true); src->Close(); MenuCache::PokemonMenu()->GetMenu()->Close(); } : e_f), pokestring("1, 2 and... \tPoof!\r").append(p->nickname).append(pokestring(" forgot\n")).append(p->moves[moves->GetActiveIndex()].name).append(pokestring("!\rAnd...\r").append(p->nickname).append(pokestring(" learned\n")).append(Move(move).name).append(pokestring("!\f")))));
+						last->SetText(new TextItem(last, (!e_f ? [src, learned, which_move](TextItem* s4) { learned->Close(true); which_move->Close(true); src->Close(); MenuCache::PokemonMenu()->GetMenu()->Close(); } : real_ef), pokestring("1, 2 and... \tPoof!\r").append(p->nickname).append(pokestring(" forgot\n")).append(p->moves[moves->GetActiveIndex()].name).append(pokestring("!\rAnd...\r").append(p->nickname).append(pokestring(" learned\n")).append(Move(move).name).append(pokestring("!\f")))));
 						p->moves[moves->GetActiveIndex()] = Move(move);
-						src->ShowTextbox(last, false);
+						which_move->ShowTextbox(last, false);
 					};
 
 					moves->SetMenu(true, 4, sf::Vector2i(1, 0), sf::Vector2u(0, 1), [no, learned](TextItem* s4) {learned->Reset(); no(s4); }, MenuFlags::FOCUSABLE);
@@ -278,6 +278,7 @@ std::function<void(TextItem* s)> PokemonUtils::Evolve(Textbox* src, Pokemon* p, 
 			{
 				delete ev;
 				what->Close(true);
+				//src->CloseAll();
 				src->Close(true);
 				MenuCache::PokemonMenu()->GetMenu()->Close();
 			});

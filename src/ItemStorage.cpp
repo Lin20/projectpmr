@@ -30,7 +30,11 @@ ItemStorage::ItemStorage(PlayerProperties* owner)
 ItemStorage::~ItemStorage()
 {
 	if (menu)
+	{
+		menu->ClearItems();
+		menu->CloseAll();
 		delete menu;
+	}
 }
 
 /*
@@ -69,10 +73,16 @@ void ItemStorage::GenerateItems()
 						auto toss_final = [this](TextItem* yesnosrc)
 						{
 							Textbox* threwaway = new Textbox();
-							threwaway->SetText(new TextItem(threwaway, [this](TextItem* src) {
-								this->RemoveItemFromSlot(this->GetMenu()->GetInactiveIndex(), this->GetMenu()->GetTextboxes()[1]->GetCounterValue()); this->GetMenu()->ResetSelection(); this->GetMenu()->SetArrowState(ArrowStates::ACTIVE); this->GetMenu()->CloseAll();
+							threwaway->SetText(new TextItem(threwaway, [this](TextItem* src)
+							{
+								this->RemoveItemFromSlot(this->GetMenu()->GetInactiveIndex(), this->GetMenu()->GetTextboxes()[1]->GetCounterValue());
+								this->GetMenu()->ResetSelection(); this->GetMenu()->SetArrowState(ArrowStates::ACTIVE);
 							}, pokestring("Threw away\n").append(ResourceCache::GetItemName(this->GetItems()[this->GetMenu()->GetInactiveIndex()].id)).append(pokestring(".\f"))));
-							this->GetMenu()->ShowTextbox(threwaway, false);
+							this->GetMenu()->ShowTextbox(threwaway, false); 
+							threwaway->SetCloseCallback([this](TextItem* s)
+							{
+								this->GetMenu()->CloseAll();
+							});
 						};
 
 						from->GetParent()->CancelClose();
@@ -82,7 +92,7 @@ void ItemStorage::GenerateItems()
 						yesno->GetItems().push_back(new TextItem(yesno, toss_final, pokestring("YES")));
 						yesno->GetItems().push_back(new TextItem(yesno, close_all, pokestring("NO")));
 						yesno->UpdateMenu();
-						from->GetParent()->ShowTextbox(yesno, false);
+						this->GetMenu()->ShowTextbox(yesno, false);
 					};
 					Textbox* tb = new Textbox();
 					tb->SetText(new TextItem(tb, confirm_toss_b, pokestring("Is it OK to toss\n").append(ResourceCache::GetItemName(this->GetItems()[this->GetMenu()->GetInactiveIndex()].id)).append(pokestring("?\f"))));

@@ -333,6 +333,7 @@ void Textbox::ClearItems()
 			delete items[i];
 	}
 	//}
+
 	items.clear();
 }
 
@@ -619,7 +620,7 @@ void Textbox::Close(bool ignore_callback)
 {
 	text_timer = 0;
 	close = true;
-	if (!ignore_callback && this->close_callback != nullptr)
+	if (!ignore_callback && this->close_callback)
 		close_callback(0);
 	if (close && (arrow_state & ArrowStates::ACTIVE) && (arrow_state & ArrowStates::INACTIVE))
 	{
