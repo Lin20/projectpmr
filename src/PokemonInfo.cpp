@@ -8,6 +8,8 @@ PokemonInfo::PokemonInfo()
 	delta_hp = 0;
 	delta_hp_timer = 0;
 	selected_bar_length = 0;
+	for (int i = 0; i < 6; i++)
+		ability[i] = false;
 
 	//although the bottom textbox looks like an ordinary textbox,
 	//the current textbox class doesn't support instant full printout of text.
@@ -90,8 +92,9 @@ void PokemonInfo::FocusChooseTextbox()
 	choose_textbox->SetCloseCallback([this](TextItem* src) { menu->Close(); });
 }
 
-void PokemonInfo::UpdatePokemon(Pokemon** party)
+void PokemonInfo::UpdatePokemon(Pokemon** party, bool show_able_notable)
 {
+	this->show_able_notable = show_able_notable;
 	auto select = [this](TextItem* src)
 	{
 		this->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
@@ -121,12 +124,12 @@ void PokemonInfo::UpdatePokemon(Pokemon** party)
 	for (int i = 0; i < 6; i++)
 	{
 		menu->GetItems().push_back(new TextItem(menu, select, "", i, party[i]->id));
-		UpdateOnePokemon((unsigned char)i);
+		UpdateOnePokemon((unsigned char)i, ability[i]);
 	}
 	menu->UpdateMenu();
 }
 
-void PokemonInfo::UpdateOnePokemon(unsigned char index)
+void PokemonInfo::UpdateOnePokemon(unsigned char index, bool is_able)
 {
 	string s = party[index]->nickname;
 	while (s.length() < 10)
@@ -135,37 +138,55 @@ void PokemonInfo::UpdateOnePokemon(unsigned char index)
 	if (party[index]->level < 100)
 		s.insert(s.end(), 0xC); //L:
 	s.append(pokestring(itos(party[index]->level).c_str()));
-	if (party[index]->level < 10)
+	if (!show_able_notable)
+	{
+		if (party[index]->level < 10)
+			s.insert(s.end(), MENU_BLANK);
 		s.insert(s.end(), MENU_BLANK);
-	s.insert(s.end(), MENU_BLANK);
-	if (party[index]->status != Statuses::OK)
-		s.append(pokestring(party[index]->GetStatusName(party[index]->status)));
+		if (party[index]->status != Statuses::OK)
+			s.append(pokestring(party[index]->GetStatusName(party[index]->status)));
+	}
 	s.insert(s.end(), MESSAGE_LINE);
-	s.insert(s.end(), MENU_BLANK);
-	s.insert(s.end(), 0xF); //H
-	s.insert(s.end(), 0x00); //P:
 
-	for (int h = 0; h < 6; h++)
+	if (!show_able_notable)
 	{
 		s.insert(s.end(), MENU_BLANK);
-	}
-	s.insert(s.end(), 0x0A);
-	if (party[index]->hp < 10)
-		s.insert(s.end(), MENU_BLANK);
-	if (party[index]->hp < 100)
-		s.insert(s.end(), MENU_BLANK);
-	s.append(pokestring(itos(party[index]->hp).append("/")));
+		s.insert(s.end(), 0xF); //H
+		s.insert(s.end(), 0x00); //P:
 
-	if (party[index]->max_hp < 10)
-		s.insert(s.end(), MENU_BLANK);
-	if (party[index]->max_hp < 100)
-		s.insert(s.end(), MENU_BLANK);
-	s.append(pokestring(itos(party[index]->max_hp).c_str()));
+		for (int h = 0; h < 6; h++)
+		{
+			s.insert(s.end(), MENU_BLANK);
+		}
+		s.insert(s.end(), 0x0A);
+		if (party[index]->hp < 10)
+			s.insert(s.end(), MENU_BLANK);
+		if (party[index]->hp < 100)
+			s.insert(s.end(), MENU_BLANK);
+		s.append(pokestring(itos(party[index]->hp).append("/")));
+
+		if (party[index]->max_hp < 10)
+			s.insert(s.end(), MENU_BLANK);
+		if (party[index]->max_hp < 100)
+			s.insert(s.end(), MENU_BLANK);
+		s.append(pokestring(itos(party[index]->max_hp).c_str()));
+	}
+	else
+	{
+		s.append(pokestring("         "));
+		if (is_able)
+			s.append(pokestring("ABLE"));
+		else
+			s.append(pokestring("NOT ABLE"));
+
+	}
 	menu->GetItems()[index]->SetText(s);
 }
 
 void PokemonInfo::DrawHPBars(sf::RenderWindow* window)
 {
+	if (show_able_notable)
+		return;
 	sf::IntRect src_rect = sf::IntRect(0, 0, 8, 8);
 	sf::Sprite sprite8x8;
 	for (int i = 0; i < 6; i++)

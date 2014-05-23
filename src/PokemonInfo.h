@@ -16,8 +16,8 @@ public:
 	Textbox* GetChooseTextbox() { return choose_textbox; }
 	Textbox* GetMenu() { return menu; }
 	void FocusChooseTextbox();
-	void UpdatePokemon(Pokemon** party);
-	void UpdateOnePokemon(unsigned char index);
+	void UpdatePokemon(Pokemon** party, bool show_able_notable = false);
+	void UpdateOnePokemon(unsigned char index, bool is_able = false);
 	void DrawHPBars(sf::RenderWindow* window);
 	void DrawIcons(sf::RenderWindow* window);
 	Pokemon** GetParty() { return party; }
@@ -31,6 +31,11 @@ public:
 	void Heal(int amount, std::function<void(TextItem* src)> finished);
 	int GetHPAmountChanged() { return hp_amount_changed; }
 
+	void SetAbleNotAble(bool* values) {
+		memcpy(ability, values, sizeof(bool)* 6);
+		ability[0] = values[0];
+	}
+
 private:
 	Textbox* menu;
 	Textbox* choose_textbox; //the textbox that appears at the bottom displaying "Choose a POKEMON."
@@ -38,6 +43,8 @@ private:
 	Pokemon** party;
 	unsigned char selection_delay;
 	unsigned char last_hover;
+	bool ability[6];
+	bool show_able_notable;
 
 	//hp recovery and draining
 	int delta_hp;

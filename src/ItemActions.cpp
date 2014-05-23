@@ -35,6 +35,7 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 
 	Textbox* t;
 	string s;
+	bool able[6] = {};
 	switch (usage)
 	{
 	case 0:
@@ -45,6 +46,29 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 			inventory->GetMenu()->GetTextboxes()[0]->Close();
 		}, s));
 		src->GetParent()->ShowTextbox(t, false);
+		break;
+
+	case 0x05: //evostone
+		for (int i = 0; i < 6; i++)
+		{
+			if (!Players::GetPlayer1()->GetParty()[i])
+				break;
+			for (int e = 0; e < 5; e++)
+			{
+				if (!Players::GetPlayer1()->GetParty()[i]->evolutions[e].trigger)
+					break;
+				Pokemon* p = Players::GetPlayer1()->GetParty()[i];
+				if (p->evolutions[e].trigger == EVOLUTION_ITEM && Players::GetPlayer1()->GetParty()[i]->evolutions[e].item == id)
+				{
+					able[i] = true;
+					break;
+				}
+			}
+		}
+		MenuCache::PokemonMenu()->SetAbleNotAble(able);
+
+		MenuCache::PokemonMenu()->UpdatePokemon(Players::GetPlayer1()->GetParty(), true);
+		MenuCache::PokemonMenu()->Show(src->GetParent(), pokestring("Use item on which\n\n#MON?"), UseEvoStone, close_pokemon);
 		break;
 
 	case 0x08: //vitamin
@@ -229,4 +253,9 @@ void ItemActions::UseVitamin(TextItem* src)
 	t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, pokestring("It won't have any\n\neffect.")));
 	MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
 	src->GetParent()->ShowTextbox(t, false);
+}
+
+void ItemActions::UseEvoStone(TextItem* src)
+{
+
 }
