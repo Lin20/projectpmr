@@ -10,7 +10,7 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 	type1 = 0;
 	type2 = 0;
 	ot_name = pokestring("Lin");
-	status = rand() % 6;
+	status = Statuses::FAINTED;
 	has_nickname = false;
 	unsigned char move_count = 0;
 
@@ -52,7 +52,7 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 
 	RecalculateStats();
 	int by = rand() % 10 + 1;
-	hp = max_hp / 3 / (by)* (rand() % by + 1);
+	hp = 0;// max_hp / 3 / (by)* (rand() % by + 1);
 }
 
 Pokemon::~Pokemon()
@@ -217,6 +217,8 @@ const char* Pokemon::GetStatusName(unsigned char s)
 		return "BRN";
 	case Statuses::FROZEN:
 		return "FRZ";
+	case Statuses::FAINTED:
+		return "FNT";
 	}
 	return "OK ";
 }

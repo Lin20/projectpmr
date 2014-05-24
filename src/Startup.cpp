@@ -30,7 +30,7 @@ int main()
 
 	sf::RenderWindow window(sf::VideoMode(VIEWPORT_WIDTH * 16, VIEWPORT_HEIGHT * 16), "SFML works!");
 
-	//window.setFramerateLimit(500);
+	window.setFramerateLimit(60);
 
 
 	while (window.isOpen())

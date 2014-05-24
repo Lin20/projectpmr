@@ -114,6 +114,7 @@
     <ClInclude Include="Fade.h" />
     <ClInclude Include="InputController.h" />
     <ClInclude Include="ItemActions.h" />
+    <ClInclude Include="ItemConstants.h" />
     <ClInclude Include="ItemStorage.h" />
     <ClInclude Include="MenuCache.h" />
     <ClInclude Include="Move.h" />

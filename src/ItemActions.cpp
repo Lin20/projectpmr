@@ -35,6 +35,7 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 
 	Textbox* t;
 	string s;
+	unsigned char v = 0;
 	bool able[6] = {};
 	switch (usage)
 	{
@@ -71,6 +72,22 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 		MenuCache::PokemonMenu()->Show(src->GetParent(), pokestring("Use item on which\n\n#MON?"), UseEvoStone, close_pokemon);
 		break;
 
+	case 0x07: //repels
+		if (id == ITEM_REPEL)
+			v = REPEL_STEPS;
+		else if (id == ITEM_SUPER_REPEL)
+			v = SUPER_REPEL_STEPS;
+		else if (id == ITEM_MAX_REPEL)
+			v = MAX_REPEL_STEPS;
+
+		if (state == States::OVERWORLD) //we must check in case someone modifies the item usage to work in battle
+			((MapScene*)Engine::GetActiveScene())->SetRepel(v);
+		t = new Textbox();
+		s = string(inventory->GetOwner()->GetName()).append(pokestring(" used\n")).append(ResourceCache::GetItemName(id)).append(pokestring("!\f"));
+		t->SetText(new TextItem(t, [inventory](TextItem* src) { inventory->GetMenu()->GetTextboxes()[0]->Close(); inventory->RemoveItemFromSlot(last_src->index, 1); }, s));
+		src->GetParent()->ShowTextbox(t, false);
+		break;
+
 	case 0x08: //vitamin
 		MenuCache::PokemonMenu()->UpdatePokemon(Players::GetPlayer1()->GetParty());
 		MenuCache::PokemonMenu()->Show(src->GetParent(), pokestring("Use item on which\n\n#MON?"), UseVitamin, close_pokemon);
@@ -104,6 +121,17 @@ void ItemActions::UseMedicine(TextItem* src)
 		MenuCache::PokemonMenu()->UpdateOnePokemon(src->index);
 		MenuCache::PokemonMenu()->GetChooseTextbox()->UpdateMenu();
 		MenuCache::PokemonMenu()->FocusChooseTextbox();
+		last_inventory->RemoveItemFromSlot(last_src->index, 1);
+	};
+
+	auto revive_callback = [p](TextItem* src)
+	{
+		p->status = Statuses::OK;
+		MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetText(string(p->nickname).append(pokestring("\n\nis revitalized!")));
+		MenuCache::PokemonMenu()->UpdateOnePokemon(src->index);
+		MenuCache::PokemonMenu()->GetChooseTextbox()->UpdateMenu();
+		MenuCache::PokemonMenu()->FocusChooseTextbox();
+		MenuCache::PokemonMenu()->GetMenu()->UpdateMenu();
 		last_inventory->RemoveItemFromSlot(last_src->index, 1);
 	};
 
@@ -165,7 +193,7 @@ void ItemActions::UseMedicine(TextItem* src)
 		return;
 
 	case 0x34: //full heal
-		if (p->status == Statuses::OK)
+		if (p->status == Statuses::OK || p->status == Statuses::FAINTED)
 			break;
 		p->status = Statuses::OK;
 		MenuCache::PokemonMenu()->GetChooseTextbox()->GetItems()[0]->SetText(string(p->nickname).append(pokestring("'s\n\nhealth returned!")));
@@ -173,6 +201,18 @@ void ItemActions::UseMedicine(TextItem* src)
 		MenuCache::PokemonMenu()->GetChooseTextbox()->UpdateMenu();
 		MenuCache::PokemonMenu()->FocusChooseTextbox();
 		last_inventory->RemoveItemFromSlot(last_src->index, 1);
+		return;
+
+	case 0x35: //revive
+		if (p->hp > 0)
+			break;
+		MenuCache::PokemonMenu()->Heal(p->max_hp / 2, revive_callback);
+		return;
+
+	case 0x36: //max revive
+		if (p->hp > 0)
+			break;
+		MenuCache::PokemonMenu()->Heal(p->max_hp, revive_callback);
 		return;
 
 	case 0x10: //full restore

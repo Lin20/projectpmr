@@ -33,7 +33,8 @@ enum Statuses
 	SLEEPING = 2,
 	PARALYZED = 3,
 	BURNED = 4,
-	FROZEN = 5
+	FROZEN = 5,
+	FAINTED	= 6
 };
 
 class Pokemon

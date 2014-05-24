@@ -209,5 +209,8 @@
     <ClInclude Include="EvolutionScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ItemConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -35,6 +35,8 @@ public:
 	bool GetFlag(unsigned int index) { if (index < 4096) return flags[index]; return 0; }
 	void SetFlag(unsigned int index, bool b) { if (index < 4096) flags[index] = b; }
 
+	void SetRepel(unsigned char to) { repel_steps = to; }
+
 private:
 	Map* active_map;
 	sf::View viewport; //this is declared here because the maps are only places where the camera scrolls
@@ -47,6 +49,7 @@ private:
 	unsigned char previous_palette;
 	unsigned char previous_map; //previous overworld map
 	unsigned char elevator_map; //where to go when an elevator is exited
+	unsigned char repel_steps; //steps remaining for repel
 
 	Script* active_script;
 
