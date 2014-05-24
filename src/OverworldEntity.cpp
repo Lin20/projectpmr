@@ -231,7 +231,7 @@ void OverworldEntity::Render(sf::RenderWindow* window, int offset_x, int offset_
 		//after several tries with using single grass tiles and drawing things manually i decided to create
 		//a function that renders all the tiles in a certain spot
 		//much easier...
-		on_map->RenderRectangle(this->x, this->y + 4, 24, 8, sprite8x8, window);
+		on_map->RenderRectangle(this->x, this->y + 4, 16, 8, sprite8x8, window);
 
 		//set the texture back to what it was
 		sprite8x8.setTexture(*tex);

@@ -33,7 +33,7 @@ public:
 	{
 		pokemon_count = 6;
 		//generate some pokemon for testing
-		for (int i = 0; i < 6; i++)
+		for (int i = 1; i < 6; i++)
 		{
 			if (party[i])
 				delete party[i];

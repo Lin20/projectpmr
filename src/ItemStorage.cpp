@@ -4,7 +4,7 @@ ItemStorage::ItemStorage(PlayerProperties* owner)
 {
 	this->owner = owner;
 	for (int i = 0; i < MAX_ITEMS; i++)
-		items.push_back(Item(0x20, 99));
+		items.push_back(Item(0x23 + i % 5, 99));
 
 	auto switch_items = [this]()
 	{

@@ -35,6 +35,7 @@ public:
 		memcpy(ability, values, sizeof(bool)* 6);
 		ability[0] = values[0];
 	}
+	bool* GetAblility() { return ability; }
 
 private:
 	Textbox* menu;

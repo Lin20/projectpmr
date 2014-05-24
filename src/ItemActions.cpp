@@ -237,8 +237,73 @@ void ItemActions::UseVitamin(TextItem* src)
 	Pokemon* p = MenuCache::PokemonMenu()->GetParty()[src->index];
 	ItemStorage* items = last_inventory;
 
+	unsigned int stat = 0;
+	Textbox* t;
 	switch (last_id)
 	{
+	case 0x23: //hp up
+		if (p->ev_hp >= 25600)
+		break;
+		p->ev_hp = min(p->ev_hp + EV_MAXVITAMIN / 10, EV_MAXVITAMIN);
+		stat = p->max_hp;
+		p->RecalculateStats();
+		p->hp += p->max_hp - stat;
+
+		t = new Textbox();
+		t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, string(p->nickname).append(pokestring("'s\n\nHEALTH rose.\f"))));
+		MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+		src->GetParent()->ShowTextbox(t, false);
+		last_inventory->RemoveItemFromSlot(last_src->index, 1);
+		return;
+
+	case 0x24: //protein
+		if (p->ev_hp >= 25600)
+			break;
+		p->ev_attack = min(p->ev_attack + EV_MAXVITAMIN / 10, EV_MAXVITAMIN);
+		p->RecalculateStats();
+		t = new Textbox();
+		t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, string(p->nickname).append(pokestring("'s\n\nATTACK rose.\f"))));
+		MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+		src->GetParent()->ShowTextbox(t, false);
+		last_inventory->RemoveItemFromSlot(last_src->index, 1);
+		return;
+
+	case 0x25: //iron
+		if (p->ev_defense >= 25600)
+			break;
+		p->ev_defense = min(p->ev_defense + EV_MAXVITAMIN / 10, EV_MAXVITAMIN);
+		p->RecalculateStats();
+		t = new Textbox();
+		t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, string(p->nickname).append(pokestring("'s\n\nDEFENSE rose.\f"))));
+		MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+		src->GetParent()->ShowTextbox(t, false);
+		last_inventory->RemoveItemFromSlot(last_src->index, 1);
+		return;
+
+	case 0x26: //carbos
+		if (p->ev_speed >= 25600)
+			break;
+		p->ev_speed = min(p->ev_speed + EV_MAXVITAMIN / 10, EV_MAXVITAMIN);
+		p->RecalculateStats();
+		t = new Textbox();
+		t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, string(p->nickname).append(pokestring("'s\n\nSPEED rose.\f"))));
+		MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+		src->GetParent()->ShowTextbox(t, false);
+		last_inventory->RemoveItemFromSlot(last_src->index, 1);
+		return;
+
+	case 0x27: //calcium
+		if (p->ev_special >= 25600)
+			break;
+		p->ev_special = min(p->ev_special + EV_MAXVITAMIN / 10, EV_MAXVITAMIN);
+		p->RecalculateStats();
+		t = new Textbox();
+		t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, string(p->nickname).append(pokestring("'s\n\nSPECIAL rose.\f"))));
+		MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+		src->GetParent()->ShowTextbox(t, false);
+		last_inventory->RemoveItemFromSlot(last_src->index, 1);
+		return;
+
 	case 0x28: //rare candy
 		if (p->level == 100)
 			break;
@@ -249,7 +314,7 @@ void ItemActions::UseVitamin(TextItem* src)
 		return;
 	}
 
-	Textbox* t = new Textbox();
+	t = new Textbox();
 	t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, pokestring("It won't have any\n\neffect.")));
 	MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
 	src->GetParent()->ShowTextbox(t, false);
@@ -257,5 +322,30 @@ void ItemActions::UseVitamin(TextItem* src)
 
 void ItemActions::UseEvoStone(TextItem* src)
 {
+	Pokemon* p = MenuCache::PokemonMenu()->GetParty()[src->index];
+	ItemStorage* items = last_inventory;
 
+	unsigned char p_into = p->id;
+	for (int e = 0; e < 5; e++)
+	{
+		if (!p->evolutions[e].trigger)
+			break;
+		if (p->evolutions[e].trigger == EVOLUTION_ITEM && p->evolutions[e].item == last_id)
+		{
+			p_into = p->evolutions[e].pokemon;
+			break;
+		}
+	}
+
+	if (MenuCache::PokemonMenu()->GetAblility()[MenuCache::PokemonMenu()->GetMenu()->GetActiveIndex()])
+	{
+		PokemonUtils::Evolve(src->GetParent(), p, p_into)(src);
+		last_inventory->RemoveItemFromSlot(last_src->index, 1);
+		return;
+	}
+
+	Textbox* t = new Textbox();
+	t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, pokestring("It won't have any\n\neffect.")));
+	MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+	src->GetParent()->ShowTextbox(t, false);
 }

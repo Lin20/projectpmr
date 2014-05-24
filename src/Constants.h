@@ -138,3 +138,5 @@ enum ArrowStates
 #define EVOLUTION_LEVEL		1
 #define EVOLUTION_ITEM		2
 #define EVOLUTION_TRADE		3
+
+#define EV_MAXVITAMIN		25600
