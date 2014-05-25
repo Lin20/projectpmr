@@ -17,11 +17,11 @@ public:
 	{
 		this->fade_timer = 0;
 		this->start_fade = start;
-		this->warp_to = 0;
+		this->warp_to.dest_map = 254;
 	}
 	~Fade() { }
 
-	void Start(Warp* warp)
+	void Start(Warp warp)
 	{
 		warp_to = warp;
 		start_fade = 30;
@@ -62,8 +62,8 @@ public:
 	unsigned int LastFade() { return previous_fade_index; }
 	sf::Color* GetCurrentPalette() { return palettes[CurrentFade()]; }
 
-	Warp* GetWarpTo() { return warp_to; }
-	void SetWarpTo(Warp* w) { warp_to = w; }
+	Warp GetWarpTo() { return warp_to; }
+	void SetWarpTo(Warp w) { warp_to = w; }
 
 	bool Done() { return done; }
 
@@ -74,5 +74,5 @@ private:
 	unsigned int start_fade;
 	unsigned int previous_fade_index;
 	bool done;
-	Warp* warp_to; //warp
+	Warp warp_to; //warp
 };

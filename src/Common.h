@@ -24,6 +24,7 @@ class TextboxParent;
 class Textbox;
 class TextItem;
 class ItemStorage;
+class ItemActions;
 
 struct DataBlock;
 struct MapConnection;
@@ -32,6 +33,7 @@ struct Sign;
 struct Entity;
 struct Evolution;
 struct LearnsetMove;
+struct FlyPoint;
 
 class Script;
 struct Variable;

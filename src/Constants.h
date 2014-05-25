@@ -43,6 +43,8 @@ enum ArrowStates
 #define WARP_TILE			0
 #define WARP_TO_OUTSIDE		1
 #define ELEVATOR_MAP		237
+#define WARP_TYPE_NORMAL	0
+#define WARP_TYPE_SET		1
 
 #define WATER_TILE 20
 #define FLOWER_TILE 3

@@ -8,6 +8,15 @@ struct Warp
 	unsigned char dest_point;
 	unsigned char dest_map;
 	unsigned char type; //used to determine what kind of warp it is based on Map::CanWarp (used for determining whether or not the player walks forward after exiting a map)
+
+	struct Warp(unsigned char map = 0)
+	{
+		x = 0;
+		y = 0;
+		dest_point = 0;
+		dest_map = map;
+		type = 0;
+	}
 };
 
 struct Sign
@@ -100,5 +109,26 @@ struct LearnsetMove
 		if (!level)
 			return;
 		move = d->getc();
+	}
+};
+
+struct FlyPoint
+{
+	unsigned char map;
+	unsigned char x;
+	unsigned char y;
+
+	FlyPoint(unsigned char _map = 0, unsigned char _x = 0, unsigned char _y = 0)
+	{
+		map = _map;
+		x = _x;
+		y = _y;
+	}
+
+	void Load(DataBlock* d)
+	{
+		map = d->getc();
+		y = d->getc();
+		x = d->getc();
 	}
 };

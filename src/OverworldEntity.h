@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <functional>
 
 #include "TileMap.h"
 #include "ResourceCache.h"
@@ -10,7 +11,7 @@
 class OverworldEntity : public TileMap
 {
 public:
-	OverworldEntity(Map* on_map, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc = true, Script* _script = 0);
+	OverworldEntity(Map* on_map, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc = true, Script* _script = 0, std::function<void()> step_callback = nullptr);
 	virtual ~OverworldEntity();
 
 	virtual void Update();
@@ -77,4 +78,6 @@ protected:
 	TileMap* emotion_texture;
 
 	sf::Sprite shadow8x8;
+
+	std::function<void()> step_callback;
 };

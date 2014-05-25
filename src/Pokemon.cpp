@@ -10,7 +10,7 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 	type1 = 0;
 	type2 = 0;
 	ot_name = pokestring("Lin");
-	status = Statuses::FAINTED;
+	status = Statuses::POISONED;
 	has_nickname = false;
 	unsigned char move_count = 0;
 
@@ -52,7 +52,9 @@ Pokemon::Pokemon(unsigned char index, unsigned char l)
 
 	RecalculateStats();
 	int by = rand() % 10 + 1;
-	hp = 0;// max_hp / 3 / (by)* (rand() % by + 1);
+	hp = 2;// max_hp / 3 / (by)* (rand() % by + 1);
+	if (hp == 0)
+		status = Statuses::FAINTED;
 }
 
 Pokemon::~Pokemon()
@@ -133,6 +135,14 @@ void Pokemon::RecalculateStats()
 	defense = CalculateStat(base_defense, dv_defense, ev_defense, level);
 	speed = CalculateStat(base_speed, dv_speed, ev_speed, level);
 	special = CalculateStat(base_special, dv_special, ev_special, level);
+}
+
+void Pokemon::Heal()
+{
+	hp = max_hp;
+	for (int i = 0; i < 4; i++)
+		moves[i].pp = moves[i].max_pp;
+	status = Statuses::OK;
 }
 
 unsigned int Pokemon::CalculateStat(unsigned char base, unsigned char dv, unsigned int ev, unsigned char level)

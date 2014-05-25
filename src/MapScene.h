@@ -19,6 +19,7 @@ public:
 
 	void Update() override;
 	void Render(sf::RenderWindow*) override;
+	void NotifySwitchedTo() override;
 
 	void SwitchMap(unsigned char index);
 	void SetPlayerPosition(unsigned char x, unsigned int y);
@@ -30,6 +31,8 @@ public:
 	void SetPalette(sf::Color* palette);
 
 	bool Interact();
+	void WarpTo(Warp& w);
+	void Walk();
 
 	vector<OverworldEntity*>& GetEntities() { return entities; }
 	bool GetFlag(unsigned int index) { if (index < 4096) return flags[index]; return 0; }
@@ -49,7 +52,10 @@ private:
 	unsigned char previous_palette;
 	unsigned char previous_map; //previous overworld map
 	unsigned char elevator_map; //where to go when an elevator is exited
+	unsigned char last_healed_map; //where to go if the player faints or teleports
+
 	unsigned char repel_steps; //steps remaining for repel
+	unsigned char poison_steps;
 
 	Script* active_script;
 

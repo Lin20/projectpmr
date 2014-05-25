@@ -4,13 +4,13 @@ Map::Map()
 {
 }
 
-Map::Map(unsigned char index,vector<OverworldEntity*>* scene_entities)
+Map::Map(unsigned char index, vector<OverworldEntity*>* scene_entities)
 {
 	this->index = index;
 	this->scene_entities = scene_entities;
 	tiles = 0;
 	palette = ResourceCache::GetPalette(0);
-	for(int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		connected_maps[i] = 0;
 }
 
@@ -79,19 +79,23 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 	{
 		if (HasConnection(i))
 		{
-			if (!connected_maps[i])
-				connected_maps[i] = new Map(connections[i].map, scene_entities);
-			else
-				connected_maps[i]->index = connections[i].map;
+			if (connected_maps[i])
+				delete connected_maps[i];
+			connected_maps[i] = new Map(connections[i].map, scene_entities);
 			connected_maps[i]->Load(true);
 			if (connected_maps[i]->width * connected_maps[i]->height >= 128 * 128) //bad map
 			{
+				delete connected_maps[i];
 				connected_maps[i] = 0;
 				connection_mask ^= 1 << (3 - i);
 			}
 		}
 		else
+		{
+			if (connected_maps[i])
+				delete connected_maps[i];
 			connected_maps[i] = 0;
+		}
 	}
 
 	border_tile = *p++;
@@ -149,10 +153,10 @@ unsigned char Map::Get8x8Tile(int x, int y)
 	return GetCornerTile(x / 2, y / 2, (abs(x) % 2) + (abs(y) % 2) * 2);
 	/*Tileset* tileset = ResourceCache::GetTileset(this->tileset);
 	if (!tileset)
-		return 0;
+	return 0;
 	if (x < 0 || y < 0 || x >= width * 4 || y >= height * 4)
 	{
-		return tileset->GetTile8x8(border_tile, x % 4 + (y % 4) * 4);
+	return tileset->GetTile8x8(border_tile, x % 4 + (y % 4) * 4);
 	}
 	return tileset->GetTile8x8(tiles[x / 4 + y / 4 * width], x % 4 + (y % 4) * 4);*/
 }
@@ -301,12 +305,12 @@ bool Map::CanWarp(int x, int y, unsigned char direction, Warp* check_warp)
 	y += DELTAY(direction);
 	if (x < 0 || y < 0 || x >= width * 2 || y >= height * 2)
 	{
-		check_warp->type = WARP_TO_OUTSIDE;
+		check_warp->type = WARP_TYPE_NORMAL;
 		return true;
 	}
 	x -= DELTAX(direction);
 	y -= DELTAY(direction);
-	check_warp->type = WARP_TILE;
+	check_warp->type = WARP_TYPE_NORMAL;
 
 	Tileset* tileset = ResourceCache::GetTileset(this->tileset);
 	if (!tileset)

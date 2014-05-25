@@ -14,7 +14,8 @@ public:
 		for (int i = 0; i < 6; i++)
 			party[i] = 0;
 		name = pokestring("Lin");
-		RandomParty();
+		RandomParty(); 
+		SetMoney(20000);
 	}
 	~PlayerProperties()
 	{
@@ -46,6 +47,9 @@ public:
 	}
 
 	void SetInventory(ItemStorage* i) { inventory = i; }
+	unsigned char GetPartyCount() { return pokemon_count; }
+	unsigned int GetMoney() { return money; }
+	void SetMoney(unsigned int i) { money = min(99999u, i); }
 
 private:
 	string name;
@@ -54,4 +58,5 @@ private:
 	Options options;
 	Pokemon* party[6];
 	unsigned char pokemon_count;
+	unsigned int money;
 };

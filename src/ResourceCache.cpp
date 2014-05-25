@@ -34,6 +34,8 @@ DataBlock* ResourceCache::pokemon_leveling[256];
 string ResourceCache::move_names[256];
 DataBlock* ResourceCache::move_data = 0;
 
+FlyPoint ResourceCache::fly_points[13];
+
 ResourceCache::ResourceCache()
 {
 }
@@ -102,6 +104,7 @@ void ResourceCache::ReleaseResources()
 			delete pokemon_back[i];
 		if (pokemon_leveling[i])
 			delete pokemon_leveling[i];
+		item_names[i].clear();
 	}
 
 	if (move_data)
@@ -199,6 +202,11 @@ void ResourceCache::LoadMisc()
 	font_texture = new PaletteTexture();
 	font_texture->loadFromFile(ResourceCache::GetResourceLocation(string("misc/font.png")));
 	ascii_table = ReadFile(ResourceCache::GetResourceLocation(string("misc/ascii_table.dat")).c_str());
+
+	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("misc/flying.dat")).c_str());
+	for (int i = 0; i < 13; i++)
+		fly_points[i].Load(d);
+	delete d;
 
 #ifdef _DEBUG
 	cout << "Done\n";

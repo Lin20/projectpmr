@@ -1,6 +1,6 @@
 #include "OverworldEntity.h"
 
-OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc, Script* _script) : TileMap()
+OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc, Script* _script, std::function<void()> step_callback) : TileMap()
 {
 	this->on_map = m;
 	this->index = index;
@@ -11,6 +11,10 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	this->delete_texture = false;
 	this->script = _script;
 	this->script_enabled = false;
+	if (step_callback)
+		this->step_callback = step_callback;
+	else
+		this->step_callback = nullptr;
 
 	this->tiles_tex = ResourceCache::GetEntityTexture(index);
 	this->formation = new DataBlock(4);
@@ -97,6 +101,8 @@ void OverworldEntity::Update()
 							force_fast = false;
 						}
 					}
+					if (step_callback)
+						step_callback();
 					step_timer = STEP_TIMER * 2;
 					forced_steps = false;
 				}

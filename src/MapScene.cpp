@@ -7,9 +7,10 @@ MapScene::MapScene() : Scene()
 	previous_map = 13;
 	memset(flags, 0, sizeof(bool)* 16 * 256);
 	active_script = 0;
+	last_healed_map = 0;
 
 	//Initialize the player
-	entities.push_back(new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false));
+	entities.push_back(new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false, nullptr, [this]() {Walk(); }));
 	focus_entity = entities[0];
 
 	Focus(STARTING_X, STARTING_Y);
@@ -101,6 +102,8 @@ void MapScene::Update()
 		//FocusFree(16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
 	}
 
+	x = (int)(focus_entity ? focus_entity->x : 0);
+	y = (int)(focus_entity ? focus_entity->y : 0);
 	if (y < 0 && active_map->HasConnection(CONNECTION_NORTH))
 	{
 		MapConnection connection = active_map->connections[CONNECTION_NORTH];
@@ -160,6 +163,11 @@ void MapScene::Render(sf::RenderWindow* window)
 		textboxes[i]->Render(window);
 }
 
+void MapScene::NotifySwitchedTo()
+{
+	poison_steps = 4;
+}
+
 void MapScene::SwitchMap(unsigned char index)
 {
 	ClearEntities();
@@ -192,11 +200,15 @@ void MapScene::SwitchMap(unsigned char index)
 		return;
 	}
 
+	//temporary until we get healing working
+	if (active_map->tileset == 2 || active_map->tileset == 6) //pc
+		last_healed_map = previous_map;
+
 	for (unsigned int i = 0; i < active_map->entities.size(); i++)
 	{
 		Entity e = active_map->entities[i];
 		NPC* o = new NPC(active_map, e, Script::TryLoad(this, active_map->index, active_map->entities[i].text));
-			
+
 		entities.push_back(o);
 	}
 
@@ -391,7 +403,7 @@ bool MapScene::Interact()
 					s = pokestring("No more room for\nitems!");
 				else
 				{
-					s = pokestring(string("Lin found\n").c_str()).append(ResourceCache::GetItemName(active_map->entities[i - 1].item)).append(pokestring("!"));
+					s = string(Players::GetPlayer1()->GetName()).append(pokestring(" found\n")).append(ResourceCache::GetItemName(active_map->entities[i - 1].item)).append(pokestring("!"));
 					entities.erase(entities.begin() + i--);
 					t->SetText(new TextItem(t, nullptr, s, i));
 					textboxes.push_back(t);
@@ -421,6 +433,20 @@ bool MapScene::Interact()
 	return false;
 }
 
+void MapScene::WarpTo(Warp& w)
+{
+	poison_steps = 4;
+	current_fade.SetFadeToBlack(active_map->GetPalette());
+	current_fade.Start(w);
+	if (w.dest_map != ELEVATOR_MAP)
+	{
+		elevator_map = active_map->index;
+	}
+	can_warp = false;
+	input_enabled = false;
+	focus_entity->ForceStop();
+}
+
 void MapScene::CheckWarp()
 {
 	if (focus_entity->Snapped())
@@ -428,39 +454,45 @@ void MapScene::CheckWarp()
 		Warp* w = active_map->GetWarpAt(focus_entity->x / 16, focus_entity->y / 16);
 		if (can_warp && active_map->CanWarp(focus_entity->x / 16, focus_entity->y / 16, focus_entity->GetMovementDirection(), w))
 		{
-			current_fade.SetFadeToBlack(active_map->GetPalette());
-			current_fade.Start(w);
-			if (w->dest_map != ELEVATOR_MAP)
-			{
-				elevator_map = active_map->index;
-			}
-			can_warp = false;
-			input_enabled = false;
-			focus_entity->ForceStop();
+			WarpTo(*w);
 		}
 		else if (current_fade.Done())
 		{
-			if (current_fade.GetWarpTo())
+			if (current_fade.GetWarpTo().dest_map != 254)
 			{
-				Warp to = *current_fade.GetWarpTo();
+				Warp to = current_fade.GetWarpTo();
 				unsigned char walk_direction = 0xFF;
 				//Determine whether or not the player walks after exiting a map
 				if (to.dest_map == 255)
 					to.dest_map = previous_map;
 				else if (to.dest_map == ELEVATOR_MAP)
 					to.dest_map = elevator_map;
-				if (focus_entity->GetDirection() == ENTITY_DOWN && to.type == WARP_TO_OUTSIDE && to.dest_map <= OUTSIDE_MAP)
-					walk_direction = ENTITY_DOWN;
 
-				SwitchMap(to.dest_map);
-				focus_entity->x = active_map->GetWarp(to.dest_point).x * 16;
-				focus_entity->y = active_map->GetWarp(to.dest_point).y * 16;
+				if (to.type == WARP_TYPE_NORMAL)
+				{
+					if (focus_entity->GetDirection() == ENTITY_DOWN && to.type == WARP_TO_OUTSIDE && to.dest_map <= OUTSIDE_MAP)
+						walk_direction = ENTITY_DOWN;
 
-				if (active_map->IsPassable(focus_entity->x / 16, focus_entity->y / 16 + 1) && active_map->CanWarp(focus_entity->x / 16, focus_entity->y / 16, 0xFF, &to) && !active_map->IsPassable(focus_entity->x / 16, focus_entity->y / 16 - 1) && !active_map->IsPassable(focus_entity->x / 16 - 1, focus_entity->y / 16) && !active_map->IsPassable(focus_entity->x / 16 + 1, focus_entity->y / 16))
-					walk_direction = ENTITY_DOWN;
-				if (walk_direction == ENTITY_DOWN)
-					focus_entity->Move(walk_direction, 1);
-				current_fade.SetWarpTo(0);
+					SwitchMap(to.dest_map);
+					focus_entity->x = active_map->GetWarp(to.dest_point).x * 16;
+					focus_entity->y = active_map->GetWarp(to.dest_point).y * 16;
+
+					if (active_map->IsPassable(focus_entity->x / 16, focus_entity->y / 16 + 1) && active_map->CanWarp(focus_entity->x / 16, focus_entity->y / 16, 0xFF, &to) && !active_map->IsPassable(focus_entity->x / 16, focus_entity->y / 16 - 1) && !active_map->IsPassable(focus_entity->x / 16 - 1, focus_entity->y / 16) && !active_map->IsPassable(focus_entity->x / 16 + 1, focus_entity->y / 16))
+						walk_direction = ENTITY_DOWN;
+					if (walk_direction == ENTITY_DOWN)
+					{
+						focus_entity->Move(walk_direction, 1);
+						poison_steps = 5;
+					}
+				}
+				else
+				{
+					SwitchMap(to.dest_map);
+					focus_entity->x = to.x * 16;
+					focus_entity->y = to.y * 16;
+					focus_entity->Face(ENTITY_DOWN);
+				}
+				current_fade.SetWarpTo(Warp(254));
 
 				input_enabled = true;
 			}
@@ -478,6 +510,86 @@ void MapScene::TryResetWarp()
 		if (w)
 		{
 			can_warp = true;
+		}
+	}
+}
+
+void MapScene::Walk()
+{
+	if (repel_steps > 0)
+	{
+		repel_steps--;
+		if (!repel_steps)
+		{
+			Textbox* t = new Textbox();
+			t->SetText(new TextItem(t, nullptr, pokestring("REPEL's effect\nwore off.")));
+			ShowTextbox(t);
+		}
+	}
+
+	poison_steps--;
+	if (poison_steps == 0)
+	{
+		ResourceCache::GetTileset(active_map->tileset)->SetPoisonTimer();
+		poison_steps = 4;
+		unsigned char fainted = 0;
+		string s = "";
+		for (unsigned int i = 0; i < Players::GetPlayer1()->GetPartyCount(); i++)
+		{
+			Pokemon* p = Players::GetPlayer1()->GetParty()[i];
+			if (p->status == Statuses::POISONED && p->hp > 0)
+			{
+				p->hp--;
+				if (!p->hp)
+				{
+					p->status = Statuses::FAINTED;
+					if (s != "")
+						s.append(pokestring("\r"));
+					s.append(string(p->nickname).append(pokestring("\nfainted!")));
+				}
+			}
+			if (!p->hp)
+				fainted++;
+		}
+
+		if (s != "")
+		{
+			focus_entity->ForceStop();
+			Textbox* t = new Textbox();
+			t->SetText(new TextItem(t, nullptr, s));
+			ShowTextbox(t);
+
+			if (fainted == Players::GetPlayer1()->GetPartyCount())
+			{
+				t->GetText()->SetAction([t, this](TextItem* src)
+				{
+					Textbox* f = new Textbox();
+					f->SetText(new TextItem(f, [this](TextItem* s2)
+					{
+						Warp w;
+						w.dest_map = this->last_healed_map;
+						for (int i = 0; i < 13; i++)
+						{
+							if (ResourceCache::GetFlyPoint(i).map == w.dest_map)
+							{
+								w.x = ResourceCache::GetFlyPoint(i).x;
+								w.y = ResourceCache::GetFlyPoint(i).y;
+								w.type = WARP_TYPE_SET;
+								break;
+							}
+						}
+						WarpTo(w);
+
+						for (unsigned int i = 0; i < Players::GetPlayer1()->GetPartyCount(); i++)
+						{
+							Players::GetPlayer1()->GetParty()[i]->Heal();
+						}
+						Players::GetPlayer1()->SetMoney(Players::GetPlayer1()->GetMoney() / 2);
+
+					}, string(Players::GetPlayer1()->GetName()).append(pokestring(" is out of\nuseable #MON!\r")).append(Players::GetPlayer1()->GetName()).append(pokestring(" blacked\nout!\f"))));
+					this->ShowTextbox(f, true);
+				});
+			}
 		}
 	}
 }

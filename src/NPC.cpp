@@ -1,7 +1,7 @@
 #include "NPC.h"
 
 
-NPC::NPC(Map* on_map, Entity data, Script* script) : OverworldEntity(on_map, data.sprite, data.x, data.y, ENTITY_DOWN, true, script)
+NPC::NPC(Map* on_map, Entity data, Script* script, std::function<void()> step_callback) : OverworldEntity(on_map, data.sprite, data.x, data.y, ENTITY_DOWN, true, script, step_callback)
 {
 	this->data = data;
 	occupation = 0;

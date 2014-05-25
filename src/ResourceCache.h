@@ -7,6 +7,7 @@
 #include "Tileset.h"
 #include "PaletteTexture.h"
 #include "Utils.h"
+#include "Events.h"
 
 #ifdef _DEBUG
 #include <iostream>
@@ -99,6 +100,8 @@ public:
 	inline static string& GetMoveName(unsigned char index) { return move_names[index]; }
 	inline static DataBlock* GetMoveData() { return move_data; }
 
+	inline static FlyPoint& GetFlyPoint(unsigned char index) { if (index > 12) index = 0; return fly_points[index]; }
+
 private:
 	//tilesets
 	static Tileset* tilesets[24];
@@ -140,4 +143,7 @@ private:
 	//move stuff
 	static string move_names[256];
 	static DataBlock* move_data;
+
+	//misc
+	static FlyPoint fly_points[13];
 };

@@ -3,6 +3,7 @@
 Tileset::Tileset(unsigned char index) : TileMap()
 {
 	tiles_tex = 0;
+	poison_timer = 0;
 	Load(index);
 }
 
@@ -36,6 +37,7 @@ void Tileset::Load(unsigned char index)
 	if (tiles_tex)
 	{
 		transparent_tiles.Copy(tiles_tex); //this is used for drawing grass on top of entities
+		poison_tiles.Copy(tiles_tex);
 	}
 }
 
@@ -45,6 +47,12 @@ void Tileset::Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned 
 		return;
 	sf::IntRect src_rect = sf::IntRect(0, 0, 8, 8);
 	sf::Sprite* sprite = &sprite8x8;
+	if (poison_timer > 0)
+	{
+		sprite->setTexture(poison_tiles);
+	}
+	else
+		sprite->setTexture(*tiles_tex->GetTexture());
 
 	for (unsigned int y = 0; y < tile_size_y; y++)
 	{
@@ -82,6 +90,8 @@ void Tileset::Render(sf::RenderWindow* window, int dest_x, int dest_y, unsigned 
 
 void Tileset::AnimateTiles()
 {
+	if (poison_timer > 0)
+		poison_timer--;
 	water_animation_stage++;
 	if (water_animation_stage >= ANIMATION_TIMER * 8)
 		water_animation_stage = 0;
@@ -94,6 +104,8 @@ void Tileset::SetPalette(sf::Color palette[])
 	ResourceCache::GetFlowerTexture()->SetPalette(palette);
 	sf::Color g_p[4] = { sf::Color::Transparent, palette[1], palette[2], palette[3] };
 	transparent_tiles.SetPalette(g_p);
+	sf::Color g_c[4] = { palette[2], palette[1], palette[2], palette[3] };
+	poison_tiles.SetPalette(g_c);
 }
 
 unsigned char Tileset::GetTile8x8(unsigned char tile, unsigned char corner4x4)

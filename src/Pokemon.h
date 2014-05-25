@@ -99,6 +99,7 @@ public:
 
 	void LoadStats(bool default_moves = false, unsigned char* move_count = 0);
 	void RecalculateStats();
+	void Heal();
 
 	unsigned int GetXPRemaining() { return GetXPAt(level + 1, growth_rate) - xp; }
 
