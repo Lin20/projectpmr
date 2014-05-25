@@ -484,6 +484,8 @@ void MapScene::CheckWarp()
 						focus_entity->Move(walk_direction, 1);
 						poison_steps = 5;
 					}
+					else
+						poison_steps = 4;
 				}
 				else
 				{
@@ -516,6 +518,9 @@ void MapScene::TryResetWarp()
 
 void MapScene::Walk()
 {
+	Warp* w = active_map->GetWarpAt(focus_entity->x / 16, focus_entity->y / 16);
+	if (can_warp && active_map->CanWarp(focus_entity->x / 16, focus_entity->y / 16, focus_entity->GetMovementDirection(), w))
+		return;
 	if (repel_steps > 0)
 	{
 		repel_steps--;
