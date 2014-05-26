@@ -93,9 +93,19 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 		MenuCache::PokemonMenu()->Show(src->GetParent(), pokestring("Use item on which\n\n#MON?"), UseVitamin, close_pokemon);
 		break;
 
+	case 0x10: //pp up
+		MenuCache::PokemonMenu()->UpdatePokemon(Players::GetPlayer1()->GetParty());
+		MenuCache::PokemonMenu()->Show(src->GetParent(), pokestring("Use item on which\n\n#MON?"), UsePPUp, close_pokemon);
+		break;
+
 	case 0x40: //medicine
 		MenuCache::PokemonMenu()->UpdatePokemon(Players::GetPlayer1()->GetParty());
 		MenuCache::PokemonMenu()->Show(src->GetParent(), pokestring("Use item on which\n\n#MON?"), UseMedicine, close_pokemon);
+		break;
+
+	case 0x42: //pp restore
+		MenuCache::PokemonMenu()->UpdatePokemon(Players::GetPlayer1()->GetParty());
+		MenuCache::PokemonMenu()->Show(src->GetParent(), pokestring("Use item on which\n\n#MON?"), (id == 0x50 || id == 0x51 ? UseEther : UseElixer), close_pokemon);
 		break;
 
 	default:
@@ -283,7 +293,7 @@ void ItemActions::UseVitamin(TextItem* src)
 	{
 	case 0x23: //hp up
 		if (p->ev_hp >= 25600)
-		break;
+			break;
 		p->ev_hp = min(p->ev_hp + EV_MAXVITAMIN / 10, EV_MAXVITAMIN);
 		stat = p->max_hp;
 		p->RecalculateStats();
@@ -388,4 +398,168 @@ void ItemActions::UseEvoStone(TextItem* src)
 	t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, pokestring("It won't have any\n\neffect.")));
 	MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
 	src->GetParent()->ShowTextbox(t, false);
+}
+
+void ItemActions::UseEther(TextItem* src)
+{
+	Pokemon* p = MenuCache::PokemonMenu()->GetParty()[src->index];
+	ItemStorage* items = last_inventory;
+
+	Textbox* which = new Textbox();
+	MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+
+	auto show_which = [src, which, p](TextItem* s2)
+	{
+		which->CancelClose();
+		which->SetCloseCallback([](TextItem* s6) {MenuCache::PokemonMenu()->GetMenu()->Close(); });
+		Textbox* moves = new Textbox(4, 7, 16, 6);
+		moves->SetMenu(true, 4, sf::Vector2i(1, 0), sf::Vector2u(0, 1), nullptr, MenuFlags::FOCUSABLE);
+		moves->SetArrowState(ArrowStates::ACTIVE);
+
+		auto move_select = [which, moves, p](TextItem* s3)
+		{
+			moves->SetCloseCallback([which](TextItem* s5){ which->Close(); });
+			if (p->moves[moves->GetActiveIndex()].pp == p->moves[moves->GetActiveIndex()].max_pp)
+			{
+				Textbox* f = new Textbox();
+				f->SetText(new TextItem(f, [moves](TextItem* s4) {moves->Close(); }, pokestring("It won't have any\neffect.\f")));
+				moves->ShowTextbox(f, false);
+			}
+			else
+			{
+				Textbox* f = new Textbox();
+				f->SetText(new TextItem(f, [moves](TextItem* s4) {moves->Close(); }, pokestring("PP was restored.\f")));
+				moves->ShowTextbox(f, false);
+				if (last_id == 0x50)
+					p->moves[moves->GetActiveIndex()].pp = min(p->moves[moves->GetActiveIndex()].pp + 10, (int)p->moves[moves->GetActiveIndex()].max_pp);
+				else
+					p->moves[moves->GetActiveIndex()].pp = p->moves[moves->GetActiveIndex()].max_pp;
+				last_inventory->RemoveItemFromSlot(last_src->index, 1);
+			}
+		};
+
+		unsigned char move_count = 0;
+		for (unsigned int i = 0; i < 4; i++)
+		{
+			if (p->moves[i].index != 0)
+			{
+				moves->GetItems().push_back(new TextItem(moves, move_select, p->moves[i].name, i));
+				move_count++;
+			}
+			else
+			{
+				moves->GetItems().push_back(new TextItem(moves, move_select, pokestring("-"), i));
+			}
+		}
+		moves->SetMaxSelect(move_count);
+		moves->SetCloseCallback([which, moves, src](TextItem* s3)
+		{
+			which->Close(true);
+			MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::ACTIVE);
+			MenuCache::PokemonMenu()->GetChooseTextbox()->SetText(pokestring("Use item on which\n\n#MON?"));
+		});
+		moves->UpdateMenu();
+		which->ShowTextbox(moves, false);
+	};
+
+	which->SetText(new TextItem(which, show_which, pokestring("Restore PP of\nwhich technique?\a")));
+	src->GetParent()->ShowTextbox(which, false);
+}
+
+void ItemActions::UseElixer(TextItem* src)
+{
+	Pokemon* p = MenuCache::PokemonMenu()->GetParty()[src->index];
+	ItemStorage* items = last_inventory;
+
+	unsigned char count = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		if (p->moves[i].index != 0 && p->moves[i].pp < p->moves[i].max_pp)
+		{
+			if (last_id == 0x52) //elixer
+				p->moves[i].pp = min(p->moves[i].pp + 10, (int)p->moves[i].max_pp);
+			else //max elixer
+				p->moves[i].pp = p->moves[i].max_pp;
+			count++;
+		}
+	}
+
+	if (count)
+	{
+		Textbox* t = new Textbox();
+		t->SetText(new TextItem(t, [](TextItem* s) {MenuCache::PokemonMenu()->GetMenu()->Close(); }, pokestring("PP was restored.\f")));
+		MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+		src->GetParent()->ShowTextbox(t, false);
+		return;
+	}
+
+	Textbox* t = new Textbox();
+	t->SetText(new TextItem(src->GetParent(), [items](TextItem* s){MenuCache::PokemonMenu()->GetMenu()->Close(); }, pokestring("It won't have any\n\neffect.")));
+	MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+	src->GetParent()->ShowTextbox(t, false);
+}
+
+void ItemActions::UsePPUp(TextItem* src)
+{
+	Pokemon* p = MenuCache::PokemonMenu()->GetParty()[src->index];
+	ItemStorage* items = last_inventory;
+
+	Textbox* which = new Textbox();
+	MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::INACTIVE);
+
+	auto show_which = [src, which, p](TextItem* s2)
+	{
+		which->CancelClose();
+		which->SetCloseCallback([](TextItem* s6) {MenuCache::PokemonMenu()->GetMenu()->Close(); });
+		Textbox* moves = new Textbox(4, 7, 16, 6);
+		moves->SetMenu(true, 4, sf::Vector2i(1, 0), sf::Vector2u(0, 1), nullptr, MenuFlags::FOCUSABLE);
+		moves->SetArrowState(ArrowStates::ACTIVE);
+
+		auto move_select = [which, moves, p](TextItem* s3)
+		{
+			moves->SetCloseCallback([which](TextItem* s5){ which->Close(); });
+			if (p->moves[moves->GetActiveIndex()].pp_ups >= 3)
+			{
+				Textbox* f = new Textbox();
+				f->SetText(new TextItem(f, [moves](TextItem* s4) {moves->Close(); }, string(p->moves[moves->GetActiveIndex()].name).append(pokestring("'s PP\nis maxed out.\f"))));
+				moves->ShowTextbox(f, false);
+			}
+			else
+			{
+				Textbox* f = new Textbox();
+				f->SetText(new TextItem(f, [moves](TextItem* s4) {moves->Close(); }, string(p->moves[moves->GetActiveIndex()].name).append(pokestring("'s PP\nincreased.\f"))));
+				moves->ShowTextbox(f, false);
+				p->moves[moves->GetActiveIndex()].pp_ups++;
+				p->moves[moves->GetActiveIndex()].max_pp += min(7, p->moves[moves->GetActiveIndex()].original_max_pp / 5);
+				p->moves[moves->GetActiveIndex()].pp += min(7, p->moves[moves->GetActiveIndex()].original_max_pp / 5);
+				last_inventory->RemoveItemFromSlot(last_src->index, 1);
+			}
+		};
+
+		unsigned char move_count = 0;
+		for (unsigned int i = 0; i < 4; i++)
+		{
+			if (p->moves[i].index != 0)
+			{
+				moves->GetItems().push_back(new TextItem(moves, move_select, p->moves[i].name, i));
+				move_count++;
+			}
+			else
+			{
+				moves->GetItems().push_back(new TextItem(moves, move_select, pokestring("-"), i));
+			}
+		}
+		moves->SetMaxSelect(move_count);
+		moves->SetCloseCallback([which, moves, src](TextItem* s3)
+		{
+			which->Close(true);
+			MenuCache::PokemonMenu()->GetMenu()->SetArrowState(ArrowStates::ACTIVE);
+			MenuCache::PokemonMenu()->GetChooseTextbox()->SetText(pokestring("Use item on which\n\n#MON?"));
+		});
+		moves->UpdateMenu();
+		which->ShowTextbox(moves, false);
+	};
+
+	which->SetText(new TextItem(which, show_which, pokestring("Raise PP of which\ntechnique?\a")));
+	src->GetParent()->ShowTextbox(which, false);
 }

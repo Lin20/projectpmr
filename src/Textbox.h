@@ -68,6 +68,7 @@ public:
 	bool IsSwitchCanceled() { return cancel_switch; }
 	void Reset() { text_pos = 0; }
 	void PerformCloseCallback() { if (close_callback != nullptr)close_callback(0); }
+	void SetMaxSelect(unsigned int value) { max_select = value; }
 
 	void SetRenderCallback(std::function<void(sf::RenderWindow* w)> f)
 	{
@@ -98,6 +99,7 @@ private:
 	sf::Vector2i arrow_offset; //offset for the selection arrow (relative to default pos)
 	std::function<void(TextItem* source)> close_callback; //the function that's called when the menu is closed; source will never be used but is there to match TextItem callbacks
 	unsigned char menu_open_delay; //used to emulate lag when opening the menu
+	unsigned int max_select; //used to determine how far down the cursor can go
 
 	//menu selection stuff
 	unsigned int active_index; //where the active arrow is

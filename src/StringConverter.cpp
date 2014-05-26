@@ -13,6 +13,7 @@ $	=	pokedollar
 \v	=	scroll to next line
 \a	=	done (action)
 \t	=	delay
+\b	=	auto close
 -------------------------------------------------
 */
 

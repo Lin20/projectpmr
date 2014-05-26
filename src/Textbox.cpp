@@ -31,6 +31,7 @@ Textbox::Textbox(char x, char y, unsigned char width, unsigned char height, bool
 	scroll_timer = 0;
 	cursor_visibility_timer = 0;
 	auto_close_timer = 0;
+	max_select = INT_MAX;
 
 	SetFrame(x, y, width, height);
 }
@@ -653,7 +654,7 @@ void Textbox::Scroll(bool up)
 	}
 	else
 	{
-		if (active_index < items.size() - 1)
+		if (active_index < items.size() - 1 && active_index < max_select - 1)
 		{
 			active_index++;
 			if (GetScrollIndex() >(int)scroll_start)
