@@ -33,7 +33,9 @@ public:
 	bool Interact();
 	void WarpTo(Warp& w);
 	void Walk();
+	void UseEscapeRope();
 
+	Map* GetMap() { return active_map; }
 	vector<OverworldEntity*>& GetEntities() { return entities; }
 	bool GetFlag(unsigned int index) { if (index < 4096) return flags[index]; return 0; }
 	void SetFlag(unsigned int index, bool b) { if (index < 4096) flags[index] = b; }
@@ -57,8 +59,13 @@ private:
 	unsigned char repel_steps; //steps remaining for repel
 	unsigned char poison_steps;
 
+	unsigned char teleport_stage;
+	unsigned char teleport_steps;
+	unsigned char teleport_timer;
+
 	Script* active_script;
 
 	void CheckWarp();
 	void TryResetWarp();
+	void ProcessTeleport();
 };

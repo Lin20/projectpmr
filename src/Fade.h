@@ -34,7 +34,7 @@ public:
 	{
 		fade_timer = 0;
 		start_fade = 0;
-		previous_fade_index = 0;
+		//previous_fade_index = 0;
 		done = true;
 	}
 
@@ -56,6 +56,39 @@ public:
 		palettes[2][1] = base[3];
 		for (int i = 0; i < 3; i++)
 			palettes[3][i] = base[3];
+	}
+
+	void SetFadeToWhite(sf::Color base[4])
+	{
+		for (int i = 0; i < 4; i++)
+			memcpy(palettes[i], base, sizeof(sf::Color) * 4);
+		palettes[1][1] = base[0];
+		palettes[1][2] = base[1];
+		palettes[1][3] = base[2];
+
+		palettes[2][1] = base[0];
+		palettes[2][2] = base[0];
+		palettes[2][3] = base[1];
+
+		for (int i = 0; i < 4; i++)
+			palettes[3][i] = base[0];
+	}
+
+	void SetFadeFromWhite(sf::Color base[4])
+	{
+		for (int i = 0; i < 4; i++)
+			memcpy(palettes[i], base, sizeof(sf::Color) * 4);
+
+		for (int i = 0; i < 4; i++)
+			palettes[0][i] = base[0];
+
+		palettes[1][1] = base[0];
+		palettes[1][2] = base[0];
+		palettes[1][3] = base[1];
+
+		palettes[2][1] = base[0];
+		palettes[2][2] = base[1];
+		palettes[2][3] = base[2];
 	}
 
 	unsigned int CurrentFade() { return min(3u, (fade_timer > 0 ? fade_timer / (start_fade / 4) + 1 : 1)); }

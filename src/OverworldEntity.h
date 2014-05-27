@@ -49,6 +49,7 @@ public:
 
 	int x;
 	int y;
+	int offset_y;
 protected:
 	unsigned char index;
 	Map* on_map;

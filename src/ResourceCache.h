@@ -101,6 +101,7 @@ public:
 	inline static DataBlock* GetMoveData() { return move_data; }
 
 	inline static FlyPoint& GetFlyPoint(unsigned char index) { if (index > 12) index = 0; return fly_points[index]; }
+	inline static bool CanUseEscapeRope(unsigned char tileset) { for (unsigned int i = 0; i < escape_rope_tilesets->size; i++) if (escape_rope_tilesets->data[i] == tileset) return true; return false; }
 
 private:
 	//tilesets
@@ -146,4 +147,5 @@ private:
 
 	//misc
 	static FlyPoint fly_points[13];
+	static DataBlock* escape_rope_tilesets;
 };

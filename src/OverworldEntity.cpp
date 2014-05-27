@@ -30,6 +30,7 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	allow_entity_ghosting = false;
 	emotion_bubble = 255;
 	force_fast = false;
+	offset_y = 0;
 
 	//is this entity a moving npc or a static image (eg. pokeball)
 	direction = (direction > 3 ? 0 : index <= ENTITY_LIMIT ? direction : 0);
@@ -221,7 +222,7 @@ void OverworldEntity::Render(sf::RenderWindow* window, int offset_x, int offset_
 				int offset = (ResourceCache::GetJumpCoordinates()->data[min(JUMP_STEPS - 3, max(0, (int)(signed char)jump_index))] - 0x3C) - (jump_y - this->y) - 2;
 				dest_y = (int)(this->jump_y + y * 8) + offset;
 			}
-			sprite8x8.setPosition((float)(dest_x + offset_x), (float)(dest_y + offset_y));
+			sprite8x8.setPosition((float)(dest_x + offset_x), (float)(dest_y + offset_y + this->offset_y));
 			window->draw(sprite8x8);
 		}
 	}

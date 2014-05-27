@@ -35,6 +35,7 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 
 	Textbox* t;
 	string s;
+	MapScene* map;
 	unsigned char v = 0;
 	bool able[6] = {};
 	switch (usage)
@@ -70,6 +71,30 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 
 		MenuCache::PokemonMenu()->UpdatePokemon(Players::GetPlayer1()->GetParty(), true);
 		MenuCache::PokemonMenu()->Show(src->GetParent(), pokestring("Use item on which\n\n#MON?"), UseEvoStone, close_pokemon);
+		break;
+
+	case 0x06: //escape rope
+		if (Engine::GetState() == States::OVERWORLD)
+		{
+			map = ((MapScene*)Engine::GetActiveScene());
+			if (map->GetMap()->index == 0xF7 || !ResourceCache::CanUseEscapeRope(map->GetMap()->tileset))
+			{
+				t = new Textbox();
+				s = string(pokestring("OAK: ")).append(inventory->GetOwner()->GetName()).append(pokestring("!\nThis isn't the\vtime to use that!\f"));
+				t->SetText(new TextItem(t, [inventory](TextItem* src)
+				{
+					inventory->GetMenu()->GetTextboxes()[0]->Close();
+				}, s));
+				src->GetParent()->ShowTextbox(t, false);
+				break;
+			}
+
+			inventory->RemoveItemFromSlot(last_src->index, 1);
+			((MapScene*)Engine::GetActiveScene())->UseEscapeRope();
+		}
+		inventory->GetMenu()->GetTextboxes()[0]->Close();
+		inventory->GetMenu()->Close();
+		MenuCache::StartMenu()->Close();
 		break;
 
 	case 0x07: //repels

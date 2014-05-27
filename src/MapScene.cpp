@@ -8,6 +8,9 @@ MapScene::MapScene() : Scene()
 	memset(flags, 0, sizeof(bool)* 16 * 256);
 	active_script = 0;
 	last_healed_map = 0;
+	teleport_stage = 0;
+	teleport_steps = 0;
+	teleport_timer = 0;
 
 	//Initialize the player
 	entities.push_back(new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false, nullptr, [this]() {Walk(); }));
@@ -35,101 +38,105 @@ MapScene::~MapScene()
 void MapScene::Update()
 {
 	current_fade.Update();
-	CheckWarp();
+	ProcessTeleport();
 	if (active_script && (focus_entity ? focus_entity->Snapped() : true))
 		active_script->Update();
-
-	if (InputController::KeyDownOnce(sf::Keyboard::F1))
-		memset(flags, 0, sizeof(bool)* 4096);
-	if (!UpdateTextboxes() && current_fade.Done() && input_enabled && !focus_entity->Frozen())
+	if (!teleport_stage)
 	{
-		if (!Interact())
-		{
-			if (sf::Keyboard::isKeyPressed(INPUT_DOWN))
-			{
-				focus_entity->StartMoving(ENTITY_DOWN);
-				TryResetWarp();
-			}
-			else if (sf::Keyboard::isKeyPressed(INPUT_UP))
-			{
-				focus_entity->StartMoving(ENTITY_UP);
-				TryResetWarp();
-			}
-			else if (sf::Keyboard::isKeyPressed(INPUT_LEFT))
-			{
-				focus_entity->StartMoving(ENTITY_LEFT);
-				TryResetWarp();
-			}
-			else if (sf::Keyboard::isKeyPressed(INPUT_RIGHT))
-			{
-				focus_entity->StartMoving(ENTITY_RIGHT);
-				TryResetWarp();
-			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
-			{
-				Players::GetPlayer1()->RandomParty();
-			}
-			else
-				focus_entity->StopMoving();
+		CheckWarp();
 
-			if (focus_entity->Snapped() && InputController::KeyDownOnce(INPUT_START))
+		if (InputController::KeyDownOnce(sf::Keyboard::F1))
+			memset(flags, 0, sizeof(bool)* 4096);
+		if (!UpdateTextboxes() && current_fade.Done() && input_enabled && !focus_entity->Frozen())
+		{
+			if (!Interact())
 			{
-				ShowTextbox(MenuCache::StartMenu());
-				MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
+				if (sf::Keyboard::isKeyPressed(INPUT_DOWN))
+				{
+					focus_entity->StartMoving(ENTITY_DOWN);
+					TryResetWarp();
+				}
+				else if (sf::Keyboard::isKeyPressed(INPUT_UP))
+				{
+					focus_entity->StartMoving(ENTITY_UP);
+					TryResetWarp();
+				}
+				else if (sf::Keyboard::isKeyPressed(INPUT_LEFT))
+				{
+					focus_entity->StartMoving(ENTITY_LEFT);
+					TryResetWarp();
+				}
+				else if (sf::Keyboard::isKeyPressed(INPUT_RIGHT))
+				{
+					focus_entity->StartMoving(ENTITY_RIGHT);
+					TryResetWarp();
+				}
+				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
+				{
+					Players::GetPlayer1()->RandomParty();
+				}
+				else
+					focus_entity->StopMoving();
+
+				if (focus_entity->Snapped() && InputController::KeyDownOnce(INPUT_START))
+				{
+					ShowTextbox(MenuCache::StartMenu());
+					MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
+				}
 			}
 		}
-	}
-	else
-		focus_entity->StopMoving();
+		else
+			focus_entity->StopMoving();
 
-	int x = (int)(focus_entity ? focus_entity->x : 0);
-	int y = (int)(focus_entity ? focus_entity->y : 0);
+		for (unsigned int i = 0; i < entities.size(); i++)
+		{
+			if (entities[i])
+				entities[i]->Update();
+		}
 
-	if (x < 0 && active_map->HasConnection(CONNECTION_WEST))
-	{
-		MapConnection connection = active_map->connections[CONNECTION_WEST];
-		SwitchMap(active_map->connections[CONNECTION_WEST].map);
-		focus_entity->x = active_map->width * 32 - 1;
-		focus_entity->y = y + (connection.y_alignment + (connection.y_alignment < 0 ? 0 : 0)) * 16;
-		//FocusFree(active_map->width * 32 + 16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
-	}
-	else if (x >= active_map->width * 32 && active_map->HasConnection(CONNECTION_EAST))
-	{
-		MapConnection connection = active_map->connections[CONNECTION_EAST];
-		SwitchMap(active_map->connections[CONNECTION_EAST].map);
-		focus_entity->x = 0;
-		focus_entity->y = y + (connection.y_alignment + (connection.y_alignment < 0 ? 0 : 0)) * 16;
-		//FocusFree(16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
-	}
+		int x = (int)(focus_entity ? focus_entity->x : 0);
+		int y = (int)(focus_entity ? focus_entity->y : 0);
 
-	x = (int)(focus_entity ? focus_entity->x : 0);
-	y = (int)(focus_entity ? focus_entity->y : 0);
-	if (y < 0 && active_map->HasConnection(CONNECTION_NORTH))
-	{
-		MapConnection connection = active_map->connections[CONNECTION_NORTH];
-		SwitchMap(active_map->connections[CONNECTION_NORTH].map);
-		focus_entity->x = x + (connection.x_alignment + (connection.x_alignment < 0 ? 0 : 0)) * 16;
-		focus_entity->y = active_map->height * 32 - 1;
-		//FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, active_map->height * 32 - 20);
-	}
-	else if (y >= active_map->height * 32 && active_map->HasConnection(CONNECTION_SOUTH))
-	{
-		MapConnection connection = active_map->connections[CONNECTION_SOUTH];
-		SwitchMap(active_map->connections[CONNECTION_SOUTH].map);
-		focus_entity->x = x + (connection.x_alignment + (connection.x_alignment < 0 ? 0 : 0)) * 16;
-		focus_entity->y = 0;
-		//FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, -16);
+		if (x < 0 && active_map->HasConnection(CONNECTION_WEST))
+		{
+			MapConnection connection = active_map->connections[CONNECTION_WEST];
+			SwitchMap(active_map->connections[CONNECTION_WEST].map);
+			focus_entity->x = active_map->width * 32 - 1;
+			focus_entity->y = y + (connection.y_alignment + (connection.y_alignment < 0 ? 0 : 0)) * 16;
+			//FocusFree(active_map->width * 32 + 16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
+		}
+		else if (x >= active_map->width * 32 && active_map->HasConnection(CONNECTION_EAST))
+		{
+			MapConnection connection = active_map->connections[CONNECTION_EAST];
+			SwitchMap(active_map->connections[CONNECTION_EAST].map);
+			focus_entity->x = 0;
+			focus_entity->y = y + (connection.y_alignment + (connection.y_alignment < 0 ? 0 : 0)) * 16;
+			//FocusFree(16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
+		}
+
+		x = (int)(focus_entity ? focus_entity->x : 0);
+		y = (int)(focus_entity ? focus_entity->y : 0);
+		if (y < 0 && active_map->HasConnection(CONNECTION_NORTH))
+		{
+			MapConnection connection = active_map->connections[CONNECTION_NORTH];
+			SwitchMap(active_map->connections[CONNECTION_NORTH].map);
+			focus_entity->x = x + (connection.x_alignment + (connection.x_alignment < 0 ? 0 : 0)) * 16;
+			focus_entity->y = active_map->height * 32 - 1;
+			//FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, active_map->height * 32 - 20);
+		}
+		else if (y >= active_map->height * 32 && active_map->HasConnection(CONNECTION_SOUTH))
+		{
+			MapConnection connection = active_map->connections[CONNECTION_SOUTH];
+			SwitchMap(active_map->connections[CONNECTION_SOUTH].map);
+			focus_entity->x = x + (connection.x_alignment + (connection.x_alignment < 0 ? 0 : 0)) * 16;
+			focus_entity->y = 0;
+			//FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, -16);
+		}
 	}
 
 	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
 	if (tex)
 		tex->AnimateTiles();
-
-	for (unsigned int i = 0; i < entities.size(); i++)
-	{
-		if (entities[i])
-			entities[i]->Update();
-	}
 
 	if (!current_fade.Done() && current_fade.CurrentFade() != current_fade.LastFade())
 	{
@@ -351,16 +358,19 @@ void MapScene::SetPalette(sf::Color* pal)
 		}
 	}
 
-	ResourceCache::GetMenuTexture()->SetPalette(pal);
-	ResourceCache::GetFontTexture()->SetPalette(pal);
-	for (int i = 0; i < 3; i++)
+	if (current_fade.Done())
 	{
-		sf::Color hp[4] = { pal[0], ResourceCache::GetPalette(31 + i)[0], ResourceCache::GetPalette(31 + i)[2], ResourceCache::GetPalette(31 + i)[3] };
-		ResourceCache::GetStatusesTexture(i)->SetPalette(hp);
-	}
+		ResourceCache::GetMenuTexture()->SetPalette(pal);
+		ResourceCache::GetFontTexture()->SetPalette(pal);
+		for (int i = 0; i < 3; i++)
+		{
+			sf::Color hp[4] = { pal[0], ResourceCache::GetPalette(31 + i)[0], ResourceCache::GetPalette(31 + i)[2], ResourceCache::GetPalette(31 + i)[3] };
+			ResourceCache::GetStatusesTexture(i)->SetPalette(hp);
+		}
 
-	sf::Color palette[4] = { pal[0], ResourceCache::GetPalette(POKE_DEFAULT_PAL)[0], ResourceCache::GetPalette(POKE_DEFAULT_PAL)[1], ResourceCache::GetPalette(POKE_DEFAULT_PAL)[3] };
-	ResourceCache::GetPokemonIcons()->SetPalette(palette);
+		sf::Color palette[4] = { pal[0], ResourceCache::GetPalette(POKE_DEFAULT_PAL)[0], ResourceCache::GetPalette(POKE_DEFAULT_PAL)[1], ResourceCache::GetPalette(POKE_DEFAULT_PAL)[3] };
+		ResourceCache::GetPokemonIcons()->SetPalette(palette);
+	}
 
 	for (unsigned int i = 0; i < entities.size(); i++)
 	{
@@ -535,7 +545,6 @@ void MapScene::Walk()
 	poison_steps--;
 	if (poison_steps == 0)
 	{
-		ResourceCache::GetTileset(active_map->tileset)->SetPoisonTimer();
 		poison_steps = 4;
 		unsigned char fainted = 0;
 		string s = "";
@@ -544,6 +553,7 @@ void MapScene::Walk()
 			Pokemon* p = Players::GetPlayer1()->GetParty()[i];
 			if (p->status == Statuses::POISONED && p->hp > 0)
 			{
+				ResourceCache::GetTileset(active_map->tileset)->SetPoisonTimer();
 				p->hp--;
 				if (!p->hp)
 				{
@@ -596,5 +606,164 @@ void MapScene::Walk()
 				});
 			}
 		}
+	}
+}
+
+void MapScene::UseEscapeRope()
+{
+	if (!focus_entity)
+		return;
+	teleport_steps = 15;
+	teleport_timer = 60;
+	teleport_stage = 1;
+	focus_entity->Face(ENTITY_DOWN);
+}
+
+void MapScene::ProcessTeleport()
+{
+	switch (teleport_stage)
+	{
+	case 1:
+		if (teleport_timer > 0)
+			teleport_timer--;
+		else
+		{
+			teleport_timer = 15;
+			teleport_stage = 2;
+		}
+		break;
+
+	case 2:
+		if (teleport_timer > 0)
+		{
+			teleport_timer--;
+			if (!teleport_timer)
+			{
+				if (focus_entity->GetDirection() == ENTITY_DOWN)
+					focus_entity->Face(ENTITY_LEFT);
+				else if (focus_entity->GetDirection() == ENTITY_LEFT)
+					focus_entity->Face(ENTITY_UP);
+				else if (focus_entity->GetDirection() == ENTITY_UP)
+					focus_entity->Face(ENTITY_RIGHT);
+				else if (focus_entity->GetDirection() == ENTITY_RIGHT)
+					focus_entity->Face(ENTITY_DOWN);
+				if (teleport_steps > 0)
+				{
+					teleport_steps--;
+					teleport_timer = teleport_steps;
+				}
+				else
+				{
+					focus_entity->Face(ENTITY_DOWN);
+					teleport_stage = 3;
+				}
+			}
+		}
+		else
+			teleport_stage = 3;
+		break;
+
+	case 3:
+		focus_entity->Face(ENTITY_DOWN);
+		if (teleport_timer > 0)
+			teleport_timer--;
+		else
+		{
+			if (focus_entity->offset_y > -80)
+			{
+				teleport_timer = 0;
+				focus_entity->offset_y -= 8;
+			}
+			else
+			{
+				focus_entity->offset_y = -80;
+				teleport_stage = 4;
+				current_fade.SetFadeToWhite(active_map->GetPalette());
+				current_fade.Start(Warp());
+			}
+		}
+		break;
+
+	case 4:
+		if (current_fade.Done())
+		{
+			teleport_stage = 5;
+			teleport_timer = 16;
+			Warp w;
+			w.dest_map = this->last_healed_map;
+			for (int i = 0; i < 13; i++)
+			{
+				if (ResourceCache::GetFlyPoint(i).map == w.dest_map)
+				{
+					w.x = ResourceCache::GetFlyPoint(i).x;
+					w.y = ResourceCache::GetFlyPoint(i).y;
+					w.type = WARP_TYPE_SET;
+					break;
+				}
+			}
+			SwitchMap(w.dest_map);
+			focus_entity->x = w.x * 16;
+			focus_entity->y = w.y * 16;
+			current_fade.SetFadeFromWhite(active_map->GetPalette());
+			current_fade.Start(w);
+		}
+		break;
+
+	case 5:
+		if (current_fade.Done())
+		{
+			if (teleport_timer > 0)
+				teleport_timer--;
+			else
+			{
+				if (focus_entity->offset_y < 0)
+				{
+					teleport_timer = 0;
+					focus_entity->offset_y += 8;
+				}
+				else
+				{
+					teleport_stage = 6;
+					teleport_steps = 1;
+					teleport_timer = 1;
+				}
+			}
+		}
+
+	case 6:
+		if (teleport_timer > 0)
+		{
+			teleport_timer--;
+			if (!teleport_timer)
+			{
+				if (focus_entity->GetDirection() == ENTITY_DOWN)
+					focus_entity->Face(ENTITY_LEFT);
+				else if (focus_entity->GetDirection() == ENTITY_LEFT)
+					focus_entity->Face(ENTITY_UP);
+				else if (focus_entity->GetDirection() == ENTITY_UP)
+					focus_entity->Face(ENTITY_RIGHT);
+				else if (focus_entity->GetDirection() == ENTITY_RIGHT)
+					focus_entity->Face(ENTITY_DOWN);
+				if (teleport_steps < 9)
+				{
+					teleport_steps++;
+					teleport_timer = teleport_steps;
+				}
+				else
+				{
+					focus_entity->Face(ENTITY_DOWN);
+					teleport_timer = 30;
+					teleport_stage = 7;
+				}
+			}
+		}
+		break;
+
+	case 7:
+		if (teleport_timer > 0)
+			teleport_timer--;
+		else
+			teleport_stage = 0;
+		break;
 	}
 }

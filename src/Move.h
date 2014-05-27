@@ -30,7 +30,7 @@ struct Move
 		index = id;
 		memcpy(&animation, ResourceCache::GetMoveData()->data_start + 6 * id - 6, 6);
 		original_max_pp = max_pp;
-		pp = rand() % max_pp + 1;
+		pp = max_pp;
 		//woooaaaahhhhhhh like it's cool to be able to do this. i feel naughty.
 		if (id > 0)
 			name = ResourceCache::GetMoveName(id - 1);
