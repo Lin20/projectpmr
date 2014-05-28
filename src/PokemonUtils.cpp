@@ -310,3 +310,36 @@ std::function<void(TextItem* s)> PokemonUtils::CheckMove(Textbox* src, Pokemon* 
 
 	return nullptr;
 }
+
+void PokemonUtils::Faint(MapScene* scene, Textbox* t)
+{
+	t->GetText()->SetAction([t, scene](TextItem* src)
+	{
+		Textbox* f = new Textbox();
+		f->SetText(new TextItem(f, [scene](TextItem* s2)
+		{
+			Warp w;
+			w.dest_map = scene->GetLastHealedMap();
+			for (int i = 0; i < 13; i++)
+			{
+				if (ResourceCache::GetFlyPoint(i).map == w.dest_map)
+				{
+					w.x = ResourceCache::GetFlyPoint(i).x;
+					w.y = ResourceCache::GetFlyPoint(i).y;
+					w.type = WARP_TYPE_SET;
+					break;
+				}
+			}
+			scene->WarpTo(w);
+
+			for (unsigned int i = 0; i < Players::GetPlayer1()->GetPartyCount(); i++)
+			{
+				Players::GetPlayer1()->GetParty()[i]->Heal();
+			}
+			Players::GetPlayer1()->SetMoney(Players::GetPlayer1()->GetMoney() / 2);
+			scene->GetEntities()[0]->SetSprite(Players::GetPlayer1()->GetOptions().player_sprite);
+
+		}, string(Players::GetPlayer1()->GetName()).append(pokestring(" is out of\nuseable #MON!\r")).append(Players::GetPlayer1()->GetName()).append(pokestring(" blacked\nout!\f"))));
+		scene->ShowTextbox(f, true);
+	});
+}

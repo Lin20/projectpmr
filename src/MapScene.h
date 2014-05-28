@@ -37,6 +37,7 @@ public:
 
 	Map* GetMap() { return active_map; }
 	vector<OverworldEntity*>& GetEntities() { return entities; }
+	unsigned char GetLastHealedMap(){ return last_healed_map; }
 	bool GetFlag(unsigned int index) { if (index < 4096) return flags[index]; return 0; }
 	void SetFlag(unsigned int index, bool b) { if (index < 4096) flags[index] = b; }
 

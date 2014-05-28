@@ -580,34 +580,7 @@ void MapScene::Walk()
 
 			if (fainted == Players::GetPlayer1()->GetPartyCount())
 			{
-				t->GetText()->SetAction([t, this](TextItem* src)
-				{
-					Textbox* f = new Textbox();
-					f->SetText(new TextItem(f, [this](TextItem* s2)
-					{
-						Warp w;
-						w.dest_map = this->last_healed_map;
-						for (int i = 0; i < 13; i++)
-						{
-							if (ResourceCache::GetFlyPoint(i).map == w.dest_map)
-							{
-								w.x = ResourceCache::GetFlyPoint(i).x;
-								w.y = ResourceCache::GetFlyPoint(i).y;
-								w.type = WARP_TYPE_SET;
-								break;
-							}
-						}
-						WarpTo(w);
-
-						for (unsigned int i = 0; i < Players::GetPlayer1()->GetPartyCount(); i++)
-						{
-							Players::GetPlayer1()->GetParty()[i]->Heal();
-						}
-						Players::GetPlayer1()->SetMoney(Players::GetPlayer1()->GetMoney() / 2);
-
-					}, string(Players::GetPlayer1()->GetName()).append(pokestring(" is out of\nuseable #MON!\r")).append(Players::GetPlayer1()->GetName()).append(pokestring(" blacked\nout!\f"))));
-					this->ShowTextbox(f, true);
-				});
+				PokemonUtils::Faint(this, t);
 			}
 		}
 	}

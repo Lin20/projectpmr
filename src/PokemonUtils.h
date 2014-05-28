@@ -15,5 +15,6 @@ public:
 	static std::function<void(TextItem* s)> LearnMove(Textbox* src, Pokemon* p, unsigned char move, bool close_src = true);
 	static std::function<void(TextItem* s)> Evolve(Textbox* src, Pokemon* p, unsigned char evolution, bool close_src = true);
 	static std::function<void(TextItem* s)> CheckMove(Textbox* src, Pokemon* p);
+	static void Faint(MapScene* scene, Textbox* t);
 };
 
