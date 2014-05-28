@@ -21,6 +21,7 @@ public:
 	void StopMoving();
 	void ForceStop();
 	void Move(unsigned char direction, unsigned char steps = 1, bool fast = false);
+	void SetSprite(unsigned char index);
 	
 	inline bool Snapped() { return x % 16 == 0 && y % 16 == 0; }
 	inline bool Moving() { return step_timer > 0; }
@@ -33,6 +34,7 @@ public:
 	inline void SetEmote(unsigned char e) { emotion_bubble = e; }
 	inline bool Frozen() { return frozen; }
 	inline void SetFrozen(bool b) { frozen = b; }
+	inline unsigned char GetIndex() { return index; }
 
 	void SetMap(Map* m)
 	{

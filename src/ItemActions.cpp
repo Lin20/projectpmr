@@ -50,6 +50,35 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 		src->GetParent()->ShowTextbox(t, false);
 		break;
 
+	case 0x02: //bicycle
+		if (Engine::GetState() == States::OVERWORLD)
+		{
+			map = ((MapScene*)Engine::GetActiveScene());
+			if (!ResourceCache::CanUseBicycle(map->GetMap()->tileset) && map->GetMap()->index != 34 && map->GetMap()->index != 9)
+			{
+				t = new Textbox();
+				s = pokestring("No cycling\nallowed here.\f");
+				t->SetText(new TextItem(t, [inventory](TextItem* src)
+				{
+					inventory->GetMenu()->GetTextboxes()[0]->Close();
+				}, s));
+				src->GetParent()->ShowTextbox(t, false);
+				break;
+			}
+
+			t = new Textbox();
+			s = string(inventory->GetOwner()->GetName()).append(pokestring(" got on the\nbicycle!\f"));
+			t->SetText(new TextItem(t, [inventory, map](TextItem* src)
+			{
+				map->GetEntities()[0]->SetSprite(0);
+			}, s));
+			Engine::GetActiveScene()->ShowTextbox(t, false);
+			inventory->GetMenu()->GetTextboxes()[0]->Close();
+			inventory->GetMenu()->Close();
+			MenuCache::StartMenu()->Close();
+		}
+		break;
+
 	case 0x05: //evostone
 		for (int i = 0; i < 6; i++)
 		{
@@ -90,7 +119,8 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 			}
 
 			inventory->RemoveItemFromSlot(last_src->index, 1);
-			((MapScene*)Engine::GetActiveScene())->UseEscapeRope();
+			map->GetEntities()[0]->SetSprite(1);
+			map->UseEscapeRope();
 		}
 		inventory->GetMenu()->GetTextboxes()[0]->Close();
 		inventory->GetMenu()->Close();

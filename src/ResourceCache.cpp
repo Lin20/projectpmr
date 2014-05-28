@@ -36,6 +36,7 @@ DataBlock* ResourceCache::move_data = 0;
 
 FlyPoint ResourceCache::fly_points[13];
 DataBlock* ResourceCache::escape_rope_tilesets = 0;
+DataBlock* ResourceCache::bicycle_tilesets = 0;
 
 ResourceCache::ResourceCache()
 {
@@ -112,6 +113,8 @@ void ResourceCache::ReleaseResources()
 		delete move_data;
 	if (escape_rope_tilesets)
 		delete escape_rope_tilesets;
+	if (bicycle_tilesets)
+		delete bicycle_tilesets;
 }
 
 void ResourceCache::LoadAll()
@@ -206,6 +209,7 @@ void ResourceCache::LoadMisc()
 	font_texture->loadFromFile(ResourceCache::GetResourceLocation(string("misc/font.png")));
 	ascii_table = ReadFile(ResourceCache::GetResourceLocation(string("misc/ascii_table.dat")).c_str());
 	escape_rope_tilesets = ReadFile(ResourceCache::GetResourceLocation(string("misc/escaperope.dat")).c_str());
+	bicycle_tilesets = ReadFile(ResourceCache::GetResourceLocation(string("misc/bicycle.dat")).c_str());
 
 	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("misc/flying.dat")).c_str());
 	for (int i = 0; i < 13; i++)

@@ -16,6 +16,7 @@ MapScene::MapScene() : Scene()
 	entities.push_back(new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false, nullptr, [this]() {Walk(); }));
 	focus_entity = entities[0];
 
+	current_fade.Reset();
 	Focus(STARTING_X, STARTING_Y);
 	SwitchMap(STARTING_MAP);
 }
@@ -101,7 +102,7 @@ void MapScene::Update()
 		{
 			MapConnection connection = active_map->connections[CONNECTION_WEST];
 			SwitchMap(active_map->connections[CONNECTION_WEST].map);
-			focus_entity->x = active_map->width * 32 - 1;
+			focus_entity->x = active_map->width * 32 - (focus_entity->GetIndex() > 0 ? 1 : 2);
 			focus_entity->y = y + (connection.y_alignment + (connection.y_alignment < 0 ? 0 : 0)) * 16;
 			//FocusFree(active_map->width * 32 + 16, y + (connection.y_alignment + (connection.y_alignment < 0 ? -1 : -1)) * 16);
 		}
@@ -121,7 +122,7 @@ void MapScene::Update()
 			MapConnection connection = active_map->connections[CONNECTION_NORTH];
 			SwitchMap(active_map->connections[CONNECTION_NORTH].map);
 			focus_entity->x = x + (connection.x_alignment + (connection.x_alignment < 0 ? 0 : 0)) * 16;
-			focus_entity->y = active_map->height * 32 - 1;
+			focus_entity->y = active_map->height * 32 - (focus_entity->GetIndex() > 0 ? 1 : 2);
 			//FocusFree(x + (connection.x_alignment + (connection.x_alignment < 0 ? 1 : 1)) * 16, active_map->height * 32 - 20);
 		}
 		else if (y >= active_map->height * 32 && active_map->HasConnection(CONNECTION_SOUTH))
@@ -221,6 +222,9 @@ void MapScene::SwitchMap(unsigned char index)
 
 	if (focus_entity)
 		focus_entity->SetMap(active_map);
+
+	if (focus_entity->GetIndex() == 0 && !ResourceCache::CanUseBicycle(active_map->tileset) && active_map->index != 34 && active_map->index != 9)
+		focus_entity->SetSprite(1);
 
 	SetPalette(active_map->GetPalette());
 

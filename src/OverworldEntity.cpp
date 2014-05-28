@@ -16,9 +16,7 @@ OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, u
 	else
 		this->step_callback = nullptr;
 
-	this->tiles_tex = ResourceCache::GetEntityTexture(index);
-	this->formation = new DataBlock(4);
-	this->tiles_x = 16;
+	SetSprite(index);
 
 	step_frame = 0;
 	animation_timer = 0;
@@ -83,8 +81,8 @@ void OverworldEntity::Update()
 			{
 				if (!Snapped() || on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction), this, !allow_entity_ghosting))
 				{
-					x += DELTAX(direction);
-					y += DELTAY(direction);
+					x += DELTAX(direction) * (index > 0 ? 1 : 2);
+					y += DELTAY(direction) * (index > 0 ? 1 : 2);
 				}
 				if (Snapped())
 				{
@@ -333,4 +331,26 @@ void OverworldEntity::Move(unsigned char direction, unsigned char steps, bool fa
 	steps_remaining = steps;
 	if (is_npc && steps_remaining == 0)
 		ForceStop();
+}
+
+void OverworldEntity::SetSprite(unsigned char index)
+{
+	this->index = index;
+	this->tiles_tex = ResourceCache::GetEntityTexture(index);
+
+	if (!this->formation)
+		this->formation = new DataBlock(4);
+	this->tiles_x = 16;
+
+	direction = (direction > 3 ? 0 : index <= ENTITY_LIMIT ? direction : 0);
+	for (int i = 0; i < 4; i++)
+		formation->data[i] = direction * 4 + i;
+
+	if (on_map)
+	{
+		sf::Color palette[4] = { sf::Color(0, 0, 0, 0), *on_map->GetPalette(), on_map->GetPalette()[1], on_map->GetPalette()[3] };
+		tiles_tex->SetPalette(palette);
+	}
+	sprite8x8.setTexture(*tiles_tex);
+
 }
