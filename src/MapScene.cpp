@@ -5,7 +5,7 @@ MapScene::MapScene() : Scene()
 {
 	active_map = 0;
 	previous_map = 13;
-	memset(flags, 0, sizeof(bool)* 16 * 256);
+	memset(flags, 0, sizeof(bool) * 16 * 256);
 	active_script = 0;
 	last_healed_map = 0;
 	teleport_stage = 0;
@@ -40,6 +40,7 @@ void MapScene::Update()
 {
 	current_fade.Update();
 	ProcessTeleport();
+	Engine::GetMusicPlayer().Update();
 	if (active_script && (focus_entity ? focus_entity->Snapped() : true))
 		active_script->Update();
 	if (!teleport_stage)
@@ -47,7 +48,7 @@ void MapScene::Update()
 		CheckWarp();
 
 		if (InputController::KeyDownOnce(sf::Keyboard::F1))
-			memset(flags, 0, sizeof(bool)* 4096);
+			memset(flags, 0, sizeof(bool) * 4096);
 		if (!UpdateTextboxes() && current_fade.Done() && input_enabled && !focus_entity->Frozen())
 		{
 			if (!Interact())
@@ -228,6 +229,8 @@ void MapScene::SwitchMap(unsigned char index)
 
 	SetPalette(active_map->GetPalette());
 
+	if (teleport_stage == 0 && focus_entity->GetIndex() != 0)
+		Engine::GetMusicPlayer().Play(ResourceCache::GetMusicIndex(active_map->index), true);
 }
 
 void MapScene::Focus(signed char x, signed char y)
@@ -594,6 +597,7 @@ void MapScene::UseEscapeRope()
 	teleport_timer = 60;
 	teleport_stage = 1;
 	focus_entity->Face(ENTITY_DOWN);
+	Engine::GetMusicPlayer().Play(0, true);
 }
 
 void MapScene::ProcessTeleport()
@@ -740,7 +744,10 @@ void MapScene::ProcessTeleport()
 		if (teleport_timer > 0)
 			teleport_timer--;
 		else
+		{
 			teleport_stage = 0;
+			Engine::GetMusicPlayer().Play(ResourceCache::GetMusicIndex(active_map->index), false);
+		}
 		break;
 	}
 }

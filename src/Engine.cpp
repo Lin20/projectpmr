@@ -2,13 +2,16 @@
 
 Scene* Engine::active_scene = 0;
 MapScene* Engine::map_scene = 0;
+MusicPlayer Engine::music_player;
 
 unsigned char Engine::game_state = 0;
 
 void Engine::Initialize()
 {
+	
 	ResourceCache::LoadAll();
 	Players::Initialize();
+	InitializeAudio();
 
 	//Initialize the scenes
 	map_scene = new MapScene();
@@ -47,4 +50,26 @@ void Engine::Release()
 		delete map_scene;
 		map_scene = 0;
 	}
+}
+
+void Engine::InitializeAudio()
+{
+	const char* err = music_player.Initialize();
+	if (err)
+	{
+#ifdef _DEBUG
+		std::cout << "Failed to start music player. " << err << "\n";
+#endif
+	}
+
+	err = music_player.LoadFile(ResourceCache::GetResourceLocation(string("audio/music.gbs")).c_str());
+	if (err)
+	{
+#ifdef _DEBUG
+		std::cout << "Failed to load music. " << err << "\n";
+#endif
+		return;
+	}
+
+	music_player.Play(0);
 }

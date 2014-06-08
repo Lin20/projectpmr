@@ -36,6 +36,8 @@ public:
 	static void LoadItems();
 	static void LoadPokemon();
 	static void LoadMoves();
+	static void LoadWildTrainers();
+	static void LoadAudio();
 
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 	static void ReleaseResources();
@@ -91,8 +93,8 @@ public:
 	inline static string& GetPokemonName(unsigned char created_index) { return pokemon_names[created_index]; }
 	inline static PaletteTexture* GetStatusesTexture(unsigned char color) { return statuses_texture[color % 3]; }
 	inline static PaletteTexture* GetPokemonIcons() { return pokemon_icons; }
-	inline static char GetIconIndex(unsigned char pokedex_index) { if (icon_indexes) return icon_indexes->data[pokedex_index]; return 0; }
-	inline static char GetPokemonPaletteIndex(unsigned char index) { if (mon_palette_indexes) return mon_palette_indexes->data[index]; return 0; }
+	inline static unsigned char GetIconIndex(unsigned char pokedex_index) { if (icon_indexes) return icon_indexes->data[pokedex_index]; return 0; }
+	inline static unsigned char GetPokemonPaletteIndex(unsigned char index) { if (mon_palette_indexes) return mon_palette_indexes->data[index]; return 0; }
 	inline static PaletteTexture* GetPokemonFront(unsigned char index) { return pokemon_front[index]; }
 	inline static PaletteTexture* GetPokemonBack(unsigned char index) { return pokemon_back[index]; }
 	inline static DataBlock* GetPokemonLeveling(unsigned char index) { return pokemon_leveling[index]; }
@@ -103,6 +105,10 @@ public:
 	inline static FlyPoint& GetFlyPoint(unsigned char index) { if (index > 12) index = 0; return fly_points[index]; }
 	inline static bool CanUseEscapeRope(unsigned char tileset) { for (unsigned int i = 0; i < escape_rope_tilesets->size; i++) if (escape_rope_tilesets->data[i] == tileset) return true; return false; }
 	inline static bool CanUseBicycle(unsigned char tileset) { for (unsigned int i = 0; i < bicycle_tilesets->size; i++) if (bicycle_tilesets->data[i] == tileset) return true; return false; }
+
+	inline static unsigned char* GetWildChances() { return wild_chances; }
+
+	inline static unsigned char GetMusicIndex(unsigned char map) { return music_indexes[map]; }
 
 private:
 	//tilesets
@@ -150,4 +156,11 @@ private:
 	static FlyPoint fly_points[13];
 	static DataBlock* escape_rope_tilesets;
 	static DataBlock* bicycle_tilesets;
+	static unsigned char music_indexes[256];
+	
+	//wild pokemon
+	static unsigned char wild_chances[10];
+
+	//audio
+	static DataBlock* music;
 };

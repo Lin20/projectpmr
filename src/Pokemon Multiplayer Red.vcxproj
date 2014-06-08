@@ -39,8 +39,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\Libraries\VLD\include;E:\Libraries\SFML-2.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\Libraries\VLD\lib;E:\Libraries\SFML-2.1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\Libraries\SDL-1.2.15\include;E:\Libraries\SFML-2.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Libraries\SDL-1.2.15\lib\x86;E:\Libraries\SFML-2.1\lib;$(LibraryPath)</LibraryPath>
     <TargetName>Pokemon Multiplayer Red</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -52,12 +52,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;SDL.lib;SDLmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -79,11 +79,57 @@
   <ItemGroup>
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EvolutionScreen.cpp" />
+    <ClCompile Include="gme\Ay_Apu.cpp" />
+    <ClCompile Include="gme\Ay_Cpu.cpp" />
+    <ClCompile Include="gme\Ay_Emu.cpp" />
+    <ClCompile Include="gme\Blip_Buffer.cpp" />
+    <ClCompile Include="gme\Classic_Emu.cpp" />
+    <ClCompile Include="gme\Data_Reader.cpp" />
+    <ClCompile Include="gme\Dual_Resampler.cpp" />
+    <ClCompile Include="gme\Effects_Buffer.cpp" />
+    <ClCompile Include="gme\Fir_Resampler.cpp" />
+    <ClCompile Include="gme\Gbs_Emu.cpp" />
+    <ClCompile Include="gme\Gb_Apu.cpp" />
+    <ClCompile Include="gme\Gb_Cpu.cpp" />
+    <ClCompile Include="gme\Gb_Oscs.cpp" />
+    <ClCompile Include="gme\gme.cpp" />
+    <ClCompile Include="gme\Gme_File.cpp" />
+    <ClCompile Include="gme\Gym_Emu.cpp" />
+    <ClCompile Include="gme\Hes_Apu.cpp" />
+    <ClCompile Include="gme\Hes_Cpu.cpp" />
+    <ClCompile Include="gme\Hes_Emu.cpp" />
+    <ClCompile Include="gme\Kss_Cpu.cpp" />
+    <ClCompile Include="gme\Kss_Emu.cpp" />
+    <ClCompile Include="gme\Kss_Scc_Apu.cpp" />
+    <ClCompile Include="gme\M3u_Playlist.cpp" />
+    <ClCompile Include="gme\Multi_Buffer.cpp" />
+    <ClCompile Include="gme\Music_Emu.cpp" />
+    <ClCompile Include="gme\Nes_Apu.cpp" />
+    <ClCompile Include="gme\Nes_Cpu.cpp" />
+    <ClCompile Include="gme\Nes_Fme7_Apu.cpp" />
+    <ClCompile Include="gme\Nes_Namco_Apu.cpp" />
+    <ClCompile Include="gme\Nes_Oscs.cpp" />
+    <ClCompile Include="gme\Nes_Vrc6_Apu.cpp" />
+    <ClCompile Include="gme\Nsfe_Emu.cpp" />
+    <ClCompile Include="gme\Nsf_Emu.cpp" />
+    <ClCompile Include="gme\Sap_Apu.cpp" />
+    <ClCompile Include="gme\Sap_Cpu.cpp" />
+    <ClCompile Include="gme\Sap_Emu.cpp" />
+    <ClCompile Include="gme\Sms_Apu.cpp" />
+    <ClCompile Include="gme\Snes_Spc.cpp" />
+    <ClCompile Include="gme\Spc_Cpu.cpp" />
+    <ClCompile Include="gme\Spc_Dsp.cpp" />
+    <ClCompile Include="gme\Spc_Emu.cpp" />
+    <ClCompile Include="gme\Vgm_Emu.cpp" />
+    <ClCompile Include="gme\Vgm_Emu_Impl.cpp" />
+    <ClCompile Include="gme\Ym2413_Emu.cpp" />
+    <ClCompile Include="gme\Ym2612_Emu.cpp" />
     <ClCompile Include="ItemActions.cpp" />
     <ClCompile Include="ItemStorage.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapScene.cpp" />
     <ClCompile Include="MenuCache.cpp" />
+    <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="NPC.cpp" />
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="OverworldEntity.cpp" />
@@ -105,6 +151,7 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioConstants.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="DataBlock.h" />
     <ClInclude Include="Engine.h" />
@@ -112,12 +159,67 @@
     <ClInclude Include="Events.h" />
     <ClInclude Include="EvolutionScreen.h" />
     <ClInclude Include="Fade.h" />
+    <ClInclude Include="gme\Ay_Apu.h" />
+    <ClInclude Include="gme\Ay_Cpu.h" />
+    <ClInclude Include="gme\Ay_Emu.h" />
+    <ClInclude Include="gme\blargg_common.h" />
+    <ClInclude Include="gme\blargg_config.h" />
+    <ClInclude Include="gme\blargg_endian.h" />
+    <ClInclude Include="gme\blargg_source.h" />
+    <ClInclude Include="gme\Blip_Buffer.h" />
+    <ClInclude Include="gme\Classic_Emu.h" />
+    <ClInclude Include="gme\Data_Reader.h" />
+    <ClInclude Include="gme\Dual_Resampler.h" />
+    <ClInclude Include="gme\Effects_Buffer.h" />
+    <ClInclude Include="gme\Fir_Resampler.h" />
+    <ClInclude Include="gme\Gbs_Emu.h" />
+    <ClInclude Include="gme\Gb_Apu.h" />
+    <ClInclude Include="gme\Gb_Cpu.h" />
+    <ClInclude Include="gme\gb_cpu_io.h" />
+    <ClInclude Include="gme\Gb_Oscs.h" />
+    <ClInclude Include="gme\gme.h" />
+    <ClInclude Include="gme\Gme_File.h" />
+    <ClInclude Include="gme\Gym_Emu.h" />
+    <ClInclude Include="gme\Hes_Apu.h" />
+    <ClInclude Include="gme\Hes_Cpu.h" />
+    <ClInclude Include="gme\hes_cpu_io.h" />
+    <ClInclude Include="gme\Hes_Emu.h" />
+    <ClInclude Include="gme\Kss_Cpu.h" />
+    <ClInclude Include="gme\Kss_Emu.h" />
+    <ClInclude Include="gme\Kss_Scc_Apu.h" />
+    <ClInclude Include="gme\M3u_Playlist.h" />
+    <ClInclude Include="gme\Multi_Buffer.h" />
+    <ClInclude Include="gme\Music_Emu.h" />
+    <ClInclude Include="gme\Nes_Apu.h" />
+    <ClInclude Include="gme\Nes_Cpu.h" />
+    <ClInclude Include="gme\nes_cpu_io.h" />
+    <ClInclude Include="gme\Nes_Fme7_Apu.h" />
+    <ClInclude Include="gme\Nes_Namco_Apu.h" />
+    <ClInclude Include="gme\Nes_Oscs.h" />
+    <ClInclude Include="gme\Nes_Vrc6_Apu.h" />
+    <ClInclude Include="gme\Nsfe_Emu.h" />
+    <ClInclude Include="gme\Nsf_Emu.h" />
+    <ClInclude Include="gme\Sap_Apu.h" />
+    <ClInclude Include="gme\Sap_Cpu.h" />
+    <ClInclude Include="gme\sap_cpu_io.h" />
+    <ClInclude Include="gme\Sap_Emu.h" />
+    <ClInclude Include="gme\Sms_Apu.h" />
+    <ClInclude Include="gme\Sms_Oscs.h" />
+    <ClInclude Include="gme\Snes_Spc.h" />
+    <ClInclude Include="gme\Spc_Cpu.h" />
+    <ClInclude Include="gme\Spc_Dsp.h" />
+    <ClInclude Include="gme\Spc_Emu.h" />
+    <ClInclude Include="gme\Vgm_Emu.h" />
+    <ClInclude Include="gme\Vgm_Emu_Impl.h" />
+    <ClInclude Include="gme\Ym2413_Emu.h" />
+    <ClInclude Include="gme\Ym2612_Emu.h" />
     <ClInclude Include="InputController.h" />
     <ClInclude Include="ItemActions.h" />
     <ClInclude Include="ItemConstants.h" />
     <ClInclude Include="ItemStorage.h" />
     <ClInclude Include="MenuCache.h" />
     <ClInclude Include="Move.h" />
+    <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="NPC.h" />
     <ClInclude Include="Opcodes.h" />
     <ClInclude Include="Options.h" />

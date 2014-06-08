@@ -38,6 +38,11 @@ FlyPoint ResourceCache::fly_points[13];
 DataBlock* ResourceCache::escape_rope_tilesets = 0;
 DataBlock* ResourceCache::bicycle_tilesets = 0;
 
+unsigned char ResourceCache::wild_chances[10];
+
+DataBlock* ResourceCache::music = 0;
+unsigned char ResourceCache::music_indexes[256];
+
 ResourceCache::ResourceCache()
 {
 }
@@ -115,6 +120,9 @@ void ResourceCache::ReleaseResources()
 		delete escape_rope_tilesets;
 	if (bicycle_tilesets)
 		delete bicycle_tilesets;
+
+	if (music)
+		delete music;
 }
 
 void ResourceCache::LoadAll()
@@ -132,6 +140,7 @@ void ResourceCache::LoadAll()
 	LoadItems();
 	LoadPokemon();
 	LoadMoves();
+	LoadAudio();
 
 #ifdef _DEBUG
 	cout << "Done\n";
@@ -214,6 +223,11 @@ void ResourceCache::LoadMisc()
 	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("misc/flying.dat")).c_str());
 	for (int i = 0; i < 13; i++)
 		fly_points[i].Load(d);
+	delete d;
+
+	d = ReadFile(ResourceCache::GetResourceLocation(string("misc//wild_chances.dat")).c_str());
+	for (int i = 0; i < 10; i++)
+		wild_chances[i] = d->getc();
 	delete d;
 
 #ifdef _DEBUG
@@ -332,6 +346,22 @@ void ResourceCache::LoadMoves()
 	delete d;
 
 	move_data = ReadFile(ResourceCache::GetResourceLocation(string("moves/moves.dat")).c_str());
+
+#ifdef _DEBUG
+	cout << "Done\n";
+#endif
+}
+
+void ResourceCache::LoadAudio()
+{
+#ifdef _DEBUG
+	cout << "--Loading audio...";
+#endif
+	music = ReadFile(ResourceCache::GetResourceLocation(string("audio/music.dat")).c_str());
+
+	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("audio/indexes.dat")).c_str());
+	memcpy(music_indexes, data->data, min(data->size, 256u));
+	delete data;
 
 #ifdef _DEBUG
 	cout << "Done\n";

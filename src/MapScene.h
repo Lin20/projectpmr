@@ -59,6 +59,7 @@ private:
 
 	unsigned char repel_steps; //steps remaining for repel
 	unsigned char poison_steps;
+	unsigned char wild_steps;
 
 	unsigned char teleport_stage;
 	unsigned char teleport_steps;

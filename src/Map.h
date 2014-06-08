@@ -33,6 +33,11 @@ public:
 	std::vector<Sign> signs;
 	std::vector<Entity> entities;
 
+	WildEncounter grass_encounters[10];
+	WildEncounter water_encounters[10];
+	unsigned char grass_rate;
+	unsigned char water_rate;
+
 	inline bool HasConnection(unsigned char e) { return (connection_mask & (1 << (3 - e))) != 0; }
 	inline sf::Color* GetPalette() { return palette; }
 	unsigned char Get8x8Tile(int x, int y);

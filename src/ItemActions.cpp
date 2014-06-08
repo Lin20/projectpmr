@@ -1,4 +1,5 @@
 #include "ItemActions.h"
+#include "AudioConstants.h"
 
 ItemStorage* ItemActions::last_inventory = 0;
 TextItem* ItemActions::last_src = 0;
@@ -67,10 +68,22 @@ void ItemActions::UseItem(ItemStorage* inventory, TextItem* src, unsigned char i
 			}
 
 			t = new Textbox();
-			s = string(inventory->GetOwner()->GetName()).append(pokestring(" got on the\nbicycle!\f"));
+			if (map->GetEntities()[0]->GetIndex() != 0)
+			{
+				s = string(inventory->GetOwner()->GetName()).append(pokestring(" got on the\nbicycle!\f"));
+				Engine::GetMusicPlayer().Play(MUSIC_BICYCLE);
+			}
+			else
+			{
+				s = string(inventory->GetOwner()->GetName()).append(pokestring(" got off the\nbicycle.\f"));
+				Engine::GetMusicPlayer().Play(ResourceCache::GetMusicIndex(map->GetMap()->index));
+			}
 			t->SetText(new TextItem(t, [inventory, map](TextItem* src)
 			{
-				map->GetEntities()[0]->SetSprite(0);
+				if (map->GetEntities()[0]->GetIndex() != 0)
+					map->GetEntities()[0]->SetSprite(0);
+				else
+					map->GetEntities()[0]->SetSprite(inventory->GetOwner()->GetOptions().player_sprite);
 			}, s));
 			Engine::GetActiveScene()->ShowTextbox(t, false);
 			inventory->GetMenu()->GetTextboxes()[0]->Close();

@@ -21,13 +21,14 @@ public:
 	}
 	~Fade() { }
 
-	void Start(Warp warp)
+	void Start(Warp warp, unsigned char time = 30)
 	{
 		warp_to = warp;
-		start_fade = 30;
+		start_fade = time;
 		fade_timer = 1;
 		previous_fade_index = 0xFF;
 		done = false;
+		lag_timer = 20;
 	}
 
 	void Reset()
@@ -36,6 +37,7 @@ public:
 		start_fade = 0;
 		//previous_fade_index = 0;
 		done = true;
+		lag_timer = 0;
 	}
 
 	void Update()
@@ -44,7 +46,12 @@ public:
 		if (fade_timer < start_fade)
 			fade_timer++;
 		else
-			Reset();
+		{
+			if (lag_timer > 0)
+				lag_timer--;
+			else
+				Reset();
+		}
 	}
 
 	void SetFadeToBlack(sf::Color base[4])
@@ -107,5 +114,6 @@ private:
 	unsigned int start_fade;
 	unsigned int previous_fade_index;
 	bool done;
+	unsigned char lag_timer;
 	Warp warp_to; //warp
 };

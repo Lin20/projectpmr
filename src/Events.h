@@ -132,3 +132,17 @@ struct FlyPoint
 		x = d->getc();
 	}
 };
+
+struct WildEncounter
+{
+	bool water;
+	unsigned char id;
+	unsigned char level;
+
+	WildEncounter(bool _water = false, unsigned char _id = 0, unsigned char _level = 0)
+	{
+		water = _water;
+		id = _id;
+		level = _level;
+	}
+};
