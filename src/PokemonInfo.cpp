@@ -26,6 +26,8 @@ PokemonInfo::PokemonInfo()
 	auto swapped = [this]()
 	{
 		this->SwapPokemon();
+		Engine::GetWorldSounds().Play(SFX_SWITCH);
+		Engine::GetWorldSounds().Queue(SFX_SWITCH, 15);
 		//this->UpdatePokemon(this->GetParty());
 	};
 
@@ -356,6 +358,7 @@ void PokemonInfo::Heal(int amount, std::function<void(TextItem* src)> f)
 
 void PokemonInfo::DisplaySummary(Pokemon* p)
 {
+	Engine::GetCryPlayer().Queue(p->id, MENU_DELAY_TIME);
 	Textbox* top = new Textbox(-1, 0, 22, 11, true, true);
 	top->SetMenu(true, 4, sf::Vector2i(9, 0), sf::Vector2u(0, 0));
 	top->SetRenderCallback([this](sf::RenderWindow* r) {

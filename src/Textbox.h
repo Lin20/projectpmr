@@ -87,6 +87,7 @@ private:
 	bool close_when_no_children; //make the textbox close when its children have been closed
 	bool hide_frame;
 	std::function<void(sf::RenderWindow* t)> render_callback; //function called when update loop finishes
+	bool wait_for_sound;
 
 	//menu-related stuff
 	bool is_menu; //is this textbox a menu?

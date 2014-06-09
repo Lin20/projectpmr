@@ -39,8 +39,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\Libraries\SDL-1.2.15\include;E:\Libraries\SFML-2.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\Libraries\SDL-1.2.15\lib\x86;E:\Libraries\SFML-2.1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\Libraries\SFML-2.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Libraries\SFML-2.1\lib;$(LibraryPath)</LibraryPath>
     <TargetName>Pokemon Multiplayer Red</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -57,7 +57,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;SDL.lib;SDLmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -129,7 +129,6 @@
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapScene.cpp" />
     <ClCompile Include="MenuCache.cpp" />
-    <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="NPC.cpp" />
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="OverworldEntity.cpp" />
@@ -141,6 +140,7 @@
     <ClCompile Include="RenderUtils.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Script.cpp" />
+    <ClCompile Include="SFPlayer.cpp" />
     <ClCompile Include="Startup.cpp" />
     <ClCompile Include="ResourceCache.cpp" />
     <ClCompile Include="StringConverter.cpp" />
@@ -219,7 +219,6 @@
     <ClInclude Include="ItemStorage.h" />
     <ClInclude Include="MenuCache.h" />
     <ClInclude Include="Move.h" />
-    <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="NPC.h" />
     <ClInclude Include="Opcodes.h" />
     <ClInclude Include="Options.h" />
@@ -230,6 +229,7 @@
     <ClInclude Include="PokemonUtils.h" />
     <ClInclude Include="RenderUtils.h" />
     <ClInclude Include="Script.h" />
+    <ClInclude Include="SFPlayer.h" />
     <ClInclude Include="TextboxParent.h" />
     <ClInclude Include="TextItem.h" />
     <ClInclude Include="LoopableMusic.h" />

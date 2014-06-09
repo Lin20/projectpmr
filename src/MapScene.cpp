@@ -40,7 +40,6 @@ void MapScene::Update()
 {
 	current_fade.Update();
 	ProcessTeleport();
-	Engine::GetMusicPlayer().Update();
 	if (active_script && (focus_entity ? focus_entity->Snapped() : true))
 		active_script->Update();
 	if (!teleport_stage)
@@ -83,6 +82,7 @@ void MapScene::Update()
 				if (focus_entity->Snapped() && InputController::KeyDownOnce(INPUT_START))
 				{
 					ShowTextbox(MenuCache::StartMenu());
+					Engine::GetWorldSounds().Queue(SFX_START_MENU, MENU_DELAY_TIME);
 					MenuCache::StartMenu()->SetArrowState(ArrowStates::ACTIVE);
 				}
 			}
@@ -421,6 +421,9 @@ bool MapScene::Interact()
 				else
 				{
 					s = string(Players::GetPlayer1()->GetName()).append(pokestring(" found\n")).append(ResourceCache::GetItemName(active_map->entities[i - 1].item)).append(pokestring("!"));
+					s.insert(s.end(), MESSAGE_SOUND);
+					s.insert(s.end(), SFX_PICKUP_ITEM);
+					s.insert(s.end(), MESSAGE_AUTOCLOSE);
 					entities.erase(entities.begin() + i--);
 					t->SetText(new TextItem(t, nullptr, s, i));
 					textboxes.push_back(t);
@@ -471,6 +474,10 @@ void MapScene::CheckWarp()
 		Warp* w = active_map->GetWarpAt(focus_entity->x / 16, focus_entity->y / 16);
 		if (can_warp && active_map->CanWarp(focus_entity->x / 16, focus_entity->y / 16, focus_entity->GetMovementDirection(), w))
 		{
+			if (active_map->GetCornerTile(focus_entity->x / 16, focus_entity->y / 16, 0) == 0x0B)
+				Engine::GetWorldSounds().Play(SFX_DOOR);
+			else
+				Engine::GetWorldSounds().Play(SFX_MAP_CHANGED);
 			WarpTo(*w);
 		}
 		else if (current_fade.Done())
@@ -611,6 +618,7 @@ void MapScene::ProcessTeleport()
 		{
 			teleport_timer = 15;
 			teleport_stage = 2;
+			Engine::GetWorldSounds().Play(SFX_LEDGE);
 		}
 		break;
 
@@ -627,7 +635,10 @@ void MapScene::ProcessTeleport()
 				else if (focus_entity->GetDirection() == ENTITY_UP)
 					focus_entity->Face(ENTITY_RIGHT);
 				else if (focus_entity->GetDirection() == ENTITY_RIGHT)
+				{
 					focus_entity->Face(ENTITY_DOWN);
+					Engine::GetWorldSounds().Play(SFX_LEDGE);
+				}
 				if (teleport_steps > 0)
 				{
 					teleport_steps--;
@@ -641,7 +652,10 @@ void MapScene::ProcessTeleport()
 			}
 		}
 		else
+		{
 			teleport_stage = 3;
+			Engine::GetWorldSounds().Play(SFX_TELEPORT_START);
+		}
 		break;
 
 	case 3:
@@ -694,7 +708,11 @@ void MapScene::ProcessTeleport()
 		if (current_fade.Done())
 		{
 			if (teleport_timer > 0)
+			{
 				teleport_timer--;
+				if (!teleport_timer)
+					Engine::GetWorldSounds().Play(SFX_TELEPORT_END);
+			}
 			else
 			{
 				if (focus_entity->offset_y < 0)

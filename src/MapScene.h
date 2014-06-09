@@ -10,6 +10,7 @@
 #include "Textbox.h"
 #include "MenuCache.h"
 #include "ItemStorage.h"
+#include "AudioConstants.h"
 
 class MapScene : public Scene
 {

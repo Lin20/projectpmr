@@ -26,8 +26,8 @@ enum ArrowStates
 	INACTIVE =	2
 };
 
-#define STARTING_MAP	15
-#define STARTING_X		11
+#define STARTING_MAP	0
+#define STARTING_X		5
 #define STARTING_Y		6
 
 #define VIEWPORT_WIDTH	10
@@ -111,6 +111,7 @@ enum ArrowStates
 #define MESSAGE_END			0x57
 #define MESSAGE_PROMPT		0x58
 #define MESSAGE_PAUSE		0x5A
+#define MESSAGE_SOUND		0x5B
 
 #define MAX_ITEMS			20
 

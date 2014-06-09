@@ -234,7 +234,7 @@
     <ClCompile Include="gme\Ym2413_Emu.cpp">
       <Filter>Source Files\gme</Filter>
     </ClCompile>
-    <ClCompile Include="MusicPlayer.cpp">
+    <ClCompile Include="SFPlayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -518,10 +518,10 @@
     <ClInclude Include="gme\Ym2612_Emu.h">
       <Filter>Header Files\gme</Filter>
     </ClInclude>
-    <ClInclude Include="MusicPlayer.h">
+    <ClInclude Include="AudioConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AudioConstants.h">
+    <ClInclude Include="SFPlayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -37,7 +37,6 @@ public:
 	static void LoadPokemon();
 	static void LoadMoves();
 	static void LoadWildTrainers();
-	static void LoadAudio();
 
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 	static void ReleaseResources();
@@ -160,7 +159,4 @@ private:
 	
 	//wild pokemon
 	static unsigned char wild_chances[10];
-
-	//audio
-	static DataBlock* music;
 };

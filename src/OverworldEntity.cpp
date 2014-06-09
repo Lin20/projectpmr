@@ -1,4 +1,5 @@
 #include "OverworldEntity.h"
+#include "Engine.h"
 
 OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc, Script* _script, std::function<void()> step_callback) : TileMap()
 {
@@ -109,6 +110,11 @@ void OverworldEntity::Update()
 				{
 					step_timer = STEP_TIMER * 2.0f;
 				}
+			}
+			if (!is_npc && Snapped() && !on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction), this, !allow_entity_ghosting))
+			{
+				if ((int)animation_timer == 0 && step_frame % 2 == 0)
+					Engine::GetWorldSounds().Play(SFX_COLLISION);
 			}
 			if ((int)animation_timer == 0)
 			{
@@ -302,6 +308,7 @@ void OverworldEntity::StartMoving(unsigned char direction)
 		jump_y = y;
 		step_timer = STEP_TIMER * 2.0f;
 		animation_timer = STEP_TIMER * 10.0f; //wait 2 extra ticks before actually moving
+		Engine::GetWorldSounds().Play(SFX_LEDGE);
 	}
 
 	movement_direction = direction;

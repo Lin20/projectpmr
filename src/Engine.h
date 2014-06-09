@@ -5,7 +5,7 @@
 #include "Scene.h"
 #include "MapScene.h"
 #include "Players.h"
-#include "MusicPlayer.h"
+#include "SFPlayer.h"
 
 class Engine
 {
@@ -21,7 +21,9 @@ public:
 	static Scene* GetActiveScene() { return active_scene; }
 	static unsigned char GetState() { return game_state; }
 
-	static MusicPlayer& GetMusicPlayer() { return music_player; }
+	static SFPlayer& GetMusicPlayer() { return music_player; }
+	static SFPlayer& GetWorldSounds() { return world_sounds; }
+	static SFPlayer& GetCryPlayer() { return cry_player; }
 
 private:
 	static Scene* active_scene;
@@ -29,6 +31,8 @@ private:
 
 	static unsigned char game_state;
 
-	static MusicPlayer music_player;
+	static SFPlayer music_player;
+	static SFPlayer world_sounds;
+	static SFPlayer cry_player;
 	static void InitializeAudio();
 };

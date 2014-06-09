@@ -8,6 +8,7 @@ Textbox::Textbox(char x, char y, unsigned char width, unsigned char height, bool
 	cancel_switch = false;
 	close_when_no_children = false;
 	hide_frame = hidden_frame;
+	wait_for_sound = false;
 
 	is_menu = false;
 	display_count = 0;
@@ -61,6 +62,8 @@ void Textbox::Update()
 {
 	if (UpdateTextboxes())
 		return;
+	if (wait_for_sound && Engine::GetWorldSounds().TrackEnded())
+		return;
 	if (close_when_no_children)
 		Close();
 	if (arrow_timer > 0)
@@ -99,7 +102,7 @@ void Textbox::Update()
 			if (GetScrollIndex() + 1 > (int)scroll_start)
 			if (cursor_visibility_timer == 0)
 				cursor_visibility_timer = CURSOR_VIS_TIME;
-			scroll_timer = 0;
+			scroll_timer = 1;
 			Scroll(false);
 		}
 		else if (InputController::KeyDown(INPUT_DOWN) && (menu_flags & MenuFlags::HOLD_INPUT)) //hold down
@@ -156,7 +159,11 @@ void Textbox::Update()
 				cancel_switch = false;
 			}
 			else if (active_index < items.size())
+			{
+				Engine::GetWorldSounds().Play(SFX_TEXT);
+				Engine::GetWorldSounds().Queue(SFX_TEXT, SFX_TEXT_DELAY);
 				items[active_index]->Action();
+			}
 		}
 		else if (InputController::KeyDownOnce(INPUT_B) && text_timer <= 2) //press b
 		{
@@ -169,6 +176,8 @@ void Textbox::Update()
 			}
 			else
 			{
+				Engine::GetWorldSounds().Play(SFX_TEXT);
+				Engine::GetWorldSounds().Queue(SFX_TEXT, SFX_TEXT_DELAY);
 				if (text_timer > 0)
 					items[active_index]->Action();
 				else
@@ -534,6 +543,8 @@ void Textbox::ProcessNextCharacter()
 			memset(tiles, MENU_BLANK, (size.x - 2) * (size.y - 2));
 			text_tile_pos = size.x - 2;
 			text_timer = TEXT_TIMER_BLANK;
+			Engine::GetWorldSounds().Play(SFX_TEXT);
+			Engine::GetWorldSounds().Queue(SFX_TEXT, SFX_TEXT_DELAY);
 			//text_speed = 3;
 			break;
 		}
@@ -548,6 +559,8 @@ void Textbox::ProcessNextCharacter()
 			arrow_timer = 0;
 			text_timer = 0;
 			text_pos++;
+			Engine::GetWorldSounds().Play(SFX_TEXT);
+			Engine::GetWorldSounds().Queue(SFX_TEXT, SFX_TEXT_DELAY);
 		}
 		else if (arrow_timer == 0)
 			arrow_timer = CURSOR_MORE_TIME;
@@ -557,6 +570,8 @@ void Textbox::ProcessNextCharacter()
 		if (InputController::KeyDownOnce(INPUT_A) || InputController::KeyDownOnce(INPUT_B))
 		{
 			close = true;
+			Engine::GetWorldSounds().Play(SFX_TEXT);
+			Engine::GetWorldSounds().Queue(SFX_TEXT, SFX_TEXT_DELAY);
 			text->Action();
 			if (close)
 				Close();
@@ -577,6 +592,11 @@ void Textbox::ProcessNextCharacter()
 		text_pos++;
 		arrow_timer = 0;
 		text_timer = TEXT_TIMER_PAUSE;
+		return;
+
+	case MESSAGE_SOUND: //play a sound
+		text_pos++;
+		Engine::GetWorldSounds().Play(text->GetText()[text_pos++]);
 		return;
 
 	default: //regular char
