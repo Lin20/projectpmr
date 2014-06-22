@@ -309,9 +309,9 @@ void ResourceCache::LoadPokemon()
 	for (int i = 0; i < 256; i++)
 	{
 		pokemon_front[i] = new PaletteTexture();
-		pokemon_front[i]->loadFromFile(ResourceCache::GetResourceLocation(string("pokemon/front/").append(itos(i)).append(".png")));
+		pokemon_front[i]->loadFromFile(ResourceCache::GetResourceLocation(string("pokemon/front/").append(itos(i)).append(".PNG")));
 		pokemon_back[i] = new PaletteTexture();
-		pokemon_back[i]->loadFromFile(ResourceCache::GetResourceLocation(string("pokemon/back/").append(itos(i)).append(".png")));
+		pokemon_back[i]->loadFromFile(ResourceCache::GetResourceLocation(string("pokemon/back/").append(itos(i)).append(".PNG")));
 
 		pokemon_front[i]->SetPalette(GetPalette(mon_palette_indexes->data[i]));
 		pokemon_back[i]->SetPalette(GetPalette(mon_palette_indexes->data[i]));
