@@ -56,6 +56,7 @@ void Engine::Release()
 	}
 	music_player.Close();
 	world_sounds.Close();
+	cry_player.Close();
 }
 
 void Engine::InitializeAudio()

@@ -59,6 +59,7 @@ Blip_Buffer::~Blip_Buffer()
 Silent_Blip_Buffer::Silent_Blip_Buffer()
 {
 	factor_      = 0;
+	free(buffer_);
 	buffer_      = buf;
 	buffer_size_ = silent_buf_size;
 	memset( buf, 0, sizeof buf ); // in case machine takes exception for signed overflow

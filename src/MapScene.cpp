@@ -189,7 +189,7 @@ void MapScene::SwitchMap(unsigned char index)
 		delete active_script;
 		active_script = 0;
 	}
-	active_script = Script::TryLoad(this, index, 255);
+	//active_script = Script::TryLoad(this, index, 255);
 
 	if (!active_map)
 	{

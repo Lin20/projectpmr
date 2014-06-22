@@ -88,7 +88,7 @@ public:
 	inline static unsigned char GetItemUse(unsigned char index) { return item_uses[index]; }
 
 	inline static DataBlock* GetPokemonStats(unsigned char index) { return pokemon_stats[index]; }
-	inline static char GetPokedexIndex(unsigned char created_index) { if (pokemon_indexes) return pokemon_indexes->data[created_index]; return 0; }
+	inline static unsigned char GetPokedexIndex(unsigned char created_index) { if (pokemon_indexes) return pokemon_indexes->data[created_index]; return 0; }
 	inline static string& GetPokemonName(unsigned char created_index) { return pokemon_names[created_index]; }
 	inline static PaletteTexture* GetStatusesTexture(unsigned char color) { return statuses_texture[color % 3]; }
 	inline static PaletteTexture* GetPokemonIcons() { return pokemon_icons; }

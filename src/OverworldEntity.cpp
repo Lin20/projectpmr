@@ -308,7 +308,8 @@ void OverworldEntity::StartMoving(unsigned char direction)
 		jump_y = y;
 		step_timer = STEP_TIMER * 2.0f;
 		animation_timer = STEP_TIMER * 10.0f; //wait 2 extra ticks before actually moving
-		Engine::GetWorldSounds().Play(SFX_LEDGE);
+		if (!is_npc)
+			Engine::GetWorldSounds().Play(SFX_LEDGE);
 	}
 
 	movement_direction = direction;
@@ -359,5 +360,5 @@ void OverworldEntity::SetSprite(unsigned char index)
 		tiles_tex->SetPalette(palette);
 	}
 	sprite8x8.setTexture(*tiles_tex);
-
+	Face(direction);
 }
