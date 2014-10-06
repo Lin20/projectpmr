@@ -71,4 +71,5 @@ private:
 	void CheckWarp();
 	void TryResetWarp();
 	void ProcessTeleport();
+	void ProcessWildEncounter();
 };

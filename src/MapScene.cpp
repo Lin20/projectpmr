@@ -11,6 +11,7 @@ MapScene::MapScene() : Scene()
 	teleport_stage = 0;
 	teleport_steps = 0;
 	teleport_timer = 0;
+	//wild_steps = 3;
 
 	//Initialize the player
 	entities.push_back(new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false, nullptr, [this]() {Walk(); }));
@@ -480,7 +481,7 @@ void MapScene::CheckWarp()
 				Engine::GetWorldSounds().Play(SFX_MAP_CHANGED);
 			WarpTo(*w);
 		}
-		else if (current_fade.Done())
+		else if (current_fade.Done() && current_fade.HasWarp())
 		{
 			if (current_fade.GetWarpTo().dest_map != 254)
 			{
@@ -594,6 +595,8 @@ void MapScene::Walk()
 			}
 		}
 	}
+
+	ProcessWildEncounter();
 }
 
 void MapScene::UseEscapeRope()
@@ -767,5 +770,22 @@ void MapScene::ProcessTeleport()
 			Engine::GetMusicPlayer().Play(ResourceCache::GetMusicIndex(active_map->index), false);
 		}
 		break;
+	}
+}
+
+void MapScene::ProcessWildEncounter()
+{
+	if (wild_steps > 0)
+	{
+		wild_steps--;
+		return;
+	}
+	if (active_map->InGrass(focus_entity->x / 16, focus_entity->y / 16))
+	{
+		if (active_map->grass_rate == 0)
+			return;
+
+		//current_fade.SetFadeToBlack(active_map->GetPalette());
+		//current_fade.Start(20);
 	}
 }

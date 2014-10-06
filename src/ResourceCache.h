@@ -36,7 +36,6 @@ public:
 	static void LoadItems();
 	static void LoadPokemon();
 	static void LoadMoves();
-	static void LoadWildTrainers();
 
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 	static void ReleaseResources();

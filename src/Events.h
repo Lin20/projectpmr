@@ -135,13 +135,11 @@ struct FlyPoint
 
 struct WildEncounter
 {
-	bool water;
-	unsigned char id;
 	unsigned char level;
+	unsigned char id;
 
-	WildEncounter(bool _water = false, unsigned char _id = 0, unsigned char _level = 0)
+	WildEncounter(unsigned char _id = 0, unsigned char _level = 0)
 	{
-		water = _water;
 		id = _id;
 		level = _level;
 	}

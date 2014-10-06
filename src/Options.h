@@ -6,6 +6,7 @@ struct Options
 {
 	unsigned char text_speed;
 	unsigned char player_sprite;
+	bool enable_lag;
 
 	Options()
 	{

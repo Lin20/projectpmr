@@ -26,8 +26,11 @@ PokemonInfo::PokemonInfo()
 	auto swapped = [this]()
 	{
 		this->SwapPokemon();
-		Engine::GetWorldSounds().Play(SFX_SWITCH);
-		Engine::GetWorldSounds().Queue(SFX_SWITCH, 15);
+		if (!menu->IsSwitchCanceled())
+		{
+			Engine::GetWorldSounds().Play(SFX_SWITCH);
+			Engine::GetWorldSounds().Queue(SFX_SWITCH, 15);
+		}
 		//this->UpdatePokemon(this->GetParty());
 	};
 

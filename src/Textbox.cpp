@@ -173,6 +173,7 @@ void Textbox::Update()
 				CancelSwitch();
 				SetArrowState(ArrowStates::ACTIVE);
 				switch_callback();
+				cancel_switch = false;
 			}
 			else
 			{

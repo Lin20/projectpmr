@@ -19,6 +19,7 @@ public:
 
 	bool Load(bool only_load_tiles = false);
 	void LoadPalette();
+	void LoadWild();
 
 	unsigned char index;
 	unsigned char width;
@@ -44,7 +45,7 @@ public:
 	unsigned char GetCornerTile(int x, int y, unsigned char corner);
 	bool IsPassable(int x, int y, OverworldEntity* ignore = 0, bool entity_clipping = true);
 	bool CanJump(int x, int y, unsigned char direction); //can jump from the current position facing the specified direction
-	bool InGrass(int x, int y);
+	bool InGrass(int x, int y, bool wild = false);
 	bool CanWarp(int x, int y, unsigned char direction, Warp* check_warp);
 
 	void RenderRectangle(int x, int y, int width, int height, sf::Sprite& sprite, sf::RenderWindow* window);

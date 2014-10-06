@@ -35,6 +35,7 @@ bool Map::Load(bool only_load_tiles)
 	}
 	delete data;
 	LoadPalette();
+	LoadWild();
 	return true;
 }
 
@@ -43,6 +44,28 @@ void Map::LoadPalette()
 	unsigned char pal_index = ResourceCache::GetMapPaletteIndex(index);
 	if (pal_index != 0xFF)
 		palette = ResourceCache::GetPalette(pal_index);
+}
+
+void Map::LoadWild()
+{
+	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("maps/wild/").append(itos(index).append(".dat"))).c_str());
+	if (!data)
+		return;
+	grass_rate = *data->data++;
+	if (grass_rate != 0)
+	{
+		memcpy(grass_encounters, data->data, 20);
+		data->data += 20;
+	}
+
+	water_rate = *data->data++;
+	if (water_rate != 0)
+	{
+		memcpy(water_encounters, data->data, 20);
+		data->data += 20;
+	}
+
+	delete data;
 }
 
 bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
@@ -282,7 +305,7 @@ bool Map::CanJump(int x, int y, unsigned char direction)
 	return false;
 }
 
-bool Map::InGrass(int x, int y)
+bool Map::InGrass(int x, int y, bool wild)
 {
 	if (x < 0 || y < 0 || x >= width * 2 || y >= height * 2)
 		return false;
@@ -294,7 +317,7 @@ bool Map::InGrass(int x, int y)
 		return true;
 
 	//the original game uses the lower-left tile of a 16x16 block to determine whether or not that block is passable
-	return GetCornerTile(x, y, 2) == tileset->GetMiscData()->data[3]; //second to last byte in the tileset header is the grass tile
+	return GetCornerTile(x, y, (wild ? 3 : 2)) == tileset->GetMiscData()->data[3]; //second to last byte in the tileset header is the grass tile
 }
 
 bool Map::CanWarp(int x, int y, unsigned char direction, Warp* check_warp)

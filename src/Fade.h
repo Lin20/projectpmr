@@ -23,7 +23,18 @@ public:
 
 	void Start(Warp warp, unsigned char time = 30)
 	{
+		has_warp = true;
 		warp_to = warp;
+		start_fade = time;
+		fade_timer = 1;
+		previous_fade_index = 0xFF;
+		done = false;
+		lag_timer = 20;
+	}
+
+	void Start(unsigned char time = 5)
+	{
+		has_warp = false;
 		start_fade = time;
 		fade_timer = 1;
 		previous_fade_index = 0xFF;
@@ -106,6 +117,7 @@ public:
 	void SetWarpTo(Warp w) { warp_to = w; }
 
 	bool Done() { return done; }
+	bool HasWarp() { return has_warp; }
 
 
 private:
@@ -116,4 +128,5 @@ private:
 	bool done;
 	unsigned char lag_timer;
 	Warp warp_to; //warp
+	bool has_warp;
 };
