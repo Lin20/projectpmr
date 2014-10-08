@@ -30,16 +30,18 @@ public:
 		previous_fade_index = 0xFF;
 		done = false;
 		lag_timer = 20;
+		bg_only = false;
 	}
 
-	void Start(unsigned char time = 5)
+	void Start(unsigned char time = 5, unsigned char lag = 20, bool only_bg = false)
 	{
 		has_warp = false;
 		start_fade = time;
 		fade_timer = 1;
 		previous_fade_index = 0xFF;
 		done = false;
-		lag_timer = 20;
+		lag_timer = lag;
+		bg_only = only_bg;
 	}
 
 	void Reset()
@@ -70,6 +72,7 @@ public:
 		for (int i = 0; i < 4; i++)
 			memcpy(palettes[i], base, sizeof(sf::Color) * 4);
 		palettes[1][0] = base[1];
+		palettes[1][1] = base[2];
 		palettes[2][0] = base[2];
 		palettes[2][1] = base[3];
 		for (int i = 0; i < 3; i++)
@@ -109,7 +112,37 @@ public:
 		palettes[2][3] = base[2];
 	}
 
-	unsigned int CurrentFade() { return min(3u, (fade_timer > 0 ? fade_timer / (start_fade / 4) + 1 : 1)); }
+	void SetFadeFromBlack(sf::Color base[4])
+	{
+		for (int i = 0; i < 4; i++)
+			memcpy(palettes[i], base, sizeof(sf::Color) * 4);
+
+		for (int i = 0; i < 4; i++)
+			palettes[0][i] = base[3];
+
+		palettes[1][0] = base[2];
+		palettes[1][1] = base[3];
+
+		palettes[2][0] = base[1];
+		palettes[2][1] = base[2];
+
+		/*palettes[1][0] = base[1];
+		palettes[2][0] = base[2];
+		palettes[2][1] = base[3];*/
+
+		/*palettes[1][1] = base[3];
+		palettes[1][2] = base[3];
+		palettes[1][3] = base[2];
+
+		palettes[2][1] = base[3];
+		palettes[2][2] = base[2];
+		palettes[2][3] = base[1];*/
+	}
+
+	unsigned int CurrentFade()
+	{
+		return min(3u, (fade_timer > 0 ? fade_timer / (start_fade / 4) + 1 : 1));
+	}
 	unsigned int LastFade() { return previous_fade_index; }
 	sf::Color* GetCurrentPalette() { return palettes[CurrentFade()]; }
 
@@ -118,7 +151,7 @@ public:
 
 	bool Done() { return done; }
 	bool HasWarp() { return has_warp; }
-
+	bool BGOnly() { return bg_only; }
 
 private:
 	sf::Color palettes[4][4]; //[palette index][color index]
@@ -129,4 +162,5 @@ private:
 	unsigned char lag_timer;
 	Warp warp_to; //warp
 	bool has_warp;
+	bool bg_only;
 };

@@ -4,6 +4,7 @@
 #include "Constants.h"
 #include "Scene.h"
 #include "MapScene.h"
+#include "BattleScene.h"
 #include "Players.h"
 #include "SFPlayer.h"
 
@@ -28,6 +29,7 @@ public:
 private:
 	static Scene* active_scene;
 	static MapScene* map_scene; //the main scene where the player walks around
+	static BattleScene* battle_scene;
 
 	static unsigned char game_state;
 

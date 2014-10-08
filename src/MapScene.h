@@ -29,7 +29,7 @@ public:
 
 	void DrawMap(sf::RenderWindow* window, Map& map, int connection_index, MapConnection* connection);
 	void ClearEntities(bool focused = false);
-	void SetPalette(sf::Color* palette);
+	void SetPalette(sf::Color* palette, bool only_bg = false);
 
 	bool Interact();
 	void WarpTo(Warp& w);
@@ -61,6 +61,10 @@ private:
 	unsigned char repel_steps; //steps remaining for repel
 	unsigned char poison_steps;
 	unsigned char wild_steps;
+	unsigned char wild_transition;
+	unsigned char transition_step;
+	unsigned char transition_index;
+	unsigned char transition_timer;
 
 	unsigned char teleport_stage;
 	unsigned char teleport_steps;
@@ -72,4 +76,8 @@ private:
 	void TryResetWarp();
 	void ProcessTeleport();
 	void ProcessWildEncounter();
+	void ProcessWildTransition();
+	void ProcessBattleTransition();
+	void DrawBattleTransition(sf::RenderWindow* window);
+	void CheckTrainers();
 };

@@ -36,6 +36,7 @@ public:
 	static void LoadItems();
 	static void LoadPokemon();
 	static void LoadMoves();
+	static void LoadBattleData();
 
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 	static void ReleaseResources();
@@ -104,9 +105,10 @@ public:
 	inline static bool CanUseEscapeRope(unsigned char tileset) { for (unsigned int i = 0; i < escape_rope_tilesets->size; i++) if (escape_rope_tilesets->data[i] == tileset) return true; return false; }
 	inline static bool CanUseBicycle(unsigned char tileset) { for (unsigned int i = 0; i < bicycle_tilesets->size; i++) if (bicycle_tilesets->data[i] == tileset) return true; return false; }
 
-	inline static unsigned char* GetWildChances() { return wild_chances; }
-
 	inline static unsigned char GetMusicIndex(unsigned char map) { return music_indexes[map]; }
+
+	inline static unsigned char* GetWildChances() { return wild_chances; }
+	inline static Transition& GetBattleTransition(unsigned char index) { return transitions[index]; }
 
 private:
 	//tilesets
@@ -158,4 +160,5 @@ private:
 	
 	//wild pokemon
 	static unsigned char wild_chances[10];
+	static Transition transitions[8];
 };

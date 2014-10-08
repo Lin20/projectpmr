@@ -1,5 +1,6 @@
 #pragma once
 #include "DataBlock.h"
+#include <string>
 
 struct Warp
 {
@@ -34,9 +35,10 @@ struct Entity
 	unsigned char movement1;
 	unsigned char movement2;
 	unsigned char text;
-	unsigned char trainer;
+	unsigned char trainer_class;
 	unsigned char pokemon_set;
 	unsigned char item;
+	unsigned char trainer_index;
 };
 
 struct Item
@@ -143,4 +145,20 @@ struct WildEncounter
 		id = _id;
 		level = _level;
 	}
+};
+
+struct Transition
+{
+	unsigned char n_steps;
+	unsigned short tiles[64][64];
+};
+
+struct TrainerHeader
+{
+	unsigned char flag_index;
+	unsigned char view_distance;
+	std::string s1;
+	std::string s2;
+	std::string s3;
+	std::string s4;
 };

@@ -36,6 +36,7 @@ bool Map::Load(bool only_load_tiles)
 	delete data;
 	LoadPalette();
 	LoadWild();
+	LoadTrainers();
 	return true;
 }
 
@@ -44,28 +45,6 @@ void Map::LoadPalette()
 	unsigned char pal_index = ResourceCache::GetMapPaletteIndex(index);
 	if (pal_index != 0xFF)
 		palette = ResourceCache::GetPalette(pal_index);
-}
-
-void Map::LoadWild()
-{
-	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("maps/wild/").append(itos(index).append(".dat"))).c_str());
-	if (!data)
-		return;
-	grass_rate = *data->data++;
-	if (grass_rate != 0)
-	{
-		memcpy(grass_encounters, data->data, 20);
-		data->data += 20;
-	}
-
-	water_rate = *data->data++;
-	if (water_rate != 0)
-	{
-		memcpy(water_encounters, data->data, 20);
-		data->data += 20;
-	}
-
-	delete data;
 }
 
 bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
@@ -147,6 +126,7 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 
 	count = *p++;
 	entities.clear();
+	unsigned char t_index = 0;
 	for (int i = 0; i < count; i++)
 	{
 		Entity e;
@@ -158,8 +138,9 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 		e.text = *p++;
 		if ((e.text & 0x40) != 0)
 		{
-			e.trainer = *p++;
+			e.trainer_class = *p++;
 			e.pokemon_set = *p++;
+			e.trainer_index = t_index++;
 		}
 		else if ((e.text & 0x80) != 0)
 		{
@@ -169,6 +150,63 @@ bool Map::ParseHeader(DataBlock* data, bool only_load_tiles)
 	}
 
 	return true;
+}
+
+void Map::LoadWild()
+{
+	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("maps/wild/").append(itos(index).append(".dat"))).c_str());
+	if (!data)
+		return;
+	grass_rate = *data->data++;
+	if (grass_rate != 0)
+	{
+		memcpy(grass_encounters, data->data, 20);
+		data->data += 20;
+	}
+
+	water_rate = *data->data++;
+	if (water_rate != 0)
+	{
+		memcpy(water_encounters, data->data, 20);
+		data->data += 20;
+	}
+
+	delete data;
+}
+
+void Map::LoadTrainers()
+{
+	DataBlock* data = ReadFile(ResourceCache::GetResourceLocation(string("trainers/headers/").append(itos(index).append(".dat"))).c_str());
+	if (!data)
+		return;
+	
+	trainers.clear();
+	for (int i = 0; i < 255; i++)
+	{
+		if (*data->data == 0xFF)
+			break;
+		TrainerHeader t;
+		t.flag_index = *data->data++;
+		t.view_distance = *data->data++;
+		for (int k = 0; k < 4; k++)
+		{
+			string s = "";
+			while (*data->data != 0x57 && *data->data != 0)
+				s.insert(s.end(), *data->data++);
+			s.insert(s.end(), MESSAGE_PROMPT);
+			if (k == 0)
+				t.s1 = s;
+			else if (k == 1)
+				t.s2 = s;
+			else if (k == 2)
+				t.s3 = s;
+			else
+				t.s4 = s;
+		}
+		trainers.push_back(t);
+	}
+
+	delete data;
 }
 
 unsigned char Map::Get8x8Tile(int x, int y)

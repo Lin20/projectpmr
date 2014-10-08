@@ -19,7 +19,6 @@ public:
 
 	bool Load(bool only_load_tiles = false);
 	void LoadPalette();
-	void LoadWild();
 
 	unsigned char index;
 	unsigned char width;
@@ -33,6 +32,7 @@ public:
 	std::vector<Warp> warps;
 	std::vector<Sign> signs;
 	std::vector<Entity> entities;
+	std::vector<TrainerHeader> trainers;
 
 	WildEncounter grass_encounters[10];
 	WildEncounter water_encounters[10];
@@ -71,6 +71,8 @@ private:
 	unsigned char connection_mask;
 	bool flags[256];
 	bool ParseHeader(DataBlock* data, bool only_load_tiles = false);
+	void LoadWild();
+	void LoadTrainers();
 	sf::Color* palette;
 	vector<OverworldEntity*>* scene_entities;
 };

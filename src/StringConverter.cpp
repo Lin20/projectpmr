@@ -73,3 +73,19 @@ string pokestring(const char* c)
 	pokestring(s);
 	return s;
 }
+
+string fixdump(std::string& src)
+{
+	for (unsigned int i = 0; i < src.length(); i++)
+	{
+		switch (src[i])
+		{
+		case MESSAGE_POKE: //POKé
+			src.erase(i, 1);
+			src.insert(i--, pokestring("POKé"));
+			break;
+		}
+	}
+
+	return src;
+}

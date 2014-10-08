@@ -38,9 +38,10 @@ FlyPoint ResourceCache::fly_points[13];
 DataBlock* ResourceCache::escape_rope_tilesets = 0;
 DataBlock* ResourceCache::bicycle_tilesets = 0;
 
-unsigned char ResourceCache::wild_chances[10];
-
 unsigned char ResourceCache::music_indexes[256];
+
+Transition ResourceCache::transitions[8];
+unsigned char ResourceCache::wild_chances[10];
 
 ResourceCache::ResourceCache()
 {
@@ -136,6 +137,7 @@ void ResourceCache::LoadAll()
 	LoadItems();
 	LoadPokemon();
 	LoadMoves();
+	LoadBattleData();
 
 #ifdef _DEBUG
 	cout << "Done\n";
@@ -218,11 +220,6 @@ void ResourceCache::LoadMisc()
 	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("misc/flying.dat")).c_str());
 	for (int i = 0; i < 13; i++)
 		fly_points[i].Load(d);
-	delete d;
-
-	d = ReadFile(ResourceCache::GetResourceLocation(string("misc//wild_chances.dat")).c_str());
-	for (int i = 0; i < 10; i++)
-		wild_chances[i] = d->getc();
 	delete d;
 	
 	d = ReadFile(ResourceCache::GetResourceLocation(string("audio/indexes.dat")).c_str());
@@ -345,6 +342,39 @@ void ResourceCache::LoadMoves()
 	delete d;
 
 	move_data = ReadFile(ResourceCache::GetResourceLocation(string("moves/moves.dat")).c_str());
+
+#ifdef _DEBUG
+	cout << "Done\n";
+#endif
+}
+
+void ResourceCache::LoadBattleData()
+{
+#ifdef _DEBUG
+	cout << "--Loading battle data...";
+#endif
+
+	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("misc/wild_chances.dat")).c_str());
+	for (int i = 0; i < 10; i++)
+		wild_chances[i] = d->getc();
+	delete d;
+
+	//transitions
+	for (int i = 0; i < 4; i++)
+	{
+		d = ReadFile(ResourceCache::GetResourceLocation(string("transitions/").append(itos(i)).append(".dat")).c_str());
+		transitions[i].n_steps = *d->data++;
+		for (int n = 0; n < transitions[i].n_steps; n++)
+		{
+			unsigned char count = *d->data++;
+			for (int s = 0; s < count; s++)
+			{
+				transitions[i].tiles[n][s] = (unsigned short)((*d->data++) * 0x100 + *(d->data++ + 1));
+			}
+			transitions[i].tiles[n][count] = 0xFFFF;
+		}
+		delete d;
+	}
 
 #ifdef _DEBUG
 	cout << "Done\n";

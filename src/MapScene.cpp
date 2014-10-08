@@ -11,15 +11,20 @@ MapScene::MapScene() : Scene()
 	teleport_stage = 0;
 	teleport_steps = 0;
 	teleport_timer = 0;
-	//wild_steps = 3;
+
+	wild_transition = 0;
+	transition_step = 0;
+	transition_index = 255;
+	transition_timer = 0;
+	wild_steps = 3;
 
 	//Initialize the player
-	entities.push_back(new OverworldEntity(active_map, 1, STARTING_X, STARTING_Y, ENTITY_DOWN, false, nullptr, [this]() {Walk(); }));
+	entities.push_back(new OverworldEntity(active_map, 1, 29, 33, ENTITY_DOWN, false, nullptr, [this]() {Walk(); }));
 	focus_entity = entities[0];
 
 	current_fade.Reset();
-	Focus(STARTING_X, STARTING_Y);
-	SwitchMap(STARTING_MAP);
+	Focus(29, 33);
+	SwitchMap(51);
 }
 
 MapScene::~MapScene()
@@ -41,6 +46,8 @@ void MapScene::Update()
 {
 	current_fade.Update();
 	ProcessTeleport();
+	ProcessWildTransition();
+	ProcessBattleTransition();
 	if (active_script && (focus_entity ? focus_entity->Snapped() : true))
 		active_script->Update();
 	if (!teleport_stage)
@@ -143,7 +150,7 @@ void MapScene::Update()
 
 	if (!current_fade.Done() && current_fade.CurrentFade() != current_fade.LastFade())
 	{
-		SetPalette(current_fade.GetCurrentPalette());
+		SetPalette(current_fade.GetCurrentPalette(), current_fade.BGOnly());
 	}
 
 }
@@ -171,6 +178,8 @@ void MapScene::Render(sf::RenderWindow* window)
 
 	for (unsigned int i = 0; i < textboxes.size(); i++)
 		textboxes[i]->Render(window);
+
+	DrawBattleTransition(window);
 }
 
 void MapScene::NotifySwitchedTo()
@@ -289,7 +298,7 @@ void MapScene::DrawMap(sf::RenderWindow* window, Map& map, int connection_index,
 		break;
 	}
 
-	Tileset* tileset = ResourceCache::GetTileset(map.tileset); //isn't it great having the textures be small and cached so we don't have to worry about loading once and passing them around? :D
+	Tileset* tileset = ResourceCache::GetTileset(map.tileset);
 	if (!tileset)
 		return;
 	for (int x = startX - 1; x <= endX; x++)
@@ -352,7 +361,7 @@ void MapScene::ClearEntities(bool focused)
 	}
 }
 
-void MapScene::SetPalette(sf::Color* pal)
+void MapScene::SetPalette(sf::Color* pal, bool only_bg)
 {
 	Tileset* tex = ResourceCache::GetTileset(active_map->tileset);
 
@@ -380,10 +389,13 @@ void MapScene::SetPalette(sf::Color* pal)
 		ResourceCache::GetPokemonIcons()->SetPalette(palette);
 	}
 
-	for (unsigned int i = 0; i < entities.size(); i++)
+	if (!only_bg)
 	{
-		if (entities[i])
-			entities[i]->SetPalette(pal);
+		for (unsigned int i = 0; i < entities.size(); i++)
+		{
+			if (entities[i])
+				entities[i]->SetPalette(pal);
+		}
 	}
 }
 
@@ -414,7 +426,7 @@ bool MapScene::Interact()
 			Textbox* t = new Textbox();
 			string s;
 			if ((active_map->entities[i - 1].text & 0x40) != 0)
-				s = pokestring(string("This is a trainer\nwith index ").append(itos((int)(i - 1)).append(".")).append("\rTrainer ID: ").append(itos(active_map->entities[i - 1].trainer)).append("\n#MON set: ").append(itos(active_map->entities[i - 1].pokemon_set)));
+				s = pokestring(string("This is a trainer\nwith index ").append(itos((int)(i - 1)).append(".")).append("\rTrainer ID: ").append(itos(active_map->entities[i - 1].trainer_class)).append("\n#MON set: ").append(itos(active_map->entities[i - 1].pokemon_set)).append(".\rView: ").append(itos(active_map->trainers[active_map->entities[i - 1].trainer_index].view_distance)).append("\r")).append(fixdump(active_map->trainers[active_map->entities[i - 1].trainer_index].s1));
 			else if ((active_map->entities[i - 1].text & 0x80) != 0)
 			{
 				if (!Players::GetPlayer1()->GetInventory()->AddItem(active_map->entities[i - 1].item, 1))
@@ -597,6 +609,7 @@ void MapScene::Walk()
 	}
 
 	ProcessWildEncounter();
+	CheckTrainers();
 }
 
 void MapScene::UseEscapeRope()
@@ -780,12 +793,145 @@ void MapScene::ProcessWildEncounter()
 		wild_steps--;
 		return;
 	}
-	if (active_map->InGrass(focus_entity->x / 16, focus_entity->y / 16))
+
+	if (active_map->InGrass(focus_entity->x / 16, focus_entity->y / 16) && wild_transition == 0)
 	{
 		if (active_map->grass_rate == 0)
 			return;
 
-		//current_fade.SetFadeToBlack(active_map->GetPalette());
-		//current_fade.Start(20);
+		if (rand() % 256 >= active_map->grass_rate)
+			return;
+		wild_transition = 1;
+		Engine::GetMusicPlayer().Play(144, false);
+	}
+	else if (wild_transition == 0)
+		return;
+}
+
+void MapScene::ProcessWildTransition()
+{
+	if (!current_fade.Done())
+		return;
+	switch (wild_transition)
+	{
+	case 0:
+		return;
+	case 1:
+	case 5:
+	case 9:
+		current_fade.SetFadeToBlack(active_map->GetPalette());
+		break;
+	case 2:
+	case 6:
+	case 10:
+		current_fade.SetFadeFromBlack(active_map->GetPalette());
+		break;
+	case 3:
+	case 7:
+	case 11:
+		current_fade.SetFadeToWhite(active_map->GetPalette());
+		break;
+	case 4:
+	case 8:
+	case 12:
+		current_fade.SetFadeFromWhite(active_map->GetPalette());
+		break;
+	case 13:
+		wild_transition = 0;
+		transition_index = 0;
+		transition_step = 0;
+		transition_timer = 2;
+		return;
+	}
+	wild_transition++;
+	current_fade.Start(8, 0, true);
+}
+
+void MapScene::ProcessBattleTransition()
+{
+	if (transition_index != 255)
+	{
+		if (transition_timer > 0)
+		{
+			transition_timer--;
+			return;
+		}
+		if (transition_step < ResourceCache::GetBattleTransition(transition_index).n_steps)
+		{
+			transition_step++;
+			transition_timer = 2;
+		}
+		return;
+	}
+}
+
+void MapScene::DrawBattleTransition(sf::RenderWindow* window)
+{
+	if (transition_index != 255)
+	{
+		sf::IntRect src_rect = sf::IntRect(0, 0, 8, 8);
+		sf::Sprite sprite;
+		sprite.setTexture(*ResourceCache::GetFontTexture());
+		src_rect.left = 120;
+		src_rect.top = 32;
+		sprite.setTextureRect(src_rect);
+		for (int i = 0; i <= transition_step; i++)
+		{
+			for (int s = 0; s < 256; s++)
+			{
+				unsigned short u = ResourceCache::GetBattleTransition(transition_index).tiles[i][s];
+				if (u == 0xFFFF)
+					break;
+				sprite.setPosition((float)(int)((u & 0xFF) * 8), (float)(int)(((u >> 8) & 0xFF) * 8));
+				window->draw(sprite);
+			}
+		}
+	}
+}
+
+void MapScene::CheckTrainers()
+{
+	if (!active_map || !focus_entity)
+		return;
+
+	int p_x = focus_entity->x / 16;
+	int p_y = focus_entity->y / 16;
+	for (int i = 1; i < entities.size(); i++)
+	{
+		if ((active_map->entities[i - 1].text & 0x40) != 0)
+		{
+			unsigned char view = active_map->trainers[active_map->entities[i - 1].trainer_index].view_distance >> 4;
+			if (view == 0)
+				continue;
+			int e_x = entities[i]->x / 16;
+			int e_y = entities[i]->y / 16;
+			switch (entities[i]->GetDirection())
+			{
+			case ENTITY_DOWN:
+				if (p_y - e_y <= view && e_x == p_x)
+				{
+					entities[i]->SetEmote(0);
+				}
+				break;
+			case ENTITY_UP:
+				if (e_y - p_y <= view && e_x == p_x)
+				{
+					entities[i]->SetEmote(0);
+				}
+				break;
+			case ENTITY_LEFT:
+				if (e_x - p_x <= view && e_y == p_y)
+				{
+					entities[i]->SetEmote(0);
+				}
+				break;
+			case ENTITY_RIGHT:
+				if (p_x - e_x <= view && e_y == p_y)
+				{
+					entities[i]->SetEmote(0);
+				}
+				break;
+			}
+		}
 	}
 }

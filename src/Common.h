@@ -10,6 +10,7 @@ class PaletteTexture;
 class Engine;
 class Scene;
 class MapScene;
+class BattleScene;
 class Fade;
 
 class OverworldEntity;
@@ -34,6 +35,7 @@ struct Entity;
 struct Evolution;
 struct LearnsetMove;
 struct FlyPoint;
+struct TrainerHeader;
 
 class Script;
 struct Variable;
