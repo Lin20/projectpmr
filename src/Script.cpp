@@ -1,5 +1,6 @@
 #include "Script.h"
 #include "MapScene.h"
+#include "Opcodes.h"
 
 Script::Script(MapScene* on_scene)
 {
@@ -10,6 +11,18 @@ Script::Script(MapScene* on_scene)
 	this->watch_entities.clear();
 	this->menu_variable = 0;
 	this->menu_result = 0;
+}
+
+Script::Script(MapScene* on_scene, string& location)
+{
+	this->on_scene = on_scene;
+	this->buffer = 0;
+	this->built_menu = 0;
+	this->entity_wait = false;
+	this->watch_entities.clear();
+	this->menu_variable = 0;
+	this->menu_result = 0;
+	Load(location);
 }
 
 Script::~Script()
@@ -118,7 +131,7 @@ void Script::Update()
 		unsigned char opcode = *buffer->data++;
 		unsigned int index = 0;
 		unsigned int value = 0;
-		unsigned int a = 0, b = 0, c = 0, d = 0;
+		unsigned int a = 0, b = 0, c = 0, d = 0, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 		string s = "";
 		Variable v;
 
@@ -378,6 +391,118 @@ void Script::Update()
 					on_scene->GetEntities()[index]->SetEntityGhosting(true);
 					watch_entities.push_back(index);
 				}
+			}
+			break;
+
+		case OPCODE_GETENTITY: //get entity
+			a = buffer->getc() + (buffer->getc() << 8);
+			if (a < MAX_VARS)
+				variables[a].int_value = entity_index;
+			break;
+
+		case OPCODE_GETDIR: //get entity direction
+			index = GetVariable().int_value;
+			a = buffer->getc() + (buffer->getc() << 8);
+			if (index < on_scene->GetEntities().size() && a < MAX_VARS)
+				variables[a].int_value = on_scene->GetEntities()[index]->GetDirection();
+			break;
+
+		case OPCODE_GETTRAINER: //get trainer
+			index = GetVariable().int_value;
+			a = buffer->getc() + (buffer->getc() << 8);
+			if (index < on_scene->GetEntities().size() && a < MAX_VARS && index > 0)
+				variables[a].int_value = on_scene->GetMap()->entities[index - 1].trainer_index;
+			break;
+
+		case OPCODE_GETVIEW: //get view
+			index = GetVariable().int_value;
+			a = buffer->getc() + (buffer->getc() << 8);
+			if (index < on_scene->GetMap()->trainers.size() && a < MAX_VARS)
+				variables[a].int_value = on_scene->GetMap()->trainers[index].view_distance >> 4;
+			break;
+
+		case OPCODE_SUB: //subtract
+			index = buffer->getc() + (buffer->getc() << 8);
+			value = GetVariable().int_value;
+			if (index < MAX_VARS)
+				variables[index].int_value -= value;
+			break;
+
+		case OPCODE_AND: //and
+			index = buffer->getc() + (buffer->getc() << 8);
+			value = GetVariable().int_value;
+			if (index < MAX_VARS)
+				variables[index].int_value &= value;
+			break;
+
+		case OPCODE_ABS: //abs
+			index = buffer->getc() + (buffer->getc() << 8);
+			if (index < MAX_VARS)
+				variables[index].int_value = abs((int)variables[index].int_value);
+			break;
+
+		case OPCODE_SORT: //sort
+			a = buffer->getc() + (buffer->getc() << 8);
+			b = buffer->getc() + (buffer->getc() << 8);
+			c = buffer->getc() + (buffer->getc() << 8);
+			d = buffer->getc() + (buffer->getc() << 8);
+			if (a < MAX_VARS && b < MAX_VARS && c < MAX_VARS && d < MAX_VARS)
+			{
+				if (variables[a].int_value > variables[b].int_value)
+				{
+					variables[c].int_value = variables[a].int_value;
+					variables[d].int_value = variables[b].int_value;
+				}
+				else
+				{
+					variables[c].int_value = variables[b].int_value;
+					variables[d].int_value = variables[a].int_value;
+				}
+			}
+			break;
+
+		case OPCODE_GETTRAINERTEXT: //get trainer text
+			a = buffer->getc() + (buffer->getc() << 8);
+			index = GetVariable().int_value;
+			if (index < on_scene->GetMap()->trainers.size() && a < MAX_VARS)
+				variables[a].string_value = on_scene->GetMap()->trainers[index].before_battle;
+			break;
+
+		case OPCODE_TEXTRAW: //text raw
+			if (on_scene)
+			{
+				Textbox* t = new Textbox();
+				t->SetText(new TextItem(t, nullptr, fixdump(GetVariable().string_value)));
+				on_scene->ShowTextbox(t);
+			}
+			break;
+
+		case OPCODE_TRAINERBATTLE: //trainer battle
+			index = GetVariable().int_value;
+			if (index < on_scene->GetEntities().size())
+			{
+				if (index > 0)
+					on_scene->TriggerTrainerBattle(on_scene->GetMap()->entities[index - 1].trainer_class, on_scene->GetMap()->entities[index - 1].pokemon_set);
+			}
+			break;
+
+		case OPCODE_FACE: //face
+			a = GetVariable().int_value;
+			b = GetVariable().int_value;
+			if (a < on_scene->GetEntities().size() && b < on_scene->GetEntities().size())
+			{
+				x1 = on_scene->GetEntities()[a]->x / 16;
+				y1 = on_scene->GetEntities()[a]->y / 16;
+				x2 = on_scene->GetEntities()[b]->x / 16;
+				y2 = on_scene->GetEntities()[b]->y / 16;
+				if (x1 < x2)
+					on_scene->GetEntities()[a]->Face(ENTITY_RIGHT);
+				else if (x2 > x1)
+					on_scene->GetEntities()[a]->Face(ENTITY_LEFT);
+				else if (y1 < y2)
+					on_scene->GetEntities()[a]->Face(ENTITY_DOWN);
+				else if (y2 > y1)
+					on_scene->GetEntities()[a]->Face(ENTITY_UP);
 			}
 			break;
 		}

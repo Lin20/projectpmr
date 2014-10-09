@@ -109,6 +109,7 @@ public:
 
 	inline static unsigned char* GetWildChances() { return wild_chances; }
 	inline static Transition& GetBattleTransition(unsigned char index) { return transitions[index]; }
+	inline static unsigned char GetTrainerMusic(unsigned char index) { return trainer_music[index]; }
 
 private:
 	//tilesets
@@ -157,8 +158,9 @@ private:
 	static DataBlock* escape_rope_tilesets;
 	static DataBlock* bicycle_tilesets;
 	static unsigned char music_indexes[256];
+	static unsigned char trainer_music[256];
 	
-	//wild pokemon
+	//battle
 	static unsigned char wild_chances[10];
 	static Transition transitions[8];
 };

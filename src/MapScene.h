@@ -35,6 +35,7 @@ public:
 	void WarpTo(Warp& w);
 	void Walk();
 	void UseEscapeRope();
+	void TriggerTrainerBattle(unsigned char trainer_class, unsigned char trainer_party);
 
 	Map* GetMap() { return active_map; }
 	vector<OverworldEntity*>& GetEntities() { return entities; }

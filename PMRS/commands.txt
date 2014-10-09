@@ -29,4 +29,16 @@
 26	emote	Shows emote [1] on entity [0].	#	#
 27	frozen	Sets entity [0]'s frozen state to [1].	#	#
 28	movefast	Moves entity [0] in direction [1] for [2] steps but quickly.	#	#	#
+29	getentity	Stores the script's host index into [0].	v
+30	getdir	Gets the direction of entity [0] and stores it into [1].	#	v
+31	gettrainer	Gets the trainer index of entity[0] and stores it into [1].	#	v
+32	getview	Gets the view distance of trainer [0] and stores it into [2].	#	v
+33	sub	Subtracts [1] from [0].	v	##
+34	and	Bitwise AND [0] by [1].	v	##
+35	abs	Assign the absolute value of [0] to itself.	v
+36	sort	Sort [0] and [1] into largest [2] and smallest [3].	v	v	v	v
+37	gettrainertext	Store trainer [1] intro text into [0].	v	#
+38	textraw	Shows a textbox with the raw text as [0].	s
+39	trainerbattle	Triggers a trainer battle with map entity [0].	#
+40	face	Turns entity [0] to entity [1].	#	#
 255	getmoney	Stores the money of player [0] into [1].	#	v

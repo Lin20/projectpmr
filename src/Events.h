@@ -157,8 +157,8 @@ struct TrainerHeader
 {
 	unsigned char flag_index;
 	unsigned char view_distance;
-	std::string s1;
-	std::string s2;
-	std::string s3;
+	std::string before_battle;
+	std::string battle_lost;
+	std::string after_battle;
 	std::string s4;
 };

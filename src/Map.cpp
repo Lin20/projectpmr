@@ -191,15 +191,16 @@ void Map::LoadTrainers()
 		for (int k = 0; k < 4; k++)
 		{
 			string s = "";
-			while (*data->data != 0x57 && *data->data != 0)
+			while (*data->data != 0x57 && *data->data != 0 && *data->data != 0x58)
 				s.insert(s.end(), *data->data++);
+			data->data++;
 			s.insert(s.end(), MESSAGE_PROMPT);
 			if (k == 0)
-				t.s1 = s;
+				t.before_battle = s;
 			else if (k == 1)
-				t.s2 = s;
+				t.battle_lost = s;
 			else if (k == 2)
-				t.s3 = s;
+				t.after_battle = s;
 			else
 				t.s4 = s;
 		}

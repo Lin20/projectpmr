@@ -19,12 +19,12 @@ MapScene::MapScene() : Scene()
 	wild_steps = 3;
 
 	//Initialize the player
-	entities.push_back(new OverworldEntity(active_map, 1, 29, 33, ENTITY_DOWN, false, nullptr, [this]() {Walk(); }));
+	entities.push_back(new OverworldEntity(active_map, 0, 1, 24, 6, ENTITY_DOWN, false, nullptr, [this]() {Walk(); }));
 	focus_entity = entities[0];
 
 	current_fade.Reset();
 	Focus(29, 33);
-	SwitchMap(51);
+	SwitchMap(22);
 }
 
 MapScene::~MapScene()
@@ -226,7 +226,7 @@ void MapScene::SwitchMap(unsigned char index)
 	for (unsigned int i = 0; i < active_map->entities.size(); i++)
 	{
 		Entity e = active_map->entities[i];
-		NPC* o = new NPC(active_map, e, Script::TryLoad(this, active_map->index, active_map->entities[i].text));
+		NPC* o = new NPC(active_map, i + 1, e, Script::TryLoad(this, active_map->index, active_map->entities[i].text));
 
 		entities.push_back(o);
 	}
@@ -426,7 +426,14 @@ bool MapScene::Interact()
 			Textbox* t = new Textbox();
 			string s;
 			if ((active_map->entities[i - 1].text & 0x40) != 0)
-				s = pokestring(string("This is a trainer\nwith index ").append(itos((int)(i - 1)).append(".")).append("\rTrainer ID: ").append(itos(active_map->entities[i - 1].trainer_class)).append("\n#MON set: ").append(itos(active_map->entities[i - 1].pokemon_set)).append(".\rView: ").append(itos(active_map->trainers[active_map->entities[i - 1].trainer_index].view_distance)).append("\r")).append(fixdump(active_map->trainers[active_map->entities[i - 1].trainer_index].s1));
+			{
+				entities[i]->ExecuteScript(new Script(this, ResourceCache::GetResourceLocation(string("scripts/bin/trainer_near.dat"))));
+				Engine::GetMusicPlayer().Play(TRAINER_MUSIC_BASE + ResourceCache::GetTrainerMusic(active_map->entities[i - 1].trainer_class));
+				break;
+				//s = pokestring(string("This is a trainer\nwith index ").append(itos((int)(i - 1)).append(".")).append("\rTrainer ID: ").append(itos(active_map->entities[i - 1].trainer_class)).append("\n#MON set: ").append(itos(active_map->entities[i - 1].pokemon_set)).append(".\rView: ").append(itos(active_map->trainers[active_map->entities[i - 1].trainer_index].view_distance)).append("\r")).append(fixdump(active_map->trainers[active_map->entities[i - 1].trainer_index].before_battle));
+
+				
+			}
 			else if ((active_map->entities[i - 1].text & 0x80) != 0)
 			{
 				if (!Players::GetPlayer1()->GetInventory()->AddItem(active_map->entities[i - 1].item, 1))
@@ -621,6 +628,14 @@ void MapScene::UseEscapeRope()
 	teleport_stage = 1;
 	focus_entity->Face(ENTITY_DOWN);
 	Engine::GetMusicPlayer().Play(0, true);
+}
+
+void MapScene::TriggerTrainerBattle(unsigned char trainer_class, unsigned char trainer_party)
+{
+	transition_index = 1;
+	transition_step = 0;
+	transition_timer = 2;
+	Engine::GetMusicPlayer().Play(145);
 }
 
 void MapScene::ProcessTeleport()
@@ -861,6 +876,8 @@ void MapScene::ProcessBattleTransition()
 			transition_step++;
 			transition_timer = 2;
 		}
+		else
+			transition_index = 255;
 		return;
 	}
 }
@@ -894,9 +911,10 @@ void MapScene::CheckTrainers()
 	if (!active_map || !focus_entity)
 		return;
 
+	//execute a script for moving the trainer and starting a battle because it's easier than hardcoding a bunch of events
 	int p_x = focus_entity->x / 16;
 	int p_y = focus_entity->y / 16;
-	for (int i = 1; i < entities.size(); i++)
+	for (unsigned int i = 1; i < entities.size(); i++)
 	{
 		if ((active_map->entities[i - 1].text & 0x40) != 0)
 		{
@@ -908,27 +926,31 @@ void MapScene::CheckTrainers()
 			switch (entities[i]->GetDirection())
 			{
 			case ENTITY_DOWN:
-				if (p_y - e_y <= view && e_x == p_x)
+				if (p_y - e_y <= view && p_y > e_y && e_x == p_x)
 				{
-					entities[i]->SetEmote(0);
+					entities[i]->ExecuteScript(new Script(this, ResourceCache::GetResourceLocation(string("scripts/bin/trainer.dat"))));
+					Engine::GetMusicPlayer().Play(TRAINER_MUSIC_BASE + ResourceCache::GetTrainerMusic(active_map->entities[i - 1].trainer_class));
 				}
 				break;
 			case ENTITY_UP:
-				if (e_y - p_y <= view && e_x == p_x)
+				if (e_y - p_y <= view && e_y > p_y && e_x == p_x)
 				{
-					entities[i]->SetEmote(0);
+					entities[i]->ExecuteScript(new Script(this, ResourceCache::GetResourceLocation(string("scripts/bin/trainer.dat"))));
+					Engine::GetMusicPlayer().Play(TRAINER_MUSIC_BASE + ResourceCache::GetTrainerMusic(active_map->entities[i - 1].trainer_class));
 				}
 				break;
 			case ENTITY_LEFT:
-				if (e_x - p_x <= view && e_y == p_y)
+				if (e_x - p_x <= view && e_x > p_x && e_y == p_y)
 				{
-					entities[i]->SetEmote(0);
+					entities[i]->ExecuteScript(new Script(this, ResourceCache::GetResourceLocation(string("scripts/bin/trainer.dat"))));
+					Engine::GetMusicPlayer().Play(TRAINER_MUSIC_BASE + ResourceCache::GetTrainerMusic(active_map->entities[i - 1].trainer_class));
 				}
 				break;
 			case ENTITY_RIGHT:
-				if (p_x - e_x <= view && e_y == p_y)
+				if (p_x - e_x <= view && p_x > e_x && e_y == p_y)
 				{
-					entities[i]->SetEmote(0);
+					entities[i]->ExecuteScript(new Script(this, ResourceCache::GetResourceLocation(string("scripts/bin/trainer.dat"))));
+					Engine::GetMusicPlayer().Play(TRAINER_MUSIC_BASE + ResourceCache::GetTrainerMusic(active_map->entities[i - 1].trainer_class));
 				}
 				break;
 			}

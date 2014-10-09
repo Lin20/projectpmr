@@ -7,7 +7,7 @@
 class NPC : public OverworldEntity
 {
 public:
-	NPC(Map* on_map, Entity data, Script* script = 0, std::function<void()> step_callback = nullptr);
+	NPC(Map* on_map, unsigned char index, Entity data, Script* script = 0, std::function<void()> step_callback = nullptr);
 	~NPC();
 
 	void Update() override;

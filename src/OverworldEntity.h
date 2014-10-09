@@ -11,7 +11,7 @@
 class OverworldEntity : public TileMap
 {
 public:
-	OverworldEntity(Map* on_map, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc = true, Script* _script = 0, std::function<void()> step_callback = nullptr);
+	OverworldEntity(Map* on_map, unsigned char index, unsigned char sprite, unsigned char x, unsigned char y, unsigned char direction, bool npc = true, Script* _script = 0, std::function<void()> step_callback = nullptr);
 	virtual ~OverworldEntity();
 
 	virtual void Update();
@@ -22,6 +22,7 @@ public:
 	void ForceStop();
 	void Move(unsigned char direction, unsigned char steps = 1, bool fast = false);
 	void SetSprite(unsigned char index);
+	void ExecuteScript(Script* script);
 	
 	inline bool Snapped() { return x % 16 == 0 && y % 16 == 0; }
 	inline bool Moving() { return step_timer > 0; }
@@ -34,7 +35,7 @@ public:
 	inline void SetEmote(unsigned char e) { emotion_bubble = e; }
 	inline bool Frozen() { return frozen; }
 	inline void SetFrozen(bool b) { frozen = b; }
-	inline unsigned char GetIndex() { return index; }
+	inline unsigned char GetIndex() { return sprite; }
 
 	void SetMap(Map* m)
 	{
@@ -52,8 +53,9 @@ public:
 	int x;
 	int y;
 	int offset_y;
+	int index;
 protected:
-	unsigned char index;
+	unsigned char sprite;
 	Map* on_map;
 	bool is_npc;
 	bool frozen;
@@ -76,6 +78,7 @@ protected:
 	int jump_y;
 	
 	Script* script;
+	Script* temp_script;
 	bool script_enabled;
 	unsigned char emotion_bubble;
 	TileMap* emotion_texture;

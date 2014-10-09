@@ -1,23 +1,25 @@
 #include "OverworldEntity.h"
 #include "Engine.h"
 
-OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char x, unsigned char y, unsigned char direction, bool npc, Script* _script, std::function<void()> step_callback) : TileMap()
+OverworldEntity::OverworldEntity(Map* m, unsigned char index, unsigned char sprite, unsigned char x, unsigned char y, unsigned char direction, bool npc, Script* _script, std::function<void()> step_callback) : TileMap()
 {
 	this->on_map = m;
 	this->index = index;
+	this->sprite = sprite;
 	this->x = x * 16;
 	this->y = y * 16;
 	this->is_npc = npc;
 	this->frozen = false;
 	this->delete_texture = false;
 	this->script = _script;
+	this->temp_script = 0;
 	this->script_enabled = false;
 	if (step_callback)
 		this->step_callback = step_callback;
 	else
 		this->step_callback = nullptr;
 
-	SetSprite(index);
+	SetSprite(sprite);
 
 	step_frame = 0;
 	animation_timer = 0;
@@ -60,6 +62,8 @@ OverworldEntity::~OverworldEntity()
 {
 	if (script)
 		delete script;
+	if (temp_script)
+		delete temp_script;
 	if (emotion_texture)
 		delete emotion_texture;
 }
@@ -82,8 +86,8 @@ void OverworldEntity::Update()
 			{
 				if (!Snapped() || on_map->IsPassable(x / 16 + DELTAX(direction), y / 16 + DELTAY(direction), this, !allow_entity_ghosting))
 				{
-					x += DELTAX(direction) * (index > 0 ? 1 : 2);
-					y += DELTAY(direction) * (index > 0 ? 1 : 2);
+					x += DELTAX(direction) * (sprite > 0 ? 1 : 2);
+					y += DELTAY(direction) * (sprite > 0 ? 1 : 2);
 				}
 				if (Snapped())
 				{
@@ -165,11 +169,23 @@ void OverworldEntity::Update()
 
 	if (script && script_enabled && Snapped() && steps_remaining == 0)
 	{
+		script->SetEntityIndex(index);
 		script->Update();
 		if (script->Done())
 		{
 			SetScriptState(false);
 			script->Reset();
+		}
+	}
+
+	if (temp_script && Snapped() && steps_remaining == 0)
+	{
+		temp_script->SetEntityIndex(index);
+		temp_script->Update();
+		if (temp_script->Done())
+		{
+			delete temp_script;
+			temp_script = 0;
 		}
 	}
 }
@@ -256,7 +272,7 @@ void OverworldEntity::Render(sf::RenderWindow* window, int offset_x, int offset_
 
 void OverworldEntity::Face(unsigned char direction)
 {
-	if (!Snapped() || !ISNPC(index) || direction == MOVEMENT_NONE)
+	if (!Snapped() || !ISNPC(sprite) || direction == MOVEMENT_NONE)
 		return;
 	unsigned char f = direction * 4;
 	if (direction == ENTITY_RIGHT)
@@ -268,7 +284,7 @@ void OverworldEntity::Face(unsigned char direction)
 
 void OverworldEntity::StartMoving(unsigned char direction)
 {
-	if (!Snapped() || !ISNPC(index) || movement_type != MOVEMENT_NORMAL || steps_remaining > 0 || turn_delay_timer > 0 || forced_steps)
+	if (!Snapped() || !ISNPC(sprite) || movement_type != MOVEMENT_NORMAL || steps_remaining > 0 || turn_delay_timer > 0 || forced_steps)
 		return;
 
 	bool same_dir = this->direction == direction;
@@ -343,7 +359,7 @@ void OverworldEntity::Move(unsigned char direction, unsigned char steps, bool fa
 
 void OverworldEntity::SetSprite(unsigned char index)
 {
-	this->index = index;
+	this->sprite = index;
 	this->tiles_tex = ResourceCache::GetEntityTexture(index);
 
 	if (!this->formation)
@@ -361,4 +377,9 @@ void OverworldEntity::SetSprite(unsigned char index)
 	}
 	sprite8x8.setTexture(*tiles_tex);
 	Face(direction);
+}
+
+void OverworldEntity::ExecuteScript(Script* script)
+{
+	temp_script = script;
 }

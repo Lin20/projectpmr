@@ -1,7 +1,7 @@
 #include "NPC.h"
 
 
-NPC::NPC(Map* on_map, Entity data, Script* script, std::function<void()> step_callback) : OverworldEntity(on_map, data.sprite, data.x, data.y, ENTITY_DOWN, true, script, step_callback)
+NPC::NPC(Map* on_map, unsigned char index, Entity data, Script* script, std::function<void()> step_callback) : OverworldEntity(on_map, index, data.sprite, data.x, data.y, ENTITY_DOWN, true, script, step_callback)
 {
 	this->data = data;
 	occupation = 0;
@@ -22,7 +22,7 @@ void NPC::PerformAI(bool force)
 {
 	if (frozen)
 		return;
-	if (script_enabled && script && !script->Done())
+	if ((script_enabled && script && !script->Done()) || temp_script)
 		return;
 	if (occupation)
 	{

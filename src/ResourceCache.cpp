@@ -39,6 +39,7 @@ DataBlock* ResourceCache::escape_rope_tilesets = 0;
 DataBlock* ResourceCache::bicycle_tilesets = 0;
 
 unsigned char ResourceCache::music_indexes[256];
+unsigned char ResourceCache::trainer_music[256];
 
 Transition ResourceCache::transitions[8];
 unsigned char ResourceCache::wild_chances[10];
@@ -375,6 +376,11 @@ void ResourceCache::LoadBattleData()
 		}
 		delete d;
 	}
+
+	d = ReadFile(ResourceCache::GetResourceLocation(string("trainers/music.dat")).c_str());
+	for (int i = 0; i < 256; i++)
+		trainer_music[i] = d->getc();
+	delete d;
 
 #ifdef _DEBUG
 	cout << "Done\n";

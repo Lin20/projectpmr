@@ -143,3 +143,5 @@ enum ArrowStates
 #define EVOLUTION_TRADE		3
 
 #define EV_MAXVITAMIN		25600
+
+#define TRAINER_MUSIC_BASE 141

@@ -6,7 +6,6 @@
 #include "DataBlock.h"
 #include "Common.h"
 #include "ResourceCache.h"
-#include "Opcodes.h"
 #include "OverworldEntity.h"
 
 using namespace std;
@@ -17,6 +16,7 @@ class Script
 {
 public:
 	Script(MapScene* on_scene);
+	Script(MapScene* on_scene, string& filename);
 	~Script();
 
 	static Script* TryLoad(MapScene* on_scene, unsigned char map, unsigned char script_index);
@@ -31,6 +31,7 @@ public:
 	inline Textbox* GetBuiltMenu() { return built_menu; }
 	inline void SetMenuResult(unsigned char index) { variables[menu_variable ].int_value = index; }
 	inline void ClearBuiltMenu() { built_menu = 0; }
+	inline void SetEntityIndex(unsigned char index) { entity_index = index; }
 
 private:
 	MapScene* on_scene;
@@ -43,6 +44,7 @@ private:
 	unsigned char menu_result;
 	bool entity_wait;
 	unsigned int delay;
+	unsigned char entity_index;
 
 	void ResetVariables();
 	bool CheckSpace(unsigned char amount);
