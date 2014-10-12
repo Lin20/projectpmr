@@ -38,6 +38,7 @@ enum ArrowStates
 #define CONNECTION_WEST		2
 #define CONNECTION_EAST		3
 #define OUTSIDE_MAP			36
+#define DUNGEON_FOREST		3
 
 //warp stuff
 #define WARP_TILE			0

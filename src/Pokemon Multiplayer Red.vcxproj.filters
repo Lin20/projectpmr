@@ -530,5 +530,8 @@
     <ClInclude Include="BattleScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BattleConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

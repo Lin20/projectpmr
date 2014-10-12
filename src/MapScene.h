@@ -35,7 +35,9 @@ public:
 	void WarpTo(Warp& w);
 	void Walk();
 	void UseEscapeRope();
+	void TriggerWildBattle(unsigned char index);
 	void TriggerTrainerBattle(unsigned char trainer_class, unsigned char trainer_party);
+	void TriggerBattleTransition(unsigned char index);
 
 	Map* GetMap() { return active_map; }
 	vector<OverworldEntity*>& GetEntities() { return entities; }
@@ -61,6 +63,7 @@ private:
 
 	unsigned char repel_steps; //steps remaining for repel
 	unsigned char poison_steps;
+	unsigned char wild_index; //wild pokemon slot
 	unsigned char wild_steps;
 	unsigned char wild_transition;
 	unsigned char transition_step;

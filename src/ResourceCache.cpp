@@ -23,7 +23,7 @@ unsigned char ResourceCache::item_uses[256];
 DataBlock* ResourceCache::pokemon_stats[256];
 DataBlock* ResourceCache::pokemon_indexes = 0;
 string ResourceCache::pokemon_names[256];
-PaletteTexture* ResourceCache::statuses_texture[3];
+PaletteTexture* ResourceCache::statuses_texture[4];
 PaletteTexture* ResourceCache::pokemon_icons = 0;
 DataBlock* ResourceCache::icon_indexes = 0;
 PaletteTexture* ResourceCache::pokemon_front[256];
@@ -43,6 +43,11 @@ unsigned char ResourceCache::trainer_music[256];
 
 Transition ResourceCache::transitions[8];
 unsigned char ResourceCache::wild_chances[10];
+
+PaletteTexture* ResourceCache::trainer_front[256];
+PaletteTexture* ResourceCache::red_back;
+PaletteTexture* ResourceCache::man_back;
+string ResourceCache::trainer_names[256];
 
 ResourceCache::ResourceCache()
 {
@@ -93,7 +98,7 @@ void ResourceCache::ReleaseResources()
 	}
 	if (pokemon_indexes)
 		delete pokemon_indexes;
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		if (statuses_texture[i])
 			delete statuses_texture[i];
@@ -121,6 +126,16 @@ void ResourceCache::ReleaseResources()
 		delete escape_rope_tilesets;
 	if (bicycle_tilesets)
 		delete bicycle_tilesets;
+
+	for (int i = 0; i < 256; i++)
+	{
+		if (trainer_front[i])
+			delete trainer_front[i];
+	}
+	if (red_back)
+		delete red_back;
+	if (man_back)
+		delete man_back;
 }
 
 void ResourceCache::LoadAll()
@@ -139,6 +154,8 @@ void ResourceCache::LoadAll()
 	LoadPokemon();
 	LoadMoves();
 	LoadBattleData();
+	LoadTilesets();
+	LoadTrainers();
 
 #ifdef _DEBUG
 	cout << "Done\n";
@@ -294,11 +311,12 @@ void ResourceCache::LoadPokemon()
 	}
 	delete d;
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		statuses_texture[i] = new PaletteTexture();
 		statuses_texture[i]->loadFromFile(ResourceCache::GetResourceLocation(string("gui/hp_statuses.png")));
 	}
+	statuses_texture[3]->SetPalette(GetPalette(31));
 	pokemon_icons = new PaletteTexture();
 	pokemon_icons->loadFromFile(ResourceCache::GetResourceLocation(string("pokemon/icons.png")));
 	icon_indexes = ReadFile(ResourceCache::GetResourceLocation(string("pokemon/icon_indexes.dat")).c_str());
@@ -381,6 +399,45 @@ void ResourceCache::LoadBattleData()
 	for (int i = 0; i < 256; i++)
 		trainer_music[i] = d->getc();
 	delete d;
+
+#ifdef _DEBUG
+	cout << "Done\n";
+#endif
+}
+
+void ResourceCache::LoadTrainers()
+{
+#ifdef _DEBUG
+	cout << "--Loading trainers...";
+#endif
+
+	DataBlock* d = ReadFile(ResourceCache::GetResourceLocation(string("trainers/names.dat")).c_str());
+	unsigned char* p = d->data;
+	for (int i = 0; i < 256; i++)
+	{
+		string s;
+		while ((unsigned int)(p - d->data_start) < d->size && *p != MESSAGE_ENDNAME)
+			s.insert(s.begin() + s.length(), (char)*p++);
+		p++;
+		trainer_names[i] = s;
+		//these pokemon names get reported as a memory leak
+		//however since theyre static not manually allocated, they will be deleted when the program terminates
+		//the leak reportings are false
+	}
+	delete d;
+	for (int i = 0; i < 256; i++)
+	{
+		trainer_front[i] = new PaletteTexture();
+		trainer_front[i]->loadFromFile(ResourceCache::GetResourceLocation(string("trainers/front/").append(itos(i)).append(".PNG")));
+
+		//pokemon_front[i]->SetPalette(GetPalette(mon_palette_indexes->data[i]));
+		//pokemon_back[i]->SetPalette(GetPalette(mon_palette_indexes->data[i]));
+	}
+
+	red_back = new PaletteTexture();
+	red_back->loadFromFile(ResourceCache::GetResourceLocation("trainers/back/red.PNG"));
+	man_back = new PaletteTexture();
+	man_back->loadFromFile(ResourceCache::GetResourceLocation("trainers/back/red.PNG"));
 
 #ifdef _DEBUG
 	cout << "Done\n";

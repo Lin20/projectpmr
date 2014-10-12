@@ -21,6 +21,8 @@ public:
 
 	static Scene* GetActiveScene() { return active_scene; }
 	static unsigned char GetState() { return game_state; }
+	static MapScene* GetMapScene() { return map_scene; }
+	static BattleScene* GetBattleScene() { return battle_scene; }
 
 	static SFPlayer& GetMusicPlayer() { return music_player; }
 	static SFPlayer& GetWorldSounds() { return world_sounds; }

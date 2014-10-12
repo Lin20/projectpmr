@@ -2,6 +2,7 @@
 
 Scene* Engine::active_scene = 0;
 MapScene* Engine::map_scene = 0;
+BattleScene* Engine::battle_scene = 0;
 SFPlayer Engine::music_player;
 SFPlayer Engine::world_sounds;
 SFPlayer Engine::cry_player;
@@ -16,14 +17,23 @@ void Engine::Initialize()
 
 	//Initialize the scenes
 	map_scene = new MapScene();
+	battle_scene = new BattleScene();
 
 	SwitchState(States::OVERWORLD);
-
+	//battle_scene->BeginWildBattle(0xA9, 0);
 }
 
 void Engine::Update()
 {
-	active_scene->Update();
+	switch (game_state)
+	{
+	case States::OVERWORLD:
+		active_scene->Update();
+		break;
+	case States::BATTLE:
+		battle_scene->Update();
+		break;
+	}
 	music_player.Update();
 	world_sounds.Update();
 	cry_player.Update();
@@ -42,6 +52,9 @@ void Engine::SwitchState(unsigned char s)
 	case States::OVERWORLD:
 		active_scene = (Scene*)map_scene;
 		break;
+	case States::BATTLE:
+		active_scene = (Scene*)battle_scene;
+		break;
 	}
 
 	active_scene->NotifySwitchedTo();
@@ -53,6 +66,11 @@ void Engine::Release()
 	{
 		delete map_scene;
 		map_scene = 0;
+	}
+	if (battle_scene)
+	{
+		delete battle_scene;
+		battle_scene = 0;
 	}
 	music_player.Close();
 	world_sounds.Close();

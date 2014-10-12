@@ -37,6 +37,7 @@ public:
 	static void LoadPokemon();
 	static void LoadMoves();
 	static void LoadBattleData();
+	static void LoadTrainers();
 
 	inline static string GetResourceLocation(string name) { return name.insert(0, RESOURCE_DIR); }
 	static void ReleaseResources();
@@ -90,7 +91,7 @@ public:
 	inline static DataBlock* GetPokemonStats(unsigned char index) { return pokemon_stats[index]; }
 	inline static unsigned char GetPokedexIndex(unsigned char created_index) { if (pokemon_indexes) return pokemon_indexes->data[created_index]; return 0; }
 	inline static string& GetPokemonName(unsigned char created_index) { return pokemon_names[created_index]; }
-	inline static PaletteTexture* GetStatusesTexture(unsigned char color) { return statuses_texture[color % 3]; }
+	inline static PaletteTexture* GetStatusesTexture(unsigned char color) { return statuses_texture[color % 4]; }
 	inline static PaletteTexture* GetPokemonIcons() { return pokemon_icons; }
 	inline static unsigned char GetIconIndex(unsigned char pokedex_index) { if (icon_indexes) return icon_indexes->data[pokedex_index]; return 0; }
 	inline static unsigned char GetPokemonPaletteIndex(unsigned char index) { if (mon_palette_indexes) return mon_palette_indexes->data[index]; return 0; }
@@ -110,6 +111,11 @@ public:
 	inline static unsigned char* GetWildChances() { return wild_chances; }
 	inline static Transition& GetBattleTransition(unsigned char index) { return transitions[index]; }
 	inline static unsigned char GetTrainerMusic(unsigned char index) { return trainer_music[index]; }
+
+	inline static PaletteTexture* GetTrainerFront(unsigned char index) { return trainer_front[index]; }
+	inline static PaletteTexture* GetRedBack() { return red_back; }
+	inline static PaletteTexture* GetManBack() { return man_back; }
+	inline static string& GetTrainerName(unsigned char index) { return trainer_names[index]; }
 
 private:
 	//tilesets
@@ -141,7 +147,7 @@ private:
 	static DataBlock* pokemon_stats[256];
 	static DataBlock* pokemon_indexes;
 	static string pokemon_names[256];
-	static PaletteTexture* statuses_texture[3]; //3 for each hp bar color
+	static PaletteTexture* statuses_texture[4]; //3 for each hp bar color, 1 for the pokeballs
 	static PaletteTexture* pokemon_icons;
 	static DataBlock* icon_indexes;
 	static PaletteTexture* pokemon_front[256];
@@ -163,4 +169,10 @@ private:
 	//battle
 	static unsigned char wild_chances[10];
 	static Transition transitions[8];
+
+	//trainer
+	static PaletteTexture* trainer_front[256];
+	static PaletteTexture* red_back;
+	static PaletteTexture* man_back;
+	static string trainer_names[256];
 };

@@ -263,7 +263,10 @@ void OverworldEntity::Render(sf::RenderWindow* window, int offset_x, int offset_
 		//set the texture back to what it was
 		sprite8x8.setTexture(*tex);
 	}
+}
 
+void OverworldEntity::DrawEmoteBubble(sf::RenderWindow* window)
+{
 	if (emotion_bubble < 3)
 	{
 		emotion_texture->Render(window, this->x / 16, this->y / 16 - 1, emotion_bubble, 2, 2, 0, -4);

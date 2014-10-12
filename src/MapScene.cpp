@@ -19,12 +19,12 @@ MapScene::MapScene() : Scene()
 	wild_steps = 3;
 
 	//Initialize the player
-	entities.push_back(new OverworldEntity(active_map, 0, 1, 24, 6, ENTITY_DOWN, false, nullptr, [this]() {Walk(); }));
+	entities.push_back(new OverworldEntity(active_map, 0, 1, 11, 7, ENTITY_DOWN, false, nullptr, [this]() {Walk(); }));
 	focus_entity = entities[0];
 
 	current_fade.Reset();
 	Focus(29, 33);
-	SwitchMap(22);
+	SwitchMap(12);
 }
 
 MapScene::~MapScene()
@@ -174,6 +174,8 @@ void MapScene::Render(sf::RenderWindow* window)
 
 	for (int i = entities.size() - 1; i > -1; i--)
 		entities[i]->Render(window);
+	for (int i = entities.size() - 1; i > -1; i--) //draw emote bubbles on top
+		entities[i]->DrawEmoteBubble(window);
 	window->setView(window->getDefaultView());
 
 	for (unsigned int i = 0; i < textboxes.size(); i++)
@@ -630,12 +632,31 @@ void MapScene::UseEscapeRope()
 	Engine::GetMusicPlayer().Play(0, true);
 }
 
+void MapScene::TriggerWildBattle(unsigned char index)
+{
+	if (Players::GetPlayer1()->GetParty() == 0)
+		return;
+	if (Players::GetPlayer1()->GetParty()[0] != 0)
+	{
+		focus_entity->SetFrozen(true);
+		wild_transition = 1;
+		wild_index = index;
+		Engine::GetMusicPlayer().Play(144, false);
+		
+	}
+}
+
 void MapScene::TriggerTrainerBattle(unsigned char trainer_class, unsigned char trainer_party)
 {
-	transition_index = 1;
+	TriggerBattleTransition(1);
+	Engine::GetMusicPlayer().Play(145);
+}
+
+void MapScene::TriggerBattleTransition(unsigned char index)
+{
+	transition_index = index;
 	transition_step = 0;
 	transition_timer = 2;
-	Engine::GetMusicPlayer().Play(145);
 }
 
 void MapScene::ProcessTeleport()
@@ -806,18 +827,25 @@ void MapScene::ProcessWildEncounter()
 	if (wild_steps > 0)
 	{
 		wild_steps--;
-		return;
+		//return;
 	}
-
-	if (active_map->InGrass(focus_entity->x / 16, focus_entity->y / 16) && wild_transition == 0)
+	
+	if ((active_map->InGrass(focus_entity->x / 16, focus_entity->y / 16) || (active_map->index > OUTSIDE_MAP && active_map->tileset != DUNGEON_FOREST)) && wild_transition == 0)
 	{
 		if (active_map->grass_rate == 0)
 			return;
 
-		if (rand() % 256 >= active_map->grass_rate)
-			return;
-		wild_transition = 1;
-		Engine::GetMusicPlayer().Play(144, false);
+		//if (rand() % 256 >= active_map->grass_rate)
+		//	return;
+		unsigned char rnd = rand() % 256;
+		for (int i = 0; i < 10; i++)
+		{
+			if (rnd <= ResourceCache::GetWildChances()[i]) //get the wild slot
+			{
+				TriggerWildBattle(i);
+				break;
+			}
+		}
 	}
 	else if (wild_transition == 0)
 		return;
@@ -853,9 +881,11 @@ void MapScene::ProcessWildTransition()
 		break;
 	case 13:
 		wild_transition = 0;
-		transition_index = 0;
-		transition_step = 0;
-		transition_timer = 2;
+		WildEncounter w = active_map->grass_encounters[wild_index];
+		if ((int)w.level - (int)Players::GetPlayer1()->GetParty()[0]->level >= 3) //if the opponent is at least 3 levels higher, use the special wild transition
+			TriggerBattleTransition(2);
+		else
+			TriggerBattleTransition(0);
 		return;
 	}
 	wild_transition++;
@@ -876,8 +906,21 @@ void MapScene::ProcessBattleTransition()
 			transition_step++;
 			transition_timer = 2;
 		}
+		else if (transition_step != 255)
+		{
+			transition_timer = 30;
+			transition_step = 255;
+		}
 		else
+		{
+			bool trainer = (transition_index & 1) != 0;
 			transition_index = 255;
+			if (!trainer)
+			{
+				Engine::GetBattleScene()->BeginWildBattle(active_map->grass_encounters[wild_index].id, active_map->grass_encounters[wild_index].level);
+				Engine::SwitchState(States::BATTLE);
+			}
+		}
 		return;
 	}
 }

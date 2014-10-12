@@ -16,6 +16,7 @@ public:
 
 	virtual void Update();
 	virtual void Render(sf::RenderWindow* window, int offset_x = 0, int offset_y = 0);
+	void DrawEmoteBubble(sf::RenderWindow* window);
 	void Face(unsigned char direction);
 	void StartMoving(unsigned char direction);
 	void StopMoving();
