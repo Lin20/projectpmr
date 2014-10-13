@@ -154,7 +154,7 @@ void ResourceCache::LoadAll()
 	LoadPokemon();
 	LoadMoves();
 	LoadBattleData();
-	LoadTilesets();
+	//LoadTilesets();
 	LoadTrainers();
 
 #ifdef _DEBUG

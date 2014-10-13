@@ -19,6 +19,7 @@ Tileset::~Tileset()
 
 void Tileset::Load(unsigned char index)
 {
+	delete_texture = true;
 	tiles_tex = new PaletteTexture();
 	tiles_tex->loadFromFile(ResourceCache::GetResourceLocation(string("tilesets/").append(itos(index)).append(".png")));
 	water_tile.loadFromFile(ResourceCache::GetResourceLocation(string("tilesets/water/").append(itos(index)).append(".png")));
@@ -29,7 +30,6 @@ void Tileset::Load(unsigned char index)
 
 	tiles_x = 16;
 	this->index = index;
-	delete_texture = true;
 
 	sprite8x8.setTexture(*tiles_tex);
 	water8x8.setTexture(water_tile);

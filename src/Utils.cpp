@@ -31,7 +31,8 @@ DataBlock* ReadFile(const char* filename)
 
 std::string itos(int i)
 {
-	std::ostringstream temp;
-    temp << i;
-    return temp.str();
+	return std::to_string(i);
+	//std::ostringstream temp;
+    //temp << i;
+    //return temp.str();
 }
