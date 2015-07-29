@@ -19,8 +19,9 @@ void Engine::Initialize()
 	map_scene = new MapScene();
 	battle_scene = new BattleScene();
 
-	SwitchState(States::BATTLE);
-	battle_scene->BeginWildBattle(0xA9, 0);
+	SwitchState(States::OVERWORLD);
+	//SwitchState(States::BATTLE);
+	//battle_scene->BeginWildBattle(0xA9, 0);
 }
 
 void Engine::Update()

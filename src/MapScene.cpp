@@ -835,8 +835,8 @@ void MapScene::ProcessWildEncounter()
 		if (active_map->grass_rate == 0)
 			return;
 
-		//if (rand() % 256 >= active_map->grass_rate)
-		//	return;
+		if (rand() % 256 >= active_map->grass_rate)
+			return;
 		unsigned char rnd = rand() % 256;
 		for (int i = 0; i < 10; i++)
 		{
@@ -919,6 +919,7 @@ void MapScene::ProcessBattleTransition()
 			{
 				Engine::GetBattleScene()->BeginWildBattle(active_map->grass_encounters[wild_index].id, active_map->grass_encounters[wild_index].level);
 				Engine::SwitchState(States::BATTLE);
+				focus_entity->SetFrozen(false);
 			}
 		}
 		return;

@@ -508,6 +508,11 @@ void Textbox::ProcessNextCharacter()
 	//	return;
 	if (textboxes.size() > 0)
 		return;
+	if (!text)
+	{
+		Close();
+		return;
+	}
 
 	unsigned char c = text->GetText()[text_pos];
 	switch (c)

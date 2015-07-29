@@ -77,6 +77,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="BattleScene.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EvolutionScreen.cpp" />
@@ -152,6 +153,7 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="AudioConstants.h" />
     <ClInclude Include="BattleConstants.h" />
     <ClInclude Include="BattleScene.h" />

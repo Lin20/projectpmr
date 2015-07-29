@@ -40,4 +40,6 @@ struct TrainerHeader;
 class Script;
 struct Variable;
 
+class Animation;
+
 //enum States;

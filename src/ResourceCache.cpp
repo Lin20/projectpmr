@@ -190,7 +190,7 @@ void ResourceCache::LoadEntities()
 	}
 	emotion_bubbles = new PaletteTexture();
 	emotion_bubbles->loadFromFile(ResourceCache::GetResourceLocation(string("misc/emotionbubbles.png")));
-	
+
 #ifdef _DEBUG
 	cout << "Done\n";
 #endif
@@ -239,7 +239,7 @@ void ResourceCache::LoadMisc()
 	for (int i = 0; i < 13; i++)
 		fly_points[i].Load(d);
 	delete d;
-	
+
 	d = ReadFile(ResourceCache::GetResourceLocation(string("audio/indexes.dat")).c_str());
 	memcpy(music_indexes, d->data, min(d->size, 256u));
 	delete d;
@@ -417,10 +417,15 @@ void ResourceCache::LoadTrainers()
 	{
 		string s;
 		while ((unsigned int)(p - d->data_start) < d->size && *p != MESSAGE_ENDNAME)
-			s.insert(s.begin() + s.length(), (char)*p++);
+		{
+			if (s.length() < 255)
+				s.insert(s.begin() + s.length(), (char)*p++);
+			else
+				p++;
+		}
 		p++;
 		trainer_names[i] = s;
-		//these pokemon names get reported as a memory leak
+		//these trainer names get reported as a memory leak
 		//however since theyre static not manually allocated, they will be deleted when the program terminates
 		//the leak reportings are false
 	}

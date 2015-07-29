@@ -19,6 +19,12 @@
     <Filter Include="Source Files\gme">
       <UniqueIdentifier>{b57a113b-6565-470e-aeb9-d8e5ac5f0a4c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Animations">
+      <UniqueIdentifier>{32b75d24-e883-4dba-83e0-c459a4ec08f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Animations">
+      <UniqueIdentifier>{4acab4cc-5b69-42ca-b781-09e6c1d466d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Startup.cpp">
@@ -239,6 +245,9 @@
     </ClCompile>
     <ClCompile Include="BattleScene.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Source Files\Animations</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -532,6 +541,9 @@
     </ClInclude>
     <ClInclude Include="BattleConstants.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Header Files\Animations</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

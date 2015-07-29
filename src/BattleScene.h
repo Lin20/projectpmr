@@ -20,6 +20,7 @@ public:
 	virtual void Render(sf::RenderWindow* window) override;
 
 	void BeginWildBattle(unsigned char id, unsigned char level);
+	//void EndBattle();
 
 private:
 	bool wild_battle;

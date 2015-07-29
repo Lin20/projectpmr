@@ -8,6 +8,7 @@ BattleScene::BattleScene()
 	stage = 0;
 	wild_battle = false;
 	opponent_image = 0;
+	scroll_timer = 0;
 }
 
 BattleScene::~BattleScene()
@@ -18,6 +19,7 @@ BattleScene::~BattleScene()
 void BattleScene::CleanupBattle()
 {
 	stage = 0;
+	scroll_timer = 0;
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -110,6 +112,7 @@ void BattleScene::UpdateScroll()
 		ResourceCache::GetRedBack()->SetPalette(ResourceCache::GetPalette(TRAINER_PALETTE));
 		opponent_image->SetPalette(ResourceCache::GetPalette(ResourceCache::GetPokemonPaletteIndex(opponent[0]->pokedex_index)));
 		status_box->SetText(new TextItem(status_box, nullptr, pokestring("Wild ").append(ResourceCache::GetPokemonName(opponent[0]->id - 1)).append(pokestring("\nappeared!\f"))));
+		status_box->SetCloseCallback([this](TextItem* src) { CleanupBattle();  Engine::SwitchState(OVERWORLD); });
 		UpdatePartyStatus();
 		Engine::GetCryPlayer().Play(opponent[0]->id);
 	}
