@@ -36,9 +36,10 @@ void Commands::ProcessLine(string src)
 		return;
 	//try to break the line up into tokens
 	unsigned char token_index = 0;
-	char* token;
 	char* line = (char*)src.c_str();
-	token = strtok(line, "\t");
+	char* token = NULL;
+	char* next_token = NULL;
+	token = strtok_s(line, "\t", &next_token);
 
 	Command c;
 
@@ -64,7 +65,7 @@ void Commands::ProcessLine(string src)
 			break;
 		}
 		token_index++;
-		token = strtok(0, "\t");
+		token = strtok_s(0, "\t", &next_token);
 
 	}
 
