@@ -5,4 +5,4 @@
 
 string& pokestring(std::string& src);
 string pokestring(const char* c);
-string fixdump(std::string& src);
+string fixdump(std::string src);

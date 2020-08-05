@@ -193,8 +193,7 @@ Std_File_Reader::~Std_File_Reader() { close(); }
 
 blargg_err_t Std_File_Reader::open( const char* path )
 {
-	file_ = fopen( path, "rb" );
-	if ( !file_ )
+	if (fopen_s((FILE**)&file_, path, "rb"))
 		return "Couldn't open file";
 	return 0;
 }

@@ -16,13 +16,13 @@ class Script
 {
 public:
 	Script(MapScene* on_scene);
-	Script(MapScene* on_scene, string& filename);
+	Script(MapScene* on_scene, const string& filename);
 	~Script();
 
 	static Script* TryLoad(MapScene* on_scene, unsigned char map, unsigned char script_index);
 	static bool CheckExists(unsigned char map, unsigned char script_index);
 
-	bool Load(string& filename);
+	bool Load(const string& filename);
 	bool Load(unsigned char map, unsigned char script_index);
 	bool Done();
 	void Reset();

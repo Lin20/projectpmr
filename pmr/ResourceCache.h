@@ -14,7 +14,7 @@
 #endif
 
 #ifdef _WIN32
-#define RESOURCE_DIR "C:/red dumps/"
+#define RESOURCE_DIR "resources/"
 #else
 #define RESOURCE_DIR "resources/"
 #endif

@@ -9,7 +9,6 @@ BattleScene::BattleScene()
 	wild_battle = false;
 	opponent_image = 0;
 	scroll_timer = 0;
-	status_box = 0;
 	party_status = 0;
 }
 
