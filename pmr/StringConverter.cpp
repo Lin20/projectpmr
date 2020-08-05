@@ -74,7 +74,7 @@ string pokestring(const char* c)
 	return s;
 }
 
-string fixdump(std::string& src)
+string fixdump(std::string src)
 {
 	for (unsigned int i = 0; i < src.length(); i++)
 	{

@@ -13,7 +13,7 @@ Script::Script(MapScene* on_scene)
 	this->menu_result = 0;
 }
 
-Script::Script(MapScene* on_scene, string& location)
+Script::Script(MapScene* on_scene, const string& location)
 {
 	this->on_scene = on_scene;
 	this->buffer = 0;
@@ -58,7 +58,7 @@ bool Script::CheckExists(unsigned char map, unsigned char script_index)
 	return !b;
 }
 
-bool Script::Load(string& filename)
+bool Script::Load(const string& filename)
 {
 	ResetVariables();
 	buffer = ReadFile(filename);

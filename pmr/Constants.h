@@ -128,14 +128,14 @@ enum ArrowStates
 #define POKE_DEFAULT_PAL	16
 
 //temporary input
-#define INPUT_UP		sf::Keyboard::Key::W
-#define INPUT_DOWN		sf::Keyboard::Key::S
-#define INPUT_LEFT		sf::Keyboard::Key::A
-#define INPUT_RIGHT		sf::Keyboard::Key::D
-#define INPUT_A			sf::Keyboard::Key::Z
-#define INPUT_B			sf::Keyboard::Key::X
-#define INPUT_START		sf::Keyboard::Key::Return
-#define INPUT_SELECT	sf::Keyboard::Key::BackSpace
+#define INPUT_UP		sf::Keyboard::Key::Up
+#define INPUT_DOWN		sf::Keyboard::Key::Down
+#define INPUT_LEFT		sf::Keyboard::Key::Left
+#define INPUT_RIGHT		sf::Keyboard::Key::Right
+#define INPUT_A			sf::Keyboard::Key::X
+#define INPUT_B			sf::Keyboard::Key::Z
+#define INPUT_START		sf::Keyboard::Key::Enter
+#define INPUT_SELECT	sf::Keyboard::Key::RShift
 
 //evolutions
 #define EVOLUTION_NONE		0

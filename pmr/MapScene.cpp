@@ -962,7 +962,9 @@ void MapScene::CheckTrainers()
 	{
 		if ((active_map->entities[i - 1].text & 0x40) != 0)
 		{
-			unsigned char view = active_map->trainers[active_map->entities[i - 1].trainer_index].view_distance >> 4;
+			unsigned char view = 0;
+			if (active_map->entities[i - 1].trainer_index > 0)
+				view = active_map->trainers[active_map->entities[i - 1].trainer_index].view_distance >> 4;
 			if (view == 0)
 				continue;
 			int e_x = entities[i]->x / 16;

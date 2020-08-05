@@ -546,4 +546,7 @@
       <Filter>Header Files\Animations</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>
